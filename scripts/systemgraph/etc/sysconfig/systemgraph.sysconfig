@@ -1,0 +1,232 @@
+##############################################################################
+#
+#    This file is part of systemgraph.
+#
+#    Copyright (C) 2004-2010 Jochen Schlick
+#
+#    systemgraph is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    systemgraph is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with systemgraph.  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id: systemgraph.sysconfig,v 1.34 2010/02/13 20:06:12 cvslasan Exp $
+#
+#
+###############################################################################
+# DISKDEVICES: (used by rrd_disk.pl)
+####################################################
+# - for DISKDEV use the name of the device which is
+#   shown by df when it is called (especially for label
+#   and devicemapper names) 
+#
+# DISKDEV=<devName>
+#
+DISKDEV=sda2
+DISKDEV=sda3
+DISKDEV=sda4
+#DISKDEV=sda4
+#DISKDEV=DMCRmapper1
+#
+#...................................................
+# - extended format is used to give the DISKDEV a
+#   specific name and for mounted network file
+#   systems
+#
+# DISKDEV=<devName>:<extendedName>
+#
+# Allowed chars for <devName>      a-zA-Z0-9-_/:
+# Allowed chars for <extendedName> a-zA-Z0-9-_/.
+#
+# -where all '/' will be replaced internally by ',' )
+# -where all except the last ':' will be replaced by
+#  '|')'
+#
+#DISKDEV=hda1:/
+#DISKDEV=hda2:/usr
+#DISKDEV=hda3:MySpecialName
+#
+# nfs example:  <server+dir>:<local mount point>
+#DISKDEV=fedoraserver:/exportVol1:/home1/fedora
+#
+#
+# NOTE: a too long extended name results in the
+#       following error message in your http
+#       server's errorlog file: 
+#	             "basicCheckParam: [....]"
+#	             
+#...................................................
+#
+# should rrd_disk.pl also check network file systems
+#WANT_NETWORK_FS=yes
+#
+#####################################################
+# NETWORKDEVICES (used by rrd_net.pl
+#####################################################
+#
+NETDEV=eth0
+#NETDEV=eth1
+#
+#####################################################
+# SHOREWALL devices (used by rrd_shorewall.pl)
+# NOTE:
+# 1)Before you want to use shorewall traffic monitor
+#   for detailed protocol statistic you have to edit
+#   in your shorewall config directory (/etc/shorewall)
+#   the accounting file (/etc/shorewall/accounting)
+#   for the concerning interface. There is an example
+#   accounting file for eth0 and ppp0 which is part of
+#   the package.
+# 2)After editing the accounting file you have to
+#   reload/restart shorewall.
+#####################################################
+#
+#SHOREWALL_NETDEV=eth0
+#SHOREWALL_NETDEV=ppp0
+#
+#####################################################
+# IPTRAF devices (used by rrd_iptraf.pl)
+# NOTE:
+# 1)Before you want to use iptraf monitor for detailed
+#   protocol statistic you have to run iptraf from the 
+#   command line to configure it through the curses
+#   interface. Since rrd_iptraf will be reading the 
+#   statistics every five minutes, you have to set the
+#   log interval to five minutes. There exists no 
+#   command line option for this.
+# 2)For systems without pgrep:
+#   Additionally for every IPTRAF_NETDEV defined in 
+#   this file you have to start one instance of iptraf
+#   as root. Use the following command
+#
+#   /usr/bin/iptraf -s <IPTRAF_NETDEV> -B
+#
+#####################################################
+#
+#IPTRAF_NETDEV=eth0
+#IPTRAF_NETDEV=pp0
+#
+#####################################################
+# system health (lm_sensors stuff...
+#   -you need a configured and running lm_sensors
+#   service. systemgraph knows until now how to handle
+#   the w83781d-i2c-0-2d
+#       w83697hf-isa-0290
+#       via686a-isa-6000...
+#    health chips.....
+#   -but it should be really easy to adapt your own
+#    motherboard sensor chips. Call /usr/bin/sensors;
+#    take a look at the output and compare it with
+#    rrd_health.pl
+#####################################################
+#
+#
+#SENSOR=acpitz-virtual-0
+#SENSOR=adm1027-i2c-0-2e
+#SENSOR=asb100-i2c-0-2d
+#SENSOR=coretemp-isa-0000
+#SENSOR=coretemp-isa-0001
+#SENSOR=coretemp-isa-0002
+#SENSOR=coretemp-isa-0003
+#SENSOR=dme1737-i2c-0-2e
+#SENSOR=f71862fg-isa-0220
+#SENSOR=it8712-isa-0290
+#SENSOR=it8716-isa-0228
+#SENSOR=it8716-isa-0290
+#SENSOR=it8718-isa-0228
+#SENSOR=it8718-isa-0290
+#SENSOR=it8720-isa-0228
+#SENSOR=it87-isa-0290
+#SENSOR=it87-i2c-0-2d
+#SENSOR=k8temp-pci-00c3
+#SENSOR=lm85b-i2c-0-2e
+#SENSOR=ne1619-i2c-0-2d
+#SENSOR=smsc47b397-isa-0480
+#SENSOR=smsc47m1-isa-0800
+#SENSOR=via686a-isa-6000
+#SENSOR=w83627dhg-isa-0290
+#SENSOR=w83627ehf-isa-0290
+#SENSOR=w83627hf-i2c-0-2d
+#SENSOR=w83627hf-isa-0290
+#SENSOR=w83627thf-isa-0290
+#SENSOR=w83697hf-isa-0290
+#SENSOR=w83781d-i2c-0-2d
+#SENSOR=w83791d-i2c-1-2d
+#SENSOR=w83792d-i2c-0-2f
+#
+# for these sensors you also have to specify the
+# number of temperature values to count if your sensor
+# output shows more than one temperature value
+#SENSOR=acpitz-virtual-0::2
+#SENSOR=acpitz-virtual-0::6
+#
+#SENSOR=k8temp-pci-00c3::2
+#SENSOR=k8temp-pci-00c3::4
+#
+#####################################################
+# privoxy statistic         (used by rrd_privoxy.sh)
+#####################################################
+#
+#PRIVOXY_RRD_PROXY="http://localhost:8118/"
+#
+#
+#####################################################
+# when using sntpclock instead of ntpdate. sntpclock
+# from DJB package needs the hostname of the ntp/tai
+# server in dotted-decimal format. In case you have
+# also installed /bin/dnsip (from DJBDns package)
+# then you are able to use hostnames, too.
+# (see http://cr.yp.to/clockspeed.html)
+# NOTE: only used by rrd_ntpdrift.pl when
+#       /usr/sbin/ntpq is not available !!!
+#####################################################
+#
+#SNTPCLOCK_NTPSERVER=1.2.3.4
+#
+# /bin/dnsip installed:
+#SNTPCLOCK_NTPSERVER=0.pool.ntp.org
+#
+####################################################
+# HDTEMPDEV:              (used by rrd_hdtemp.sh)
+# these are the disk devices where we want to
+# monitor the disk temperature.
+# NOTE: You need to install the hddtemp package. It
+#       is part of Fedora Extras or look for it at
+#       http://www.guzu.net/linux/hddtemp.php
+####################################################
+#
+#HDTEMPDEV=hda
+#HDTEMPDEV=hdb
+#HDTEMPDEV=sda
+#
+#
+#
+#####################################################
+# HDSTATDEV:              (used by rrd_hdstat.pl)
+# disk devices where we want to monitor the io
+# performance.
+# NOTE: You need to install the sysstat package
+#####################################################
+#
+HDSTATDEV=sda
+#
+#
+#####################################################
+# current CPU frequency in MHz ? (only useful for
+# computers which dynamically scale clock speed -
+# like laptops, servers with AMD's cool'n quiet,
+# intel' speedstep....
+#                            (used by rrd_cpufreq.pl)
+# It reads out the info provided in /proc/cpuinfo
+#####################################################
+#
+#CPUFREQ_WANTED=yes
+#
+#####################################################

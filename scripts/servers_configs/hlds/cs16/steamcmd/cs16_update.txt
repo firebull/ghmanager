@@ -1,0 +1,8 @@
+// update_cs16_ds.txt
+//
+//set_steam_guard_code CODE
+//login LOGIN PASS
+login anonymous
+force_install_dir ../
+app_update 90 validate
+exit

@@ -1,0 +1,150 @@
+#!/usr/bin/python
+# coding=utf8
+
+# srcupdatecheck v13 - part of
+# NemRun v1.8.5 - john@pointysoftware.net, 12/04/2011
+
+# Copyright 2011 john@pointysoftware.net
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import time
+import sys
+import xml.dom.minidom
+import re
+
+gSteamAPI = 'https://api.steampowered.com'
+
+# This supports Python 2.4+ and 3.0+, which requires a few tricks,
+# and different libraries
+
+if (sys.hexversion < 0x03000000):
+    gPy3k = False
+    import urllib
+    import urllib2
+else:
+    gPy3k = True
+    import urllib.request
+    import urllib.parse
+
+if not len(sys.argv) == 2:
+    print("Usage: ./srcupdatecheck /path/to/steam.inf")
+    sys.exit(-1)
+
+#
+# Steam API Call
+#
+
+
+def SteamAPICall(path, rawargs = {}):
+    args = rawargs
+    args['format'] = 'xml'
+    if gPy3k:
+        args = '?%s' % (urllib.parse.urlencode(args))
+    else:
+        args = '?%s' % (urllib.urlencode(args))
+
+    url = "%s/%s/%s" % (gSteamAPI, path, args)
+    try:
+        if gPy3k:
+            raw = urllib.request.urlopen(url).read().decode()
+        else:
+            raw = urllib2.urlopen(url).read()
+    except Exception:
+        print("!! API Call failed\n\tURL:\t'%s'" % (url))
+        return False
+
+    try:
+        dom = xml.dom.minidom.parseString(raw)
+    except Exception:
+        print("!! API Call - Failed to parse XML result\n\tURL:\t'%s'\n=== Raw ===\n%s\n===========" % (url, raw))
+        return False
+
+    response = dom.getElementsByTagName('response')
+    if not len(response):
+        return False
+
+    ret = {}
+    for c in response[0].childNodes:
+        if c.nodeType == xml.dom.minidom.Node.ELEMENT_NODE:
+            if not len(c.childNodes):
+                ret[c.nodeName] = ""
+            elif c.childNodes[0].data.lower() == "true":
+                ret[c.nodeName] = True
+            elif c.childNodes[0].data.lower() == "false":
+                ret[c.nodeName] = False
+            else:
+                ret[c.nodeName] = c.childNodes[0].data
+    print("\t -- API Call[%s: %s]\n\t\t%s" % (path, rawargs, ret))
+    return ret
+
+
+# 1 Up to date, 0 not, -1 call failed
+# Note that the json returns 'version_is_listable', but valve never uses this,
+# optional updates don't bump their version # :(
+def RunCheck(no, appid, ver):
+    call = SteamAPICall('ISteamApps/UpToDateCheck/v0001', {'appid': appid, 'version': ver})
+    if not call or call['success'] != True:
+        print("[%u] !! API Call did not succeed\n\tRaw:\t%s" % (no, call))
+        return -1
+    if call['up_to_date']:
+        print("[%u] API returned up to date!" % (no))
+        return 1
+    else:
+        print("[%u] API returned out of date - Version %s vs %s" % (no, ver.replace('.', ''), call['required_version']))
+
+#
+# Read PatchVersion from provided steam.inf
+#
+try:
+    steaminf = open(sys.argv[1])
+except IOError:
+    print("File \"%s\" does not exist!" % sys.argv[1])
+    sys.exit(-1)
+
+infblob = steaminf.read()
+verre = re.search('PatchVersion=([^\r\n]+)', infblob)
+appre = re.search('appID=([^\r\n]+)', infblob)
+prodre = re.search('ProductName=([^\r\n]+)', infblob)
+
+if not (verre and appre and prodre):
+    print("Invalid steam.inf file.")
+    sys.exit(-1)
+
+ver = verre.group(1)
+game = prodre.group(1)
+appid = appre.group(1)
+
+print("Found patch version: %s, game: %s, appid: %s" % (ver, game, appid))
+
+# According to Tony, this API call can sometimes return out of date incorrectly (yay!)
+# So we'll keep our stupid try-multiple-times logic
+lastattempt = -1
+attempt = 1  # Счётчик попыток
+while (attempt <= 10):
+    ret = RunCheck(attempt, appid, ver)
+    if (ret != -1):
+        if (ret == lastattempt):
+            if (ret == 1):
+                print("Confirmed up to date [%u requests]" % (attempt))
+                sys.exit(0)
+            else:
+                print("Confirmed out of date [%u requests]" % (attempt))
+                sys.exit(7)
+    else:
+        # In the case where we're chain-failing for some reason, don't hammer the API
+        time.sleep(3)
+    lastattempt = ret
+    attempt += 1
+
+print("Не удалось проверить обновления после [%u запросов]" % (attempt))

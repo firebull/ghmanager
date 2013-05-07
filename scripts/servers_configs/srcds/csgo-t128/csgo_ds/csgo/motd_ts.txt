@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Cstrike MOTD</title>
+<style type="text/css">
+pre 	{
+font-family:Verdana,Tahoma;
+color:#333;
+}
+body	{
+background: none;
+margin:8px;
+}
+a	{
+text-decoration:    underline;
+}
+a:link  {
+color:  #FF5005;
+}
+a:visited   {
+color:  #FF5005;
+}
+a:active    {
+color:  #FF5005;
+}
+a:hover {
+color:  #FF5005;
+text-decoration:    underline;
+}
+img.adv {
+width: 100%;
+max-width: 675px;
+}
+.bn {
+border: none;
+border-radius: 6px;
+-moz-border-radius: 6px;
+max-width: 675px;
+}
+</style>
+</head>
+<body>
+<center>
+<div class="bn">
+<img src="http://www.teamserver.ru/a/bn_letaet_wide_round.png" class="adv"/>
+</div>
+<pre>
+Узнайте больше на
+<a href="http://www.teamserver.ru">www.teamserver.ru</a>
+или просто
+<a href="http://www.игровойсервер.рф">ИгровойСервер.рф</a>
+</pre>
+</center>
+</body>
+</html>

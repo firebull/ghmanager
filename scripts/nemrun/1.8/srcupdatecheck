@@ -1,0 +1,165 @@
+#!/usr/bin/python
+# coding=utf8
+
+# srcupdatecheck v12 - part of
+# NemRun v1.8 - Nephyrin@Doublezen.net, 07/01/2011
+
+# Copyright 2011 Nephyrin@DoubleZen.net
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import socket
+import struct
+import sys
+import re
+import random
+
+# Classy
+if (sys.hexversion < 0x03000000):
+	def bytes(str, encoding):
+		return str
+
+# Master server to ping for version. There are many masters/ports, but valve
+# advises we use this one, which is a round robin.
+# (Update in v10 - The DNS is completely broken now. Include a new master server
+# ip along with it to increase the odds of finding at least one working master
+# ... ffs)
+hosts = ["hl2master.steampowered.com", "63.234.149.83"]
+port = 27011
+
+fakeport = 47015
+# You will register one 'fake' server on the master list on this port for check
+# reasons (it wont respond/be visible) We used to register on port '0', which
+# caused no erroneous listings, but valve broke that on 03/03/2010 when they
+# fixed people spamming listings.
+
+if not len(sys.argv) == 2:
+	print("Usage: ./srcupdatecheck /path/to/steam.inf")
+	sys.exit(-1)
+
+#
+# Read PatchVersion from provided steam.inf
+#
+try:
+	steaminf = open(sys.argv[1])
+except IOError:
+	print("File \"%s\" does not exist!" % sys.argv[1])
+	sys.exit(-1)
+
+infblob = steaminf.read()
+verre = re.search('PatchVersion=([^\r\n]+)', infblob)
+appre = re.search('appID=([^\r\n]+)', infblob)
+prodre = re.search('ProductName=([^\r\n]+)', infblob)
+
+if not (verre and appre and prodre):
+	print("Invalid steam.inf file.")
+	sys.exit(-1)
+
+ver = verre.group(1)
+game = prodre.group(1)
+appid = appre.group(1)
+
+print("Found patch version: %s, game: %s, appid: %s" % (ver, game, appid))
+
+
+# Recv, filtering out 0x52 packets, which are A2C_PRINT - they often arrive
+# out of order and unsolicited, and dont contain anything we need.
+def recvfilt(sock):
+	somebuffer = sock.recv(2048)
+	if (somebuffer.startswith(struct.pack("<iB", -1, 0x52))):
+		return recvfilt(sock)
+	return somebuffer
+
+
+def tryCheck(attempt):
+	#
+	# Creat`~e socket and send master_getchallenge (0x71)
+	#
+	# print "[%i] Creating socket" % attempt
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	# print "[%i] Connecting" % attempt
+
+	# Since many daemons may be running, try up to 10 ports above fakeport
+	offset = 0
+	while (offset < 10):
+		try:
+			s.bind(('', fakeport + offset))
+			break
+		except socket.error:
+			offset += 1
+			print("[%i] Port %i in use, trying %i..." % (attempt, fakeport + offset - 1, fakeport + offset))
+
+	if (offset == 10):
+		print("[%i] Error: No port could be bound to. If you're running > 10 daemons from this IP, you may need to modify the script to try more ports. Otherwise, this is likely an error - contact Nephyrin@DoubleZen.net for help!" % attempt)
+		sys.exit(1)
+
+	host = random.choice(hosts)
+	s.connect((host, port))
+	print("[%i] Requesting challenge" % attempt)
+	s.sendall(b"\x4D\xFF")
+	s.settimeout(3.0)
+	# print "[%i] Waiting for reponse" % attempt
+	#
+	# Receive challenge
+	#
+
+	try:
+		buf = recvfilt(s)
+	except socket.timeout:
+		print("[%i] - Timed out contacting server" % attempt)
+		return -1
+	except socket.error:
+		print("[%i] - Connection failed (master offline?) retrying." % attempt)
+		return -1
+
+	#
+	# Pack challenge and product version into dummy query
+	#
+	challenge = struct.unpack("8xI", b"\xFF\xFF" + buf)[0]
+	print("[%i] Got challenge (%u), sending registration" % (attempt, challenge))
+	query = "\\protocol\\7\\challenge\\%u\\players\\0\\max\\24\\bots\\0\\gamedir\\%s\\map\\neph_vercheck\\password\\0\\os\\l\\lan\\0\\region\\255\\gameport\\%i\\specport\\0\\dedicated\\1\\gametype\\ctf\\appid\\%s\\type\\d\\secure\\1\\version\\%s\\product\\%s" % (challenge, game, fakeport + offset, appid, ver, game)
+	query = b"\x30\x0A" + bytes(query, encoding='utf-8') + b"\x0A"
+	s.sendall(query)
+	s.shutdown(1)
+
+	#
+	# Wait 3s for out-of-date response. If no response received, we're up to date.
+	# (not the best method ever, but if we got a challenge it's pretty
+	# reliable - plus the error is false negative)
+	#
+	# print "[%i] Waiting for response" % attempt
+	try:
+		buf2 = recvfilt(s)
+		if (buf2 == struct.pack("<iBI", -1, 0x4f, challenge)):
+			print("[%i] - Got out of date message" % attempt)
+			return 1
+		else:
+			print("[%i] - Got unexpected message from master (bad challenge?). Retrying" % attempt)
+			return -1
+	except socket.timeout:
+		print("[%i] - No response" % attempt)
+		return 0
+
+validattempts = 0  # Счётчик успешных проверок
+attempt = 1  # Счётчик попыток
+while (validattempts < 3 and attempt <= 25):
+	ret = tryCheck(attempt)  # Проверка обновления
+	attempt += 1  # Счётчик попыток
+	if (ret == 0):  # Код 0 - Нет обновлений
+		validattempts += 1
+		if (validattempts >= 3):
+			print("Got three non-rejected queries, UP TO DATE!")
+			break
+	elif (ret == 1):
+		print("Got definite out of date message. OUT OF DATE!")
+		sys.exit(7)

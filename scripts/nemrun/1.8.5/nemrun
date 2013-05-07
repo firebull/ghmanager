@@ -1,0 +1,776 @@
+#!/bin/bash
+
+# NemRun v1.8.5 - Nephyrin@Doublezen.net, 12/04/2011
+# run without arguments for usage
+# The newest version is always available at http://nephyrin.net/tools/nemrun
+
+##
+## License
+##
+
+# Copyright 2011 Nephyrin@DoubleZen.net
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+##
+## Globals
+##
+
+# NOTE: While you can edit these, the preferred way to set options is to
+# specify them on the command line - see ./nemrun --help and --help_examples
+#
+
+# Raw command string
+CMD="$@"
+# Timestamp of when we started
+STARTTIME=`date`
+# Available at run() and later
+# These are defaults set later by command line options, see --help
+	# Command to send shared screens
+	SHAREDKILLCOMMAND="quit"
+	# Script to run when an update is found
+	NOTIFYCMD=""
+	# Script to run after updates complete
+	AFTERNOTIFYCMD=""
+	# Script to run INSTEAD of -sharedscreens killing.
+	SHUTDOWNSCRIPT=""
+	# Update before rebooting?
+	UPDATEFIRST=""
+	# Are we an update daemon
+	DAEMONMODE=""
+	# Desired niceness modification
+	NICENESS="0"
+	# Processed command given to srcds
+	SRCDSCMD=""
+	# Days before download is marked for cleaning, don't clean if not set
+	CLEAN_DAYS=""
+	# -game argument
+	GAME=""
+	# autoupdate? 'true' if so
+	UPDATE="false"
+	# File to log to. Don't log if not set
+	LOGFILE=""
+	# Time stamp format for log files
+	LOGFILE_TIMESTAMP=""
+	# Log file name with values substituted in. This doesn't exist for core
+	# file because substitution occurs at crash time
+	LOGFILE_COMP=""
+	# path to ./steam tool if autoupdating
+	STEAMDIR=""
+	# path to server from steam tool if autoupdating
+	SRVDIR=""
+	# comma separated list of screens
+	SHAREDSCREENS=""
+	# time to wait for other screens to exit. Default 10
+	SHAREDKILLWAIT="10"
+	# if set, we create core files according to pattern
+	COREFILE=""
+	# if set, verify_all for steam
+	VERIFYALL=""
+##
+## Functions
+##
+
+function usage
+{
+echo "
+NemRun v1.8 - Nephyrin@Doublezen.net, 07/01/2011
+
+Usage: ./nemrun [-nemlog file [-nemlogtimestamp format]] [-cleandownloads age]
+  [-autoupdate -steamdir dir -srvdir dir [(-sharedscreens screen[,screen[,...]]
+  [-verify_all] [-sharedkillcommand command]) | (-shutdownscript script/command)
+  [-sharedkillwait seconds]] [-updatedaemon [-updatefirst]]] [-corefile file]
+  [server options]
+
+	-nemlog is the file update/reboot logs are saved to in addition	to
+	   stdout. Filename can contain date syntax. For example:
+	   \"reboot_%Y%m%d%H%M%S.log\" would be a \"reboot_YYYYMMDDhhmmss.log\"
+	   dated file
+		-nemlogtimestamp is an optional date-style (man date) format to
+		   use for the timestamps prepended to the log messages. Default
+		   is the default output of date.
+
+	-cleandownloads enables cleaning of the \$game/downloads folder of files
+	   older than the specified number of days, default 10. Cleaning occurs
+	   after an update, so files are never deleted while the server is
+	   running.
+
+	-updatedaemon - starts the server in a 'update check' loop. This is to
+	   allow all -sharedscreens servers to be instant updated as soon as it
+	   finds one. Make sure you specify sharedscreens and add this screen to
+	   the shared screens list of all other servers so it doesn't interrupt
+	   their update.
+	!!This implies -autoupdate!!, see below.
+		-updatefirst - if provided, update the servers *then* reboot
+		   them. Reduces downtime but could cause issues. Obviously only
+		   valid for update daemons. Experimental, might crash your
+		   servers or cause bizarre issues if a map one of your servers
+		   is using gets updated, or some such. Tested and works fine
+		   with binary-only updates (the steam tool deletes the .so
+		   before updating it, so no clobbering).
+		-verify_all
+		   pass -verify_all ./steam when performing an update. Will make
+		   the update take slightly longer, but will ensure all files
+		   are up to date.
+
+	-autoupdate - auto-updates the server on reboot.
+		-notifycmd command
+		   command to run when an update is found, and the script begins
+		   to apply it. IE '-notifycmd ./emailTheAdmins.sh'
+		   
+		-afternotifycmd command
+		   like -notifycmd, but run after the update has been completed
+		   
+		-onbootcmd command
+		   command to run immediately before the server is booted, e.g.
+		   '-onbootcmd ./cleanupreplays.sh'
+		   
+		-steamdir dir
+		   the dir (relative to working dir) where ./steam is
+
+		-srvdir dir
+		   the dir (relative to steamdir) where the server is
+		   (passed to ./steam as -dir)
+
+		-sharedscreens screen[,screen,screen]
+		   A comma separated list of screens (man screen) running other
+		   servers from this same install path. They will be sent a quit
+		   message when an update begins and will sleep until the update
+		   is complete (they must be running this same script, or one
+		   that honors the ./update.lock protocol used herein)
+		   	
+		   	-sharedkillcommand command
+		   	   OPTIONAL
+		   	   the command to send to the server consoles of the
+		   	   shared screens to quit/reboot them. default is 'quit'
+		
+		-shutdownscript command
+		   A script/command to run to shutdown other servers INSTEAD OF
+		   LETTING NEMRUN DO IT. If unsure, dont use this.
+		   **It is up to this script to make sure all other servers get
+		   a quit/reboot signal within -sharedkillwait seconds** This
+		   script is passed the sharedscreens list as an argument.
+
+		-sharedkillwait amount of time in seconds to wait for other
+		   screens to exit after sending them a quit command. Default is
+		   10 seconds.
+
+	-corefile - specifies a file to use as a core, can use date syntax like
+	   nemlog
+	
+	-niceness - niceness modification to attempt on srcds_linux. Default 0.
+	   -5 would increase priority, 5 would decrease. Note that most linux
+	   configurations prevent normal users from during priority up without
+	   sudo or some such.
+
+:: Type --help_examples for examples.
+"
+}
+
+function examples
+{
+echo "
+================================================================================
+EXAMPLE 1: Standalone, auto-updating l4d2 server, in a screen session.
+================================================================================
+   - [nemlog,corefile] Keeps logs in ./runlogs, and corefiles in ./cores, with
+     custom timestamps.
+   - [cleandownloads] On update, deletes files in downloads folder (sprays)
+     older than 10 days
+   - [steamdir] Steam is located two directories up
+     (we're in myleft4dead2server/left4dead2/, with srcds_linux)
+   - [srvdir] Relative to steam, the server is in myleft4dead2server
+   - [autoupdate] Autoupdate enabled.
+   - All other options are passed to srcds.
+
+ screen -d -m -U -S zambin ./nemrun \
+ -nemlog \"runlogs/zambin_%Y%m%d%H%M%S.log\" \
+ -cleandownloads 10 -steamdir ../.. -srvdir myleft4dead2server \
+ -corefile \"cores/zambin_%Y%m%d%H%M%S.core\" \
+ -autoupdate \
+ \
+ -game left4dead2 +map blah ...
+
+================================================================================
+EXAMPLE 2: Two tf2 servers with an update daemon:
+================================================================================
+   - [nemlog,corefile] Keeps logs in ./runlogs, and corefiles in ./cores, with
+     custom timestamps.
+   - [cleandownloads] On update, deletes files in downloads folder (sprays)
+     older than 10 days
+   - [steamdir] Steam is located two directories up
+     (we're in mytf2server/orangebox/, with srcds_linux)
+   - [srvdir] Relative to steam, the server is in mytf2server
+   - [autoupdate] Autoupdate disabled on servers, since update daemon handles
+     it.
+   - All other options are passed to srcds.
+   - [updatedaemon] Update daemon told it is an update daemon, not a server
+   - [notifycmd] Update daemon runs ./notifyadmins.sh when an update is found
+   - [sharedscreens] Updater is given comma separated list of servers running on
+     this directory, so it can reboot them (bob and sam)
+   - [updatefirst] Updater is told to reboot servers only after applying the
+     update, which could possibly cause issues, but requires less downtime!
+
+ :: Server 1
+
+  screen -d -m -U -S bob taskset -c 2 ./nemrun \\
+  -nemlog \"runlogs/bob_%Y%m%d%H%M%S.log\" \\
+  -corefile \"cores/bob_%Y%m%d%H%M%S.core\" \\
+  \\
+  -game tf ...
+ 
+ :: Server 2
+
+  screen -d -m -U -S sam taskset -c 2 ./nemrun \\
+  -nemlog \"runlogs/bob_%Y%m%d%H%M%S.log\" \\
+  -corefile \"cores/bob_%Y%m%d%H%M%S.core\" \\
+  \\
+  -game tf ...
+
+ :: Updater
+ 
+  screen -d -m -U -S updater \\
+  ./nemrun -nemlog \"runlogs/updater_%Y%m%d%H%M%S.log\" \\
+  -cleandownloads 10 -autoupdate -steamdir ../.. -srvdir mytf2server \\
+  -sharedscreens bob,sam \
+  -notifycmd ./notifyadmins.sh -updatefirst \\
+  \\
+  -game tf -updatedaemon
+"
+}
+
+function log
+{
+	local tsfmt
+	if test ! -z "$LOGFILE_TIMESTAMP"; then
+		tsfmt="`date \"+$LOGFILE_TIMESTAMP\"`"
+	else
+		tsfmt="`date`"
+	fi
+	if test ! -z "$LOGFILE_COMP"; then
+		# Log file has been determined
+		echo "[$tsfmt] $@" | tee -a "$LOGFILE_COMP"
+	else
+		echo "[$tsfmt] $@"
+	fi
+}
+
+function die
+{
+	if test $# -ne 0; then
+		log "**Critical** Произошла неизвестная ошибка при запуске nemrun:"
+		log ":: $@"
+	else
+		log "**Critical** Произошла невосстановимая ошибка при запуске nemrun. Это ненормальная ситуация, сообщите в техподдержку."
+	fi
+	log ":: Exiting"
+	exit 1
+}
+
+function killscreen
+{
+	log ":: Killing screen \"$@\""
+	screen -S $@ -X stuff $'\n'"$SHAREDKILLCOMMAND"$'\n' &>/dev/null
+}
+
+function pushcmd
+{
+	SRCDSCMD="$SRCDSCMD $@"
+}
+
+# Usage: cleandownloads
+# Globals accessed: $CLEAN_DAYS, $GAME
+function cleandownloads
+{
+	if test ! -z "$CLEAN_DAYS"; then
+		log ":: Очистка директории с обновлениями от файлов старше $CLEAN_DAYS дней."
+		find $GAME/downloads -atime +$CLEAN_DAYS -exec rm -f {} \;
+	fi
+}
+
+function verifylock
+{
+	if test -f ./update.lock; then
+		local procs pid
+		pid=$(cat ./update.lock)
+		if test ! -z "$pid" && test "$pid" -gt 0; then
+			procs=$(( `ps -p "$pid" 2>/dev/null | wc -l` - 1 ))
+		fi
+		if test -z "$procs" || test "$procs" -eq 0; then
+			log ":: проверка блокировки не удалась: удаляю файл блокировки"
+			rm -f ./update.lock
+			return 1 # Lock was corrupt and killed
+		else
+			return 0 # PID still exists, lock valid
+		fi
+	else
+		return 0 # Lock doesn't exist == clean
+	fi
+}
+
+function waitforlock
+{
+	while test -f ./update.lock; do
+		if ! verifylock; then
+			return 1 # Lock was corrupt as is gone
+		fi
+		sleep 2
+	done
+	return 0 # Lock was valid and is gone
+}
+
+function checklock
+{
+	if test -f ./update.lock && verifylock; then
+		return 0
+	fi
+	return 1
+}
+
+function getlock
+{
+	waitforlock
+	echo $$ > ./update.lock
+}
+
+function freelock
+{
+	log ":: Удаляю файл блокировки обновления"
+	rm -f ./update.lock
+}
+
+# Waits on the lock if it exists before rebooting the server. Returns -1 if no lock existed
+# or 0 if a lock existed, and prints relevant messages. -1 tells run to start an updatecheck,
+# 0 tells it to not bother as one was waited for.
+function lockwaiter
+{
+	if checklock; then
+		log ":: На текущий момент производится обновление сервера или проверка обновлений. Необходимо подождать завершения перед перезагрузкой."
+		if ! waitforlock; then
+			# Wait for lock cleared away a corrupt lock
+			log ":: Скрипт, который производил обновление, рухнул. Сейчас я сам заблокирую сервер и попробую произвести обновление."
+			return 1 # Didn't wait on a lock (well we did, but it didn't work out)
+		fi
+		log ":: Другой скрипт завершил обновление сервера или проверку обновлений. Продолжаю."
+		return 0 # Waited for a lock
+	else
+		return 1 # Didn't wait on a lock
+	fi
+}
+
+# Takes one argument, wait after kill, is '1' or '0'
+function killscreens
+{
+	log ":: Killing any other servers."
+	if test ! -z "$SHUTDOWNSCRIPT"; then
+		log ":: Using shutdown command: \"$SHUTDOWNSCRIPT\""
+		$SHUTDOWNSCRIPT "$SHAREDSCREENS"
+	elif test ! -z "$SHAREDSCREENS"; then
+		log ":: Killing shared screens: \"$SHAREDSCREENS\""
+		if test -z "`echo \"$SHAREDSCREENS\" | egrep \",\"`"; then
+			# No comma, only one screen
+			killscreen $SHAREDSCREENS
+		else
+			# Comma, many screens
+			for screen in `eval echo {$SHAREDSCREENS}`; do
+				killscreen $screen
+			done
+		fi
+	else
+		return 0
+	fi
+	if test "$1" = "1"; then
+		log ":: Waiting for other servers to exit"
+		sleep $SHAREDKILLWAIT
+	fi
+}
+
+function updatecheck
+{
+	if "$UPDATE" = "true"; then
+		log ":: Проверка доступных обновлений"
+		getlock
+		log ":: Запуск srcupdatecheck"
+		local upa
+		if test ! -f "$GAME/steam.inf"; then
+			log ":: !! steam.inf missing, this is caused by broken updates. Setting update to necessary."
+			log ":: !! Отсутствует steam.inf, это вызвано некорректным обновлением. Обновляю сервер принудительно."
+			upa=7
+		else
+			python srcupdatecheck $GAME/steam.inf &>/dev/null;
+			upa=$?
+		fi
+		if test "$upa" -eq 7; then
+			log ":: !! Доступно обновление сервера."
+			if test ! -z "$NOTIFYCMD"; then
+				log ":: Running -notifycmd \"$NOTIFYCMD\""
+				eval $NOTIFYCMD
+			fi
+			
+			if test -z "$UPDATEFIRST"; then
+				killscreens 1
+			fi
+			local upb
+			upb=-1
+			while test "$upb" -ne 0; do
+				log ":: Запуск процедуры обновления сервера"
+				(
+					cd $STEAMDIR
+					local extraargs
+					if test ! -z "$VERIFYALL"; then
+						extraargs="-verify_all"
+					fi
+					
+					# Games that don't use their -gamedir as the -game string for hldsupdatetool
+					local prettygame
+					case "$GAME" in
+						"cstrike_beta")
+							prettygame="cssbeta"
+						;;
+						"cstrike")
+							prettygame="Counter-Strike Source"
+						;;
+						*)
+							prettygame="$GAME"
+						;;
+					esac
+					if test -z "$prettygame"; then
+						prettygame="$GAME"
+					fi
+					
+					local dirstr
+					if test ! -z "$SRVDIR"; then
+						dirstr="-dir \"$SRVDIR\""
+					fi
+					
+					local ret
+					ret=-1
+					while test "$ret" -ne 0; do
+						log ":: Попытка обновления"
+						cmd="./steam $dirstr -game \"$prettygame\" -command update $extraargs"
+						log ":: Using command: $cmd"
+						eval $cmd
+						ret=$?
+						if test "$ret" -ne 0; then
+							log ":: Обновление не удалось или не завершено, пробую снова."
+						fi
+					done
+				)
+				log ":: Проверка обновления"
+				python srcupdatecheck $GAME/steam.inf &>/dev/null;
+				upb=$?
+				if test "$upb" -ne 0; then
+					log ":: Обновление завершено, но мастер-серверы утверждают, что наш сервер все еще не последней версии. Обычно это означает, что Valve обновила мастер-серверы и включила сообщение о доступных обновлениях в тот момент, когда еще контент-серверы не получили файлы обновлений. Буду повторять попытки обновления, пока ситуация не исправится."
+				else
+					log ":: Update verified"
+				fi
+			done
+			log ":: Обновление завершено"
+			if test ! -z "$AFTERNOTIFYCMD"; then
+				log ":: Running -afternotifycmd \"$AFTERNOTIFYCMD\""
+				eval $AFTERNOTIFYCMD
+			fi
+			cleandownloads
+			if test ! -z "$UPDATEFIRST"; then
+				log ":: -updatefirst specified, rebooting other servers now that update is ready."
+				killscreens 0
+			fi
+		elif test "$upa" -ne 0; then
+			log ":: ОШИБКА: Произошла ошибка при проверке обновлений. Это ненормальная ситуация, попробуйте произвести обновление вручную."
+		else
+			log ":: Обновление не требуется."
+		fi
+		freelock
+		log ":: Проверка обновлений завершена."
+	fi
+}
+
+function handlecore
+{
+	if test ! -z "$COREFILE"; then
+		# Reading /sys/kernel/core_pattern or whathaveyou
+		# and fully predicting the output name isn't really within
+		# the scope of this utility. We check for newest "core | core.*"
+		# otherwise assume no core was produced.
+		local cf
+		cf=`ls -1 -t core.* core 2>/dev/null | head -n 1`
+		if test -f "$cf"; then
+			local fn
+			fn="`date "+$COREFILE"`"
+			mv "$cf" "$fn"
+			log ":: ОШИБКА: Сервер рухнул. Дамп создан и сохранен: \"$fn\""
+		else
+			log ":: ОШИБКА: Сервер рухнул, но дамп создан не был. :("
+		fi
+	else
+		log ":: ОШИБКА: Сервер рухнул. Сохранение дампов отключено."
+	fi
+}
+
+##
+## The Main Loop
+##
+
+function run
+{
+	log "#############################"
+	COUNTER=0
+	while [  $COUNTER -lt 5 ]; do
+		lockwaiter
+		# Even if we don't auto-update, we can't reboot while
+		# a lock exists.
+		updatecheck
+
+		if test -z "$DAEMONMODE"; then
+			if test ! -z "$ONBOOTCMD"; then
+				log ":: Running -onbootcmd \"$ONBOOTCMD\""
+				eval $ONBOOTCMD
+			fi
+			#log ":: Launching srcds_linux, options \"$SRCDSCMD\""
+			nice -n $NICENESS ./srcds_linux $SRCDSCMD || handlecore
+			let COUNTER=COUNTER+1
+			log ":: !! Сервер завершил работу. Перезапуск ($COUNTER)."
+			log ":: !!!!!!!!!"
+		else
+			log ":: Update daemon mode. Waiting a few seconds and checking again!"
+			sleep 10
+		fi
+		# lockwaiter blocks until no more update.lock exists. If
+		# it returns true there was a lock we waited on, so
+		# checking for updates would be silly as something just
+		# finished doing so. If there was no lock, we'll do a
+		# check.
+		# DISREGARD THIS ^, multiple games might be
+		# running per install, so we cannot assume we're up to
+		# date if we waited for a lock.
+		# TODO - have a global and per-game lock file.
+	done
+	if [ $COUNTER -gt 4 ]; then
+		log	":: ОШИБКА: Не удалось запустить сервер после 5 попыток"
+	fi
+}
+
+##
+## Parse, sanity check, open log file, and run
+##
+
+function nemrun
+{
+	#
+	# Parse Command Line
+	#
+		while test $# -gt 0; do
+			case "$1" in
+				'-game')
+					GAME="$2"
+					pushcmd $1 $2
+					shift
+					;;
+				'-autoupdate')
+					UPDATE="true"
+					pushcmd $1
+					;;
+				'-nemlog')
+					LOGFILE="$2"
+					shift
+					;;
+				'-cleandownloads')
+					CLEAN_DAYS="$2"
+					shift
+					;;
+				'-steamdir')
+					STEAMDIR="$2"
+					shift
+					;;
+				'-srvdir')
+					SRVDIR="$2"
+					shift
+					;;
+				'-sharedscreens')
+					SHAREDSCREENS="$2"
+					shift
+					;;
+				'-sharedkillwait')
+					SHAREDKILLWAIT="$2"
+					shift
+					;;
+				'-corefile')
+					COREFILE="$2"
+					shift
+					;;
+				'-updatetries')
+					UPDATETRIES="$2"
+					shift
+					;;
+				'-updatedelay')
+					UPDATEDELAY="$2"
+					shift
+					;;
+				'-nemlogtimestamp')
+					LOGFILE_TIMESTAMP="$2"
+					shift
+					;;
+				'-niceness')
+					NICENESS="$2"
+					shift
+					;;
+				'-updatedaemon')
+					DAEMONMODE="true"
+					UPDATE="true"
+					;;
+				'-updatefirst')
+					UPDATEFIRST="true"
+					;;
+				'-shutdownscript')
+					SHUTDOWNSCRIPT="$2"
+					shift
+					;;
+				'-notifycmd')
+					NOTIFYCMD="$2"
+					shift
+					;;
+				'-afternotifycmd')
+					AFTERNOTIFYCMD="$2"
+					shift
+					;;
+				'-onbootcmd')
+					ONBOOTCMD="$2"
+					shift
+					;;
+				'-sharedkillcommand')
+					SHAREDKILLCOMMAND="$2"
+					shift
+					;;
+				'-verify_all')
+					VERIFYALL="true"
+					;;
+				'--help')
+					usage
+					exit 0
+					;;
+				'--help_examples')
+					examples
+					exit 0
+					;;
+				*)
+					pushcmd $1
+					;;
+			esac
+			shift
+		done
+	#
+	# Do sanity checks
+	#
+		if test -z "$GAME"; then
+			die "No -game specified."
+		fi
+		if test ! -d "$GAME"; then
+			die "Requested game folder \"$GAME\" does not exist."
+		fi
+		if test ! -f "$GAME/gameinfo.txt"; then
+			die "Folder \"$GAME\" does not contain a gameinfo.txt."
+		fi
+		if test "$UPDATEFIRST" = "true"; then
+			if test "$DAEMONMODE" = "false"; then
+				die "-updatefirst provided, but we're not an updatedaemon. Re-read help..."
+			fi
+		fi
+		if test "$UPDATE" = "true"; then
+			if test ! -d "$STEAMDIR"; then
+				die "Provided steam directory \"$STEAMDIR\" does not exist."
+			fi
+			if test ! -f "$STEAMDIR/steam"; then
+				die "Provided steam directory \"$STEAMDIR\" does not contain the steam program."
+			fi
+			pushd $STEAMDIR &>/dev/null
+			if test ! -z "$SRVDIR" && test ! -d "$SRVDIR"; then
+				popd &>/dev/null
+				die "Path to server \"$SRVDIR\" does not exist relative to \"$STEAMDIR\""
+			fi
+			popd &>/dev/null
+			if test ! -f ./srcupdatecheck; then
+				die "\"srcupdatecheck,\" a script that checks for updates without having to invoke the steam tool, must be in the same directory as nemrun (or symlinked in) if you want to autoupdate. See doublezen.net if you didn't get this helper script."
+			fi
+			if ! python -V &>/dev/null; then
+				die "Python was not found on this system. Python is needed by \"srcupdatecheck,\" a script that checks for updates without having to invoke the steam tool. This is required if you wish to use autoupdate."
+			fi
+			if test ! "$UPDATETRIES" -gt 0 &>/dev/null; then
+				die "-updatetries requires a numeric argument greater than zero. Remove -autoupdate if you don't want to update at all."
+			fi
+			if test ! "$UPDATEDELAY" -gte 0 &>/dev/null; then
+				die "-updatedelay requires a positive numeric argument."
+			fi
+			local res
+			test "$NICENESS" -gt 0 &>/dev/null
+			res=$?
+			if test "$res" -eq 2; then
+				die "-niceness requires a integer argument"
+			fi
+		fi
+		if test "$CLEAN_DOWNLOADS" = "true"; then
+			if test "$CLEAN_DAYS" -gt 0 &>/dev/null; then :; else
+				die "-cleandownloads requires a numeric argument greater than zero"
+			fi
+		fi
+		local cf
+		cf=`ls -1 -t core.* core 2>/dev/null | head -n 1`
+		while test ! -z "$cf"; do
+			log ":: Moving un-cleaned-up core file: \"$cf\" to \"oldcore.$cf\""
+			mv "$cf" "oldcore.$cf" || die "Could not clean up orphaned core file \"$cf\". Please remove this file manually before proceeding."
+			cf=`ls -1 -t core.* core | head -n 1`
+		done
+	#
+	# Update LD_LIBRARY_PATH
+	#
+		local ourlibs
+		ourlibs=".:bin:$GAME/bin:$GAME/addons/bin"
+		if test -z "$LD_LIBRARY_PATH"; then
+			export LD_LIBRARY_PATH="$ourlibs"
+		else
+			# You can do env LD_LIBRARY_PATH=blah ./nemrun and it'll precede stuff here
+			export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ourlibs"
+		fi
+	
+	#
+	# Prepare for core files
+	#
+		if test ! -z "$COREFILE"; then
+			local tn
+			tn=`date --date="$STARTTIME" "+$COREFILE"`
+			touch "$tn" &>/dev/null || die "Core file named \"$tn\" cannot be created if the server were to crash."
+			rm -f "$tn"
+			ulimit -c unlimited
+			if ! test "`ulimit -c`" = "unlimited"; then
+				die "Could not enable core file creation (ulimit -c unlimited)"
+			fi
+		fi
+	#
+	# Open Log file
+	#
+		if test ! -z "$LOGFILE"; then
+			LOGFILE_COMP=`date --date="$STARTTIME" "+$PWD/$LOGFILE"`
+			touch "$LOGFILE_COMP" &>/dev/null || die "Log file \"$file\" could not be created."
+		fi
+	#
+	# Run
+	#
+		run
+}
+
+if test $# -eq 0; then
+	echo "No arguments specified. Run with --help for usage, or --help_examples for examples"
+else
+	# Do it all
+	nemrun "$@"
+fi
+

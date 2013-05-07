@@ -1,0 +1,75 @@
+// Значения параметров в этом конфиге перекрывают gamemodes.txt 
+
+"GameModes_Server.txt"
+{
+	"gameTypes"
+	{
+		"classic"
+		{
+			"gameModes"
+			{
+				"competitive"
+				{
+
+					"maxplayers"		"10"				// Note that maxplayers doesn't go in the convar block.
+														// Another way to set maxplayers is to add -maxplayers_override XX to the cmd line.
+
+					"exec"
+					{
+						"exec"					"gamemode_competitive_server.cfg"
+					}
+
+					"mapgroupsMP"						// List of mapgroups valid for this game mode ( competitive )
+					{
+						"mg_bomb_se"		""
+					}
+				}
+
+				"casual"
+				{
+
+					"maxplayers"		"25"
+
+					"exec"
+					{
+						"exec"					"gamemode_casual_server.cfg"
+					}
+
+					"mapgroupsMP"						// List of mapgroups valid for this game mode ( casual )
+					{
+						"mg_bomb_se"		""
+					}
+				}
+
+			}	
+		}
+	}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Группы карт (Map groups)
+//
+// О том, как правильно прописать собственные группы карт,
+// читайте на нашем Wiki: http://wiki.teamserver.ru/server-tuning:csgo#карты 
+//
+// Также можете почитать описание на английском:
+// https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Dedicated_Servers
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	"mapgroups"
+	{
+		"mg_bomb_se"									// mapgroup definition
+		{
+			"name"			"mg_bomb_se"
+			"maps"
+			{
+				"de_dust_se"		""
+				"de_dust2_se"		""
+				"de_nuke_se"		""
+				"de_train_se"		""
+				"de_inferno_se"		""
+				"de_aztec_se"		""
+			}
+		}
+	}
+}
