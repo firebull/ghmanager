@@ -1,0 +1,116 @@
+/* =========================================================================================== */
+/* ==================================== TOOLTIPS STYLES ===================================== */
+/* =========================================================================================== */
+
+/* ==================================== STYLE 1 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_1 span
+	{
+		color: #ffffff !important;
+		
+		/* CSS3 Gradients */
+		background: #404040; /* Old browsers */
+		background: -moz-linear-gradient(top,  #4e4e4e 0%, #404040 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4e4e4e), color-stop(100%,#404040)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* Chrome10+,Safari5.1+ */
+		background: -o-linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* Opera 11.10+ */
+		background: -ms-linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* IE10+ */
+		background: linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* W3C */
+		/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4e4e4e', endColorstr='#404040',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+		/* CSS3 Borders */
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		
+		/* CSS3 Text-shadow */
+		text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+
+			
+		&:before
+		/* --- Arrow --- */
+		{
+			border-color: #404040;
+		} 
+
+		&:after
+		/* --- Decorative Line --- */
+		{
+			content: "";
+			display: block;
+			border-top: 1px solid #808080;
+			position: absolute;
+			left: 0px;
+			top: 1px;
+			width: 100%;
+			height: 10px;
+			
+			/* CSS3 Borders */
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+		}
+
+		strong
+		/* --- Header --- */
+		{
+			background: #3f3f3f;
+			border-bottom: 1px solid #383838;
+		}
+
+	}
+
+/* ==================================== STYLE 39 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_39 span
+	{
+		color: #ffffff !important;
+		background: #f97d19; /* IE */
+		background: rgba(248,111,0,0.9);
+
+		/* CSS3 Borders */
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		
+		/* CSS3 Text-shadow */
+		text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+		
+		/* CSS3 Box-shadow */
+		-webkit-box-shadow: inset 0px -2px 0px #eb6f00;
+		-moz-box-shadow: inset 0px -2px 0px #eb6f00;
+		box-shadow: inset 0px -2px 0px #eb6f00;
+		
+		/* Icon Fixes */
+		padding-left: 54px !important;
+		min-height: 34px !important;
+
+		&:before
+		/* --- Arrow --- */	
+		{
+			border-color: #f97d19; /* IE */
+			border-color: rgba(248,111,0,0.9);
+		}
+
+		&:after
+		/* --- Decorative Line --- */
+		{
+			content: "";
+			display: block;
+			position: absolute;
+			left: 10px;
+			top: 10px;
+			width: 34px;
+			height: 34px;
+			background: url(images/icon_notice_1.png);
+			float: left;
+		}
+
+		strong
+		/* --- Header --- */
+		{
+			font-size: 18px !important;
+			padding: 8px 10px 0px 10px !important;
+		}
+
+	}

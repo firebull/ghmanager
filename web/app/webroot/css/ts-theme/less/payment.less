@@ -1,0 +1,266 @@
+// Стили иконок платёжных систем
+
+
+
+#pay_icons {
+	background-color: #fff;
+	border-top-left-radius: @common-radius;
+	border-top-right-radius: @common-radius;
+	}
+/* Вертикальные закладки при выборе системы оплаты */
+.ui-tabs-vertical-payment { 
+		width: auto; 
+		.ui-tabs-nav { 
+				padding: .2em .1em .2em .2em; 
+				float: left; 
+				width: 180px; 
+		
+				li { 
+					clear: left; 
+					width: 100%; 
+					border-bottom-width: 1px !important; 
+					border-right-width: 0 !important; 
+					margin: 0 -1px .2em 0; 
+
+					a {
+						display:block;
+					}
+
+					.ui-tabs-selected { 
+							padding-bottom: 0; 
+							padding-right: .1em; 
+							border-right-width: 1px; 
+							border-right-width: 1px; 
+						}
+				}
+
+		}
+
+		.ui-tabs-panel { 
+				padding: .2em; 
+				margin-left: 10px; 
+				float: left; 
+				width: 370px;
+		}
+
+}
+	
+.zone-white {
+	margin: 0px;
+	margin-bottom: 7px;
+	padding: 5px;
+	background-color: #fff;
+	border-radius: @common-radius;
+	float: left;
+	}
+
+.empty_mid {
+	width: 90px;
+	height: 31px;
+	margin: 5px;
+	float: left;
+	position: relative;
+	}
+
+.payment-icon ( @width: 90px, 
+				@height: 31px, 
+				@margin: 5px,
+				@image,
+				@radius: @common-radius
+				 ){
+					
+	background: #fff url(@image) center center no-repeat;
+	width: @width;
+	height: @height;
+	margin: @margin;
+	float: left;
+	position: relative;
+	border-radius: @radius;
+	-moz-border-radius: @radius;
+
+}
+
+.yandex_money {
+
+	.payment-icon ( 140px, 60px, 5px, e(%("%s%s", @icons-path, "yandex_money_logo_138x60.png")) );
+	
+}
+.yandex_money_mid {
+
+	.payment-icon ( 90px, 31px, 5px, e(%("%s%s", @icons-path, "yamoney_logo88x31.gif")) );
+	
+}
+.yandex_money_small {
+
+	.payment-icon ( 60px, 30px, 0px, e(%("%s%s", @icons-path, "yandex_money_logo_58x30.png")) );
+	
+}
+
+.yandex_money_grey {
+
+	.payment-icon ( 140px, 60px, 5px, e(%("%s%s", @icons-path, "yandex_money_logo_138x60_grey.png")) );
+
+}
+.rbk_money {
+
+	.payment-icon ( 140px, 60px, 5px, e(%("%s%s", @icons-path, "logo_rbk_128x60.png")) );
+
+}
+.rbk_money_grey {
+
+	.payment-icon ( 150px, 65px, 5px, e(%("%s%s", @icons-path, "logo_rbk_128x60_grey.png")) );
+
+}
+.webmoney_small {
+
+	.payment-icon ( 90px, 31px, 0px, e(%("%s%s", @icons-path, "wm_grey.gif")), 0px );
+	
+}
+.sberbank_money {
+
+	.payment-icon ( 140px, 60px, 5px, e(%("%s%s", @icons-path, "sberbank_114x23.png")) );
+
+}
+.sberbank_money_small {
+
+	.payment-icon ( 60px, 30px, 5px, e(%("%s%s", @icons-path, "sberbank_24x23.png")) );
+
+}
+.rw-h-logo-float-left {
+	background: #fff e(%("url(%s%s)", @icons-path, 'icons_rbk.png')) -240px 0 no-repeat;
+	height:30px;
+	width:60px;
+	position: relative;
+	border-radius: @common-radius;
+	float: left;
+}
+.sberbank_money_grey {
+
+	.payment-icon ( 150px, 65px, 5px, e(%("%s%s", @icons-path, "sberbank_114x23_grey.png")), 0px );
+
+}
+
+.cards_mid {
+
+	.payment-icon ( 90px, 30px, 5px, e(%("%s%s", @icons-path, "visa_mastercard_87x30.png")) );
+
+}
+
+.qiwi_mid {
+
+	.payment-icon ( 90px, 44px, 5px, e(%("%s%s", @icons-path, "qiwi_goriz_88.png")) );
+
+}
+
+.platron_mid {
+
+	.payment-icon ( 90px, 44px, 5px, e(%("%s%s", @icons-path, "platron_88.gif")) );
+
+}
+
+.rw-b-part:after,.rw-body:after {
+	display:block;
+	content:'.';
+	clear:both;
+	height:0;
+	visibility: hidden;
+}
+
+.rw-b-part,
+.rw-body {
+	zoom:1;
+}
+
+.rw-icon,
+.rw-text,
+.rw-b-part { 
+	display:inline; 
+	float:left; 
+}
+
+.rw-icon, 
+.rwh-arrow {
+	background-color: transparent;
+	background-position:0 0;
+	background-repeat:no-repeat;
+	background-image: e(%("url(%s%s)", @icons-path, 'icons_rbk.png'));
+}
+
+.rw-icon {
+	height:40px;
+	width:40px;
+}
+
+.rw-icon-1 { background-position:-40px 0; }
+.rw-icon-2 { background-position:-80px 0; }
+.rw-icon-3 { background-position:-120px 0; }
+.rw-icon-4 { background-position:-160px 0; }
+.rw-icon-5 { background-position:-200px 0; }
+.rw-icon-atm { background-image: e(%("url(%s%s)", @icons-path, 'atm.png')); }
+.rw-icon-emoney { background-image: e(%("url(%s%s)", @icons-path, 'emoney.png')); }
+
+.rw-icon-euroset { 
+	background-image: e(%("url(%s%s)", @icons-path, 'euroset.png'));
+	width: 50px;
+	height: 38px;
+	}
+.rw-icon-svyaznoy { 
+	background-image: e(%("url(%s%s)", @icons-path, 'svyaznoy.png'));
+	width: 50px;
+	height: 13px;
+	}
+	
+.rw-icon-bank {background-image: e(%("url(%s%s)", @icons-path, 'bank.png'));}
+.rw-icon-ibank {background-image: e(%("url(%s%s)", @icons-path, 'ibank.png'));}
+.rw-icon-mts { 
+	background-image: e(%("url(%s%s)", @icons-path, 'mts.png'));
+	width: 50px;
+	height: 24px;
+	}
+
+@rbk-color-1: #6fb24d;
+@rbk-color-2: #508838;
+
+.rw-head {
+	height:31px;
+	position:relative;
+	background-color: @rbk-color-1;
+	background: -webkit-gradient(linear, left top, left bottom, from(@rbk-color-1), to(@rbk-color-2));
+	background: -moz-linear-gradient(top, @rbk-color-1, @rbk-color-2);
+	filter: ~"progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr=#6fb24d,endColorstr=#508838,GradientType=0);";
+	-moz-border-radius-topleft:2px;
+	-moz-border-radius-topright:2px;
+	-webkit-border-top-left-radius:2px;
+	-webkit-border-top-right-radius:2px;
+	border-top-left-radius:2px;
+	border-top-right-radius:2px;
+}
+.rw-h-text {
+	color: #fff;
+	font: normal 16px/14px Tahoma, sans-serif;
+	padding:8px 0 0 9px;
+}
+.rw-h-logo-float-right {
+	background: #fff e(%("url(%s%s)", @icons-path, 'icons_rbk.png')) -240px 0 no-repeat;
+	height: 30px;
+	right: 6px;
+	border-radius: @common-radius;
+	width: 60px;
+	float: right;
+}
+
+.rw-b-part {
+	padding: 7px 0 0 4px;
+	width: 106px;
+}
+.rw-text {
+	font-size: 9px;
+	padding: 8px 0 0 5px;
+	text-align:left;
+	width: 60px;
+}
+.rwh-head,.rwh-text { padding-bottom:8px; }
+.rwh-head { color:#4e4e4e; }
+.rwh-text { color:#818181; }
+.rwh-link { color:#70b34b;cursor:pointer;text-decoration:underline; }
+.rwh-link:hover { text-decoration:none; }

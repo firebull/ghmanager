@@ -1,0 +1,9 @@
+app/controllers/components/dark_auth.php
+app/config/database.php
+app/config
+app/tmp
+app/config/payment_params.ini.php
+app/config/external.ini.php
+vendors
+app/config/core.php
+plugins

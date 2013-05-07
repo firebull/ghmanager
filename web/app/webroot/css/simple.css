@@ -1,0 +1,94 @@
+body {
+	font-family: verdana, arial, serif;
+	font-size: 13px;
+	background-color:#c0c0c0;
+	height: 100%;
+}
+pre {
+	font-family: verdana, arial, serif;
+	font-size: 12px;
+}
+#clear {
+	clear: both;
+	}
+#content_text, #cp {
+	margin-top: 10px;
+	padding-left: 7px;
+	padding-right: 0px;
+	padding-bottom: 7px;
+	padding-top: 12px;
+	margin-right: 12px;
+	z-index: 0;
+	width: 98%;
+	background-color: #fff;
+	border-top-left-radius: 6px;
+	-moz-border-radius-topleft: 6px;
+	border-bottom-right-radius: 6px;
+	-moz-border-radius-bottomright: 6px;
+}
+#cp {
+	background-color: #FFFFFF;
+	height: 40px;
+	font-size: 9px;
+	}
+a, a:VISITED {
+	color:#dd1500;
+	text-decoration: none;
+}
+a:HOVER {
+	text-decoration: underline;
+	}
+
+/* ==================================== STYLE 39 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_39 span
+	{
+	color: #ffffff !important;
+	background: #f97d19; /* IE */
+	background: rgba(248,111,0,0.9);
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -2px 0px #eb6f00;
+	-moz-box-shadow: inset 0px -2px 0px #eb6f00;
+	box-shadow: inset 0px -2px 0px #eb6f00;
+
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */
+.qlabs_tooltip_style_39 span:before
+	{
+	border-color: #f97d19; /* IE */
+	border-color: rgba(248,111,0,0.9);
+	}
+
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_39 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(images/icon_notice_1.png);
+	float: left;
+	}
+
+/* --- Header --- */
+.qlabs_tooltip_style_39 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}

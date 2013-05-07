@@ -1,0 +1,70 @@
+body {
+	font-family: sans-serif;
+	font-size: 8pt;
+	background-color: white;
+}
+table {
+	font-family: sans-serif;
+	font-size: 8pt;
+}
+.ramka {
+	border-top: black 1px dotted;
+	border-bottom: black 1px dotted;
+	border-left: black 1px dotted;
+	border-right: black 1px dotted;
+}
+.linev {
+	border-left: black 2px solid;
+}
+.lineh {
+	border-bottom: black 2px solid;
+}
+.linevh {
+	border-bottom: black 2px solid;
+	border-left: black 2px solid;
+}
+.t10b {
+	font-weight: bold;
+	font-size: 10pt;
+	font-family: "Times New Roman", serif;
+}
+.h8b {
+	font-weight: bold;
+	font-size: 8.5pt;
+	font-family: Arial, sans-serif;
+	border-bottom: black 1px solid;
+	text-align: center;
+}
+table.celled-number {
+	border-collapse: collapse;
+	border: 1px solid black;
+	}
+
+table.celled-number td {
+	border: 1px solid black;
+	font-weight: bold;
+	}
+.line_b		{BORDER-BOTTOM: black 1px solid; FONT-SIZE: 7pt; FONT-WEIGHT: bold}
+.line_t		{BORDER-TOP: black 1px solid; FONT-SIZE: 7pt; FONT-WEIGHT: bold}
+.line_r {
+	border-right: black 1px solid;
+	font-weight: bold;
+}
+.line_l		{BORDER-LEFT: black 1px solid; FONT-SIZE: 7pt; FONT-WEIGHT: bold}
+.line_lbt {
+	border-left: black 1px solid;
+	border-bottom: black 1px solid;
+	border-top: black 1px solid;
+	font-weight: bold;
+}
+.line_lbtr {
+	border-left: black 1px solid;
+	border-bottom: black 1px solid;
+	border-top: black 1px solid;
+	border-right: black 1px solid;
+	font-weight: bold;
+}
+.t6n		{FONT-SIZE: 7.5pt; FONT-FAMILY: "Times New Roman", serif}
+.t7n		{FONT-SIZE: 7.5pt; FONT-FAMILY: "Times New Roman", serif}
+.t8n		{FONT-SIZE: 8.5pt; FONT-FAMILY: "Times New Roman", serif}
+.spc		{FONT-SIZE: 1pt}

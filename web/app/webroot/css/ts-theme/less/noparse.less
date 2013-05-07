@@ -1,0 +1,16 @@
+@-webkit-keyframes pulse {
+	0% { 
+		-webkit-box-shadow: 0 0 20px rgba(200, 50, 50, 0.2); 
+		}
+	50% {
+		-webkit-box-shadow: 0 0 20px rgba(200, 50, 50, 0.9);
+		}
+	100% {
+		-webkit-box-shadow: 0 0 20px rgba(200, 50, 50, 0.2);
+		}
+}
+
+form input[type="text"]:focus,
+form input[type="password"]:focus {
+	-webkit-animation: pulse 1.5s infinite ease-in-out;
+}

@@ -1,0 +1,3064 @@
+/*
+CSS3 Tooltips Pack v1.0 (12.2011)
+Copyright 2011 QuanticaLabs
+www.quanticalabs.com
+*/
+	
+/* =========================================================================================== */
+/* ==================================== TOOLTIPS STYLES ===================================== */
+/* =========================================================================================== */
+
+/* ==================================== STYLE 1 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_1 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #404040; /* Old browsers */
+	background: -moz-linear-gradient(top,  #4e4e4e 0%, #404040 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4e4e4e), color-stop(100%,#404040)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* IE10+ */
+	background: linear-gradient(top,  #4e4e4e 0%,#404040 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4e4e4e', endColorstr='#404040',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_1 span:before
+	{
+	border-color: #404040;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_1 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #808080;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_1 span strong
+	{
+	background: #3f3f3f;
+	border-bottom: 1px solid #383838;
+	}
+	
+/* ==================================== STYLE 2 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_2 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #31598a; /* Old browsers */
+	background: -moz-linear-gradient(top,  #37659d 0%, #31598a 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#37659d), color-stop(100%,#31598a)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #37659d 0%,#31598a 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #37659d 0%,#31598a 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #37659d 0%,#31598a 100%); /* IE10+ */
+	background: linear-gradient(top,  #37659d 0%,#31598a 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#37659d', endColorstr='#31598a',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_2 span:before
+	{
+	border-color: #31598a;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_2 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #6591c3;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_2 span strong
+	{
+	background: #2d548a;
+	border-bottom: 1px solid #284b7b;
+	}
+	
+/* ==================================== STYLE 3 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_3 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #1a6998; /* Old browsers */
+	background: -moz-linear-gradient(top,  #367ca5 0%, #1a6998 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#367ca5), color-stop(100%,#1a6998)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #367ca5 0%,#1a6998 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #367ca5 0%,#1a6998 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #367ca5 0%,#1a6998 100%); /* IE10+ */
+	background: linear-gradient(top,  #367ca5 0%,#1a6998 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#367ca5', endColorstr='#1a6998',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_3 span:before
+	{
+	border-color: #1a6998;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_3 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #4a97c4;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_3 span strong
+	{
+	background: #246894;
+	border-bottom: 1px solid #205c85;
+	}
+	
+/* ==================================== STYLE 4 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_4 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #c34722; /* Old browsers */
+	background: -moz-linear-gradient(top,  #cb581f 0%, #c34722 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cb581f), color-stop(100%,#c34722)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #cb581f 0%,#c34722 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #cb581f 0%,#c34722 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #cb581f 0%,#c34722 100%); /* IE10+ */
+	background: linear-gradient(top,  #cb581f 0%,#c34722 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cb581f', endColorstr='#c34722',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_4 span:before
+	{
+	border-color: #c34722;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_4 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #e28266;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_4 span strong
+	{
+	background: #bf461a;
+	border-bottom: 1px solid #ac3f17;
+	}
+	
+/* ==================================== STYLE 5 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_5 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #893c36; /* Old browsers */
+	background: -moz-linear-gradient(top,  #9a433c 0%, #893c36 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9a433c), color-stop(100%,#893c36)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #9a433c 0%,#893c36 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #9a433c 0%,#893c36 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #9a433c 0%,#893c36 100%); /* IE10+ */
+	background: linear-gradient(top,  #9a433c 0%,#893c36 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a433c', endColorstr='#893c36',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_5 span:before
+	{
+	border-color: #893c36;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_5 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #c76e66;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_5 span strong
+	{
+	background: #873631;
+	border-bottom: 1px solid #79302c;
+	}
+	
+/* ==================================== STYLE 6 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_6 span
+	{
+	color: #000000 !important;
+	
+	/* CSS3 Gradients */
+	background: #f49f00; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffba00 0%, #f49f00 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffba00), color-stop(100%,#f49f00)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffba00 0%,#f49f00 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffba00 0%,#f49f00 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffba00 0%,#f49f00 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffba00 0%,#f49f00 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffba00', endColorstr='#f49f00',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px #ffce37;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_6 span:before
+	{
+	border-color: #f49f00;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_6 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #ffdd83;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_6 span strong
+	{
+	background: #faa400;
+	border-bottom: 1px solid #e09300;
+	}
+	
+/* ==================================== STYLE 7 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_7 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #599916; /* Old browsers */
+	background: -moz-linear-gradient(top,  #6aa417 0%, #599916 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6aa417), color-stop(100%,#599916)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #6aa417 0%,#599916 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #6aa417 0%,#599916 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #6aa417 0%,#599916 100%); /* IE10+ */
+	background: linear-gradient(top,  #6aa417 0%,#599916 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6aa417', endColorstr='#599916',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_7 span:before
+	{
+	border-color: #599916;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_7 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #95c561;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_7 span strong
+	{
+	background: #579412;
+	border-bottom: 1px solid #4e8410;
+	}
+	
+/* ==================================== STYLE 8 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_8 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #206906; /* Old browsers */
+	background: -moz-linear-gradient(top,  #37790c 0%, #206906 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#37790c), color-stop(100%,#206906)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #37790c 0%,#206906 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #37790c 0%,#206906 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #37790c 0%,#206906 100%); /* IE10+ */
+	background: linear-gradient(top,  #37790c 0%,#206906 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#37790c', endColorstr='#206906',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_8 span:before
+	{
+	border-color: #206906;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_8 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #4f9c21;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_8 span strong
+	{
+	background: #246407;
+	border-bottom: 1px solid #205a06;
+	}
+	
+/* ==================================== STYLE 9 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_9 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #007c62; /* Old browsers */
+	background: -moz-linear-gradient(top,  #008c6f 0%, #007c62 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008c6f), color-stop(100%,#007c62)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #008c6f 0%,#007c62 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #008c6f 0%,#007c62 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #008c6f 0%,#007c62 100%); /* IE10+ */
+	background: linear-gradient(top,  #008c6f 0%,#007c62 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#008c6f', endColorstr='#007c62',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_9 span:before
+	{
+	border-color: #007c62;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_9 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #4da795;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_9 span strong
+	{
+	background: #00795e;
+	border-bottom: 1px solid #006c54;
+	}
+	
+/* ==================================== STYLE 10 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_10 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #7e5740; /* Old browsers */
+	background: -moz-linear-gradient(top,  #86604a 0%, #7e5740 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#86604a), color-stop(100%,#7e5740)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #86604a 0%,#7e5740 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #86604a 0%,#7e5740 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #86604a 0%,#7e5740 100%); /* IE10+ */
+	background: linear-gradient(top,  #86604a 0%,#7e5740 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#86604a', endColorstr='#7e5740',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_10 span:before
+	{
+	border-color: #7e5740;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_10 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #ad7f64;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_10 span strong
+	{
+	background: #76513c;
+	border-bottom: 1px solid #6a4836;
+	}
+	
+/* ==================================== STYLE 11 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_11 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #616161; /* Old browsers */
+	background: -moz-linear-gradient(top,  #6c6c6c 0%, #616161 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6c6c6c), color-stop(100%,#616161)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #6c6c6c 0%,#616161 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #6c6c6c 0%,#616161 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #6c6c6c 0%,#616161 100%); /* IE10+ */
+	background: linear-gradient(top,  #6c6c6c 0%,#616161 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6c6c6c', endColorstr='#616161',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_11 span:before
+	{
+	border-color: #616161;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_11 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #8b8b8b;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_11 span strong
+	{
+	background: #5c5c5c;
+	border-bottom: 1px solid #525252;
+	}
+	
+/* ==================================== STYLE 12 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_12 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #5d518c; /* Old browsers */
+	background: -moz-linear-gradient(top,  #6b5da0 0%, #5d518c 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6b5da0), color-stop(100%,#5d518c)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #6b5da0 0%,#5d518c 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #6b5da0 0%,#5d518c 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #6b5da0 0%,#5d518c 100%); /* IE10+ */
+	background: linear-gradient(top,  #6b5da0 0%,#5d518c 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6b5da0', endColorstr='#5d518c',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_12 span:before
+	{
+	border-color: #5d518c;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_12 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #9689c5;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_12 span strong
+	{
+	background: #5a4d8c;
+	border-bottom: 1px solid #50447e;
+	}
+	
+/* ==================================== STYLE 13 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_13 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #0081c6; /* Old browsers */
+	background: -moz-linear-gradient(top,  #0091d5 0%, #0081c6 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0091d5), color-stop(100%,#0081c6)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #0091d5 0%,#0081c6 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #0091d5 0%,#0081c6 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #0091d5 0%,#0081c6 100%); /* IE10+ */
+	background: linear-gradient(top,  #0091d5 0%,#0081c6 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0091d5', endColorstr='#0081c6',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_13 span:before
+	{
+	border-color: #0081c6;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_13 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #46b2e5;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_13 span strong
+	{
+	background: #007ec7;
+	border-bottom: 1px solid #0071b3;
+	}
+	
+/* ==================================== STYLE 14 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_14 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #b01c34; /* Old browsers */
+	background: -moz-linear-gradient(top,  #c01e38 0%, #b01c34 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c01e38), color-stop(100%,#b01c34)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #c01e38 0%,#b01c34 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #c01e38 0%,#b01c34 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #c01e38 0%,#b01c34 100%); /* IE10+ */
+	background: linear-gradient(top,  #c01e38 0%,#b01c34 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c01e38', endColorstr='#b01c34',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_14 span:before
+	{
+	border-color: #b01c34;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_14 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #e96e82;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_14 span strong
+	{
+	background: #b0182d;
+	border-bottom: 1px solid #9d1628;
+	}
+	
+/* ==================================== STYLE 15 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_15 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #8b2f5d; /* Old browsers */
+	background: -moz-linear-gradient(top,  #993366 0%, #8b2f5d 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#993366), color-stop(100%,#8b2f5d)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #993366 0%,#8b2f5d 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #993366 0%,#8b2f5d 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #993366 0%,#8b2f5d 100%); /* IE10+ */
+	background: linear-gradient(top,  #993366 0%,#8b2f5d 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#993366', endColorstr='#8b2f5d',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_15 span:before
+	{
+	border-color: #8b2f5d;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_15 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #c76295;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_15 span strong
+	{
+	background: #882956;
+	border-bottom: 1px solid #79254d;
+	}
+	
+/* ==================================== STYLE 16 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_16 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #c71e1e; /* Old browsers */
+	background: -moz-linear-gradient(top,  #d42525 0%, #c71e1e 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d42525), color-stop(100%,#c71e1e)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #d42525 0%,#c71e1e 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #d42525 0%,#c71e1e 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #d42525 0%,#c71e1e 100%); /* IE10+ */
+	background: linear-gradient(top,  #d42525 0%,#c71e1e 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d42525', endColorstr='#c71e1e',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_16 span:before
+	{
+	border-color: #c71e1e;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_16 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #ff7070;
+	position: absolute;
+	left: 0px;
+	top: 1px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_16 span strong
+	{
+	background: #c71d1d;
+	border-bottom: 1px solid #b31a1a;
+	}
+	
+/* ==================================== STYLE 17 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_17 span
+	{
+	color: #3f2710 !important;
+	
+	/* CSS3 Gradients */
+	background: #ffda8a; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffde96 0%, #ffda8a 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffde96), color-stop(100%,#ffda8a)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffde96 0%,#ffda8a 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffde96 0%,#ffda8a 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffde96 0%,#ffda8a 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffde96 0%,#ffda8a 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffde96', endColorstr='#ffda8a',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+	
+	border: 1px solid #f3c362;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.7);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_17 span:before
+	{
+	border-color: #ffda8a;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_17 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #fff3da;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_17 span strong
+	{
+	background: #ffd684;
+	border-bottom: 1px solid #f3c362;
+	}
+	
+/* ==================================== STYLE 18 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_18 span
+	{
+	color: #3f2710 !important;
+	
+	/* CSS3 Gradients */
+	background: #ffecb1; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffefbc 0%, #ffecb1 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffefbc), color-stop(100%,#ffecb1)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffefbc 0%,#ffecb1 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffefbc 0%,#ffecb1 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffefbc 0%,#ffecb1 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffefbc 0%,#ffecb1 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffefbc', endColorstr='#ffecb1',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+	
+	border: 1px solid #f1d586;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.7);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_18 span:before
+	{
+	border-color: #ffecb1;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_18 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #ffffff;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_18 span strong
+	{
+	background: #ffebae;
+	border-bottom: 1px solid #f1d586;
+	}
+	
+/* ==================================== STYLE 19 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_19 span
+	{
+	color: #000000 !important;
+	
+	/* CSS3 Gradients */
+	background: #dadada; /* Old browsers */
+	background: -moz-linear-gradient(top,  #e2e2e2 0%, #dadada 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2e2e2), color-stop(100%,#dadada)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #e2e2e2 0%,#dadada 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #e2e2e2 0%,#dadada 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #e2e2e2 0%,#dadada 100%); /* IE10+ */
+	background: linear-gradient(top,  #e2e2e2 0%,#dadada 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#dadada',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+	
+	border: 1px solid #cacaca;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_19 span:before
+	{
+	border-color: #dadada;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_19 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #f7f7f7;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_19 span strong
+	{
+	background: #d9d9d9;
+	border-bottom: 1px solid #cacaca;
+	}
+	
+/* ==================================== STYLE 20 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_20 span
+	{
+	color: #333333 !important;
+	
+	/* CSS3 Gradients */
+	background: #e5e5e5; /* Old browsers */
+	background: -moz-linear-gradient(top,  #f2f2f2 0%, #e5e5e5 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f2f2f2), color-stop(100%,#e5e5e5)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #f2f2f2 0%,#e5e5e5 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #f2f2f2 0%,#e5e5e5 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #f2f2f2 0%,#e5e5e5 100%); /* IE10+ */
+	background: linear-gradient(top,  #f2f2f2 0%,#e5e5e5 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f2f2', endColorstr='#e5e5e5',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+	
+	border: 1px solid #d5d5d5;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_20 span:before
+	{
+	border-color: #e5e5e5;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_20 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid #ffffff;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_20 span strong
+	{
+	background: #eaeaea;
+	border-bottom: 1px solid #d5d5d5;
+	}
+	
+/* ==================================== STYLE 21 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_21 span
+	{
+	color: #882300 !important;
+	background: #fffae8; /* IE */
+	background: rgba(255,249,230,0.9);
+	border: 1px solid #ffda8a;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.5);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_21 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_21 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_21 span strong
+	{
+	background: #fff4d5;
+	border-bottom: 1px solid #ffda8a;
+	}
+	
+/* ==================================== STYLE 22 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_22 span
+	{
+	color: #931500 !important;
+	background: #fff1e0; /* IE */
+	background: rgba(255,240,221,0.9);
+	border: 1px solid #ffc586;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.5);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_22 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_22 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_22 span strong
+	{
+	background: #ffe8ce;
+	border-bottom: 1px solid #ffc586;
+	}
+	
+/* ==================================== STYLE 23 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_23 span
+	{
+	color: #930000 !important;
+	background: #fdf1f1; /* IE */
+	background: rgba(253,240,240,0.9);
+	border: 1px solid #f8b1b1;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.5);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_23 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_23 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_23 span strong
+	{
+	background: #fce4e4;
+	border-bottom: 1px solid #f8b1b1;
+	}
+	
+/* ==================================== STYLE 24 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_24 span
+	{
+	color: #206200 !important;
+	background: #f4fae8; /* IE */
+	background: rgba(243,249,229,0.9);
+	border: 1px solid #c0da89;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.5);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_24 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_24 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_24 span strong
+	{
+	background: #eaf4d5;
+	border-bottom: 1px solid #c0da89;
+	}
+	
+/* ==================================== STYLE 25 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_25 span
+	{
+	color: #004d73 !important;
+	background: #eef7fb; /* IE */
+	background: rgba(236,246,251,0.9);
+	border: 1px solid #91c9e5;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.5);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_25 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_25 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_25 span strong
+	{
+	background: #dbeef7;
+	border-bottom: 1px solid #91c9e5;
+	}
+	
+/* ==================================== STYLE 26 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_26 span
+	{
+	color: #444444 !important;
+	background: #f6f6f6; /* IE */
+	background: rgba(245,245,245,0.9);
+	border: 1px solid #cccccc;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.5);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_26 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_26 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_26 span strong
+	{
+	background: #eeeeee;
+	border-bottom: 1px solid #cccccc;
+	}
+	
+/* ==================================== STYLE 27 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_27 span
+	{
+	color: #ffffff !important;
+	background: #616161; /* IE */
+	background: rgba(80,80,80,0.9);
+	border: 1px solid #444444;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_27 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_27 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_27 span strong
+	{
+	background: #5b5b5b;
+	border-bottom: 1px solid #444444;
+	}
+	
+/* ==================================== STYLE 28 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_28 span
+	{
+	color: #ffffff !important;
+	background: #383838; /* IE */
+	background: rgba(34,34,34,0.9);
+	border: 1px solid #000000;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_28 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_28 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_28 span strong
+	{
+	background: #2d2d2d;
+	border-bottom: 1px solid #000000;
+	}
+	
+/* ==================================== STYLE 29 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_29 span
+	{
+	color: #ffffff !important;
+	background: #f97d19; /* IE */
+	background: rgba(248,111,0,0.9);
+	border: 1px solid #f05a00;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_29 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_29 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_29 span strong
+	{
+	background: #f77614;
+	border-bottom: 1px solid #f05a00;
+	}
+	
+/* ==================================== STYLE 30 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_30 span
+	{
+	color: #ffffff !important;
+	background: #dc3a3a; /* IE */
+	background: rgba(216,37,37,0.9);
+	border: 1px solid #c30000;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_30 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_30 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_30 span strong
+	{
+	background: #d72e2e;
+	border-bottom: 1px solid #c30000;
+	}
+	
+/* ==================================== STYLE 31 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_31 span
+	{
+	color: #ffffff !important;
+	background: #689b22; /* IE */
+	background: rgba(88,144,10,0.9);
+	border: 1px solid #4c8200;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_31 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_31 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_31 span strong
+	{
+	background: #62961b;
+	border-bottom: 1px solid #4c8200;
+	}
+	
+/* ==================================== STYLE 32 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_32 span
+	{
+	color: #ffffff !important;
+	background: #298ac2; /* IE */
+	background: rgba(18,125,187,0.9);
+	border: 1px solid #006ba8;
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_32 span:before
+	{
+	border-color: transparent;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_32 span:after
+	{
+	content: "";
+	display: block;
+	background: transparent;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_32 span strong
+	{
+	background: #2184bd;
+	border-bottom: 1px solid #006ba8;
+	}
+	
+/* ==================================== STYLE 33 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_33 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #d9d9d9; /* IE */
+	border: 5px solid rgba(0,0,0,0.15);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_33 span:before
+	{
+	border-color: #d9d9d9; /* IE */
+	border-color: rgba(0,0,0,0.15);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_33 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_33 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_33 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_33 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_33 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_33 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_33 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_33 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_33 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_33 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_33 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_33 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_33 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid rgba(255,255,255,1);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_33 span strong
+	{
+	color: #000000;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	
+	/* CSS3 Gradients */
+	background: #efefef; /* Old browsers */
+	background: -moz-linear-gradient(top,  #efefef 0%, #e9e9e9 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#e9e9e9)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* IE10+ */
+	background: linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#e9e9e9',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	border-bottom: 1px solid #cdcdcd;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	}
+	
+/* ==================================== STYLE 34 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_34 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #ffca7f; /* IE */
+	border: 5px solid rgba(255,150,0,0.5);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_34 span:before
+	{
+	border-color: #ffca7f; /* IE */
+	border-color: rgba(252,136,0,0.5);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_34 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_34 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_34 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_34 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_34 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_34 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_34 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_34 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_34 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_34 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_34 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_34 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_34 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid rgba(255,255,255,1);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_34 span strong
+	{
+	color: #000000;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	
+	/* CSS3 Gradients */
+	background: #efefef; /* Old browsers */
+	background: -moz-linear-gradient(top,  #efefef 0%, #e9e9e9 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#e9e9e9)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* IE10+ */
+	background: linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#e9e9e9',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	border-bottom: 1px solid #cdcdcd;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	}
+	
+/* ==================================== STYLE 35 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_35 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #ee9999; /* IE */
+	border: 5px solid rgba(213,0,0,0.4);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_35 span:before
+	{
+	border-color: #ee9999; /* IE */
+	border-color: rgba(213,0,0,0.4);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_35 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_35 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_35 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_35 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_35 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_35 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_35 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_35 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_35 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_35 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_35 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_35 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_35 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid rgba(255,255,255,1);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_35 span strong
+	{
+	color: #000000;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	
+	/* CSS3 Gradients */
+	background: #efefef; /* Old browsers */
+	background: -moz-linear-gradient(top,  #efefef 0%, #e9e9e9 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#e9e9e9)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* IE10+ */
+	background: linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#e9e9e9',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	border-bottom: 1px solid #cdcdcd;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	}
+	
+/* ==================================== STYLE 36 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_36 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #b7d299; /* IE */
+	border: 5px solid rgba(75,143,0,0.4);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_36 span:before
+	{
+	border-color: #b7d299; /* IE */
+	border-color: rgba(75,143,0,0.4);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_36 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_36 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_36 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_36 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_36 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_36 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_36 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_36 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_36 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_36 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_36 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_36 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_36 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid rgba(255,255,255,1);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_36 span strong
+	{
+	color: #000000;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	
+	/* CSS3 Gradients */
+	background: #efefef; /* Old browsers */
+	background: -moz-linear-gradient(top,  #efefef 0%, #e9e9e9 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#e9e9e9)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* IE10+ */
+	background: linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#e9e9e9',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	border-bottom: 1px solid #cdcdcd;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	}
+	
+/* ==================================== STYLE 37 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_37 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #99c9df; /* IE */
+	border: 5px solid rgba(0,120,176,0.4);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_37 span:before
+	{
+	border-color: #99c9df; /* IE */
+	border-color: rgba(0,120,176,0.4);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_37 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_37 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_37 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_37 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_37 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_37 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_37 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_37 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_37 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_37 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_37 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_37 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_37 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid rgba(255,255,255,1);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_37 span strong
+	{
+	color: #000000;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	
+	/* CSS3 Gradients */
+	background: #efefef; /* Old browsers */
+	background: -moz-linear-gradient(top,  #efefef 0%, #e9e9e9 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#e9e9e9)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* IE10+ */
+	background: linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#e9e9e9',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	border-bottom: 1px solid #cdcdcd;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	}
+	
+/* ==================================== STYLE 38 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_38 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #666666; /* IE */
+	border: 5px solid rgba(0,0,0,0.6);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_38 span:before
+	{
+	border-color: #666666; /* IE */
+	border-color: rgba(0,0,0,0.6);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_38 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_38 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_38 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_38 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_38 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_38 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_38 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_38 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_38 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_38 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_38 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_38 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_38 span:after
+	{
+	content: "";
+	display: block;
+	border-top: 1px solid rgba(255,255,255,1);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 10px;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_38 span strong
+	{
+	color: #000000;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(255,255,255,0.8);
+	
+	/* CSS3 Gradients */
+	background: #efefef; /* Old browsers */
+	background: -moz-linear-gradient(top,  #efefef 0%, #e9e9e9 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#e9e9e9)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* IE10+ */
+	background: linear-gradient(top,  #efefef 0%,#e9e9e9 100%); /* W3C */
+	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#e9e9e9',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	border-bottom: 1px solid #cdcdcd;
+	
+	/* CSS3 Borders */
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+	border-radius: 0px !important;
+	}
+	
+/* ==================================== STYLE 39 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_39 span
+	{
+	color: #ffffff !important;
+	background: #f97d19; /* IE */
+	background: rgba(248,111,0,0.9);
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -2px 0px #eb6f00;
+	-moz-box-shadow: inset 0px -2px 0px #eb6f00;
+	box-shadow: inset 0px -2px 0px #eb6f00;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_39 span:before
+	{
+	border-color: #f97d19; /* IE */
+	border-color: rgba(248,111,0,0.9);
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_39 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(images/icon_notice_1.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_39 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 40 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_40 span
+	{
+	color: #ffffff !important;
+	background: #dc3a3a; /* IE */
+	background: rgba(216,37,37,0.9);
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -2px 0px #c22828;
+	-moz-box-shadow: inset 0px -2px 0px #c22828;
+	box-shadow: inset 0px -2px 0px #c22828;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_40 span:before
+	{
+	border-color: #dc3a3a; /* IE */
+	border-color: rgba(216,37,37,0.9);
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_40 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_cross_1.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_40 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 41 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_41 span
+	{
+	color: #ffffff !important;
+	background: #689b22; /* IE */
+	background: rgba(88,144,10,0.9);
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -2px 0px #588816;
+	-moz-box-shadow: inset 0px -2px 0px #588816;
+	box-shadow: inset 0px -2px 0px #588816;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_41 span:before
+	{
+	border-color: #689b22; /* IE */
+	border-color: rgba(88,144,10,0.9);
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_41 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_tick_1.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_41 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 42 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_42 span
+	{
+	color: #ffffff !important;
+	background: #298ac2; /* IE */
+	background: rgba(18,125,187,0.9);
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -2px 0px #1675ac;
+	-moz-box-shadow: inset 0px -2px 0px #1675ac;
+	box-shadow: inset 0px -2px 0px #1675ac;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_42 span:before
+	{
+	border-color: #298ac2; /* IE */
+	border-color: rgba(18,125,187,0.9);
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_42 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_info_1.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_42 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 43 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_43 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #ffab00; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffb400 0%, #ffa200 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffb400), color-stop(100%,#ffa200)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffb400 0%,#ffa200 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffb400 0%,#ffa200 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffb400 0%,#ffa200 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffb400 0%,#ffa200 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffb400', endColorstr='#ffa200',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -1px 0px 0px #fc8800;
+	-moz-box-shadow: inset 0px -1px 0px 0px #fc8800;
+	box-shadow: inset 0px -1px 0px 0px #fc8800; 
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_43 span:before
+	{
+	border-color: #ffab00;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_43 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_notice_2.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_43 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 44 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_44 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #e03131; /* Old browsers */
+	background: -moz-linear-gradient(top,  #e63333 0%, #da2f2f 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e63333), color-stop(100%,#da2f2f)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #e63333 0%,#da2f2f 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #e63333 0%,#da2f2f 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #e63333 0%,#da2f2f 100%); /* IE10+ */
+	background: linear-gradient(top,  #e63333 0%,#da2f2f 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e63333', endColorstr='#da2f2f',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -1px 0px 0px #c20b0b;
+	-moz-box-shadow: inset 0px -1px 0px 0px #c20b0b;
+	box-shadow: inset 0px -1px 0px 0px #c20b0b; 
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_44 span:before
+	{
+	border-color: #e03131;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_44 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_cross_2.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_44 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 45 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_45 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #70a91c; /* Old browsers */
+	background: -moz-linear-gradient(top,  #7cad1f 0%, #64a51a 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7cad1f), color-stop(100%,#64a51a)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #7cad1f 0%,#64a51a 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #7cad1f 0%,#64a51a 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #7cad1f 0%,#64a51a 100%); /* IE10+ */
+	background: linear-gradient(top,  #7cad1f 0%,#64a51a 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7cad1f', endColorstr='#64a51a',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -1px 0px 0px #4c8908;
+	-moz-box-shadow: inset 0px -1px 0px 0px #4c8908;
+	box-shadow: inset 0px -1px 0px 0px #4c8908;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_45 span:before
+	{
+	border-color: #70a91c;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_45 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_tick_2.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_45 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 46 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_46 span
+	{
+	color: #ffffff !important;
+	
+	/* CSS3 Gradients */
+	background: #009ae1; /* Old browsers */
+	background: -moz-linear-gradient(top,  #00a4e9 0%, #0092da 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#00a4e9), color-stop(100%,#0092da)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #00a4e9 0%,#0092da 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #00a4e9 0%,#0092da 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #00a4e9 0%,#0092da 100%); /* IE10+ */
+	background: linear-gradient(top,  #00a4e9 0%,#0092da 100%); /* W3C */
+	/* filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00a4e9', endColorstr='#0092da',GradientType=0 ); IE6-9 - disabled due to lack of compatibility with pseudo-elements */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* CSS3 Text-shadow */
+	text-shadow: 0px 1px 0px rgba(0,0,0,0.4);
+	
+	/* CSS3 Box-shadow */
+	-webkit-box-shadow: inset 0px -1px 0px 0px #0078b4;
+	-moz-box-shadow: inset 0px -1px 0px 0px #0078b4;
+	box-shadow: inset 0px -1px 0px 0px #0078b4;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_46 span:before
+	{
+	border-color: #009ae1;
+	}
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_46 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_info_2.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_46 span strong
+	{
+	font-size: 18px !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 47 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_47 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #e5e5e5; /* IE */
+	border: 5px solid rgba(0,0,0,0.1);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_47 span:before
+	{
+	border-color: #e5e5e5; /* IE */
+	border-color: rgba(0,0,0,0.1);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_47 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_47 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_47 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_47 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_47 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_47 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_47 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_47 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_47 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_47 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_47 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_47 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_47 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_notice_3.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_47 span strong
+	{
+	font-size: 18px !important;
+	color: #ffa11a !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 48 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_48 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #e5e5e5; /* IE */
+	border: 5px solid rgba(0,0,0,0.1);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_48 span:before
+	{
+	border-color: #e5e5e5; /* IE */
+	border-color: rgba(0,0,0,0.1);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_48 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_48 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_48 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_48 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_48 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_48 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_48 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_48 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_48 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_48 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_48 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_48 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_48 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_cross_3.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_48 span strong
+	{
+	font-size: 18px !important;
+	color: #e34646 !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 49 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_49 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #e5e5e5; /* IE */
+	border: 5px solid rgba(0,0,0,0.1);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_49 span:before
+	{
+	border-color: #e5e5e5; /* IE */
+	border-color: rgba(0,0,0,0.1);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_49 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_49 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_49 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_49 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_49 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_49 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_49 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_49 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_49 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_49 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_49 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_49 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_49 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_tick_3.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_49 span strong
+	{
+	font-size: 18px !important;
+	color: #77b236 !important;
+	padding: 8px 10px 0px 10px !important;
+	}
+	
+/* ==================================== STYLE 50 ==================================== */
+/* --- Container --- */
+.qlabs_tooltip_style_50 span
+	{
+	color: #555555 !important;
+	background: #ffffff;
+	border: 5px solid #e5e5e5; /* IE */
+	border: 5px solid rgba(0,0,0,0.1);
+	
+	/* Transparent border fix */
+    -moz-background-clip: padding; /* Firefox 3.6 */
+    -webkit-background-clip: padding; /* Safari 4, Chrome 6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+
+	/* CSS3 Borders */
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	
+	/* Icon Fixes */
+	padding-left: 54px !important;
+	min-height: 34px !important;
+	}
+
+/* --- Arrow --- */	
+.qlabs_tooltip_style_50 span:before
+	{
+	border-color: #e5e5e5; /* IE */
+	border-color: rgba(0,0,0,0.1);
+	}
+
+.qlabs_tooltip_top.qlabs_tooltip_style_50 span:before,
+.qlabs_tooltip_focus_top.qlabs_tooltip_style_50 span:before
+	{
+	bottom: -13px;
+	}
+	
+.qlabs_tooltip_bottom.qlabs_tooltip_style_50 span:before,
+.qlabs_tooltip_focus_bottom.qlabs_tooltip_style_50 span:before
+	{
+	top: -13px;
+	}
+	
+.qlabs_tooltip_right.qlabs_tooltip_style_50 span:before,
+.qlabs_tooltip_focus_right.qlabs_tooltip_style_50 span:before
+	{
+	left: -13px;
+	}
+	
+.qlabs_tooltip_left.qlabs_tooltip_style_50 span:before,
+.qlabs_tooltip_focus_left.qlabs_tooltip_style_50 span:before
+	{
+	right: -13px;
+	}
+	
+.qlabs_tooltip_diagonal_right.qlabs_tooltip_style_50 span:before,
+.qlabs_tooltip_focus_diagonal_right.qlabs_tooltip_style_50 span:before
+	{
+	top: -15px;
+	}
+	
+.qlabs_tooltip_diagonal_left.qlabs_tooltip_style_50 span:before,
+.qlabs_tooltip_focus_diagonal_left.qlabs_tooltip_style_50 span:before
+	{
+	top: -15px;
+	}	
+	
+/* --- Decorative Line --- */
+.qlabs_tooltip_style_50 span:after
+	{
+	content: "";
+	display: block;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 34px;
+	height: 34px;
+	background: url(../images/icon_info_3.png);
+	float: left;
+	}
+	
+/* --- Header --- */
+.qlabs_tooltip_style_50 span strong
+	{
+	font-size: 18px !important;
+	color: #369ed6 !important;
+	padding: 8px 10px 0px 10px !important;
+	}

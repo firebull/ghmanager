@@ -1,0 +1,227 @@
+#test {
+	width:300px;
+	text-align:center;
+	height: 350px;
+	left: 33%;
+	overflow: hidden;
+	position: fixed;
+	top: 20%;
+	width: 450px;
+	z-index: 1000;
+}
+#edit_profile_container {
+	width:320px;
+	text-align:center;
+	height: 200px;
+	left: 35%;
+	overflow: hidden;
+	position: fixed;
+	top: 30%;
+	z-index: 1000;
+}
+#add_server_about, #add_root_server_about {
+	text-align: left;
+}
+
+.tbl_hover_green{
+background-color: #CCFF99;
+color: black;
+}
+.tbl_hover_grey,
+.tbl_hover_running{
+background-color: #f6f6f6;
+color: black;
+}
+.tbl_hover_yellow,
+.tbl_hover_stoped,
+.tbl_hover_updating
+ {
+background-color: #FFFFCC;
+color: black;
+}
+.tbl_hover_red,
+.tbl_hover_error {
+background-color: #FFCCCC;
+color: black;
+}
+.power_button {
+	background-image: ("../../img/icons/power/power_buttons.png");
+	}
+
+.running {
+background: url("../../img/icons/power/power_buttons.png") 0 0 no-repeat;
+width: 26px;
+height: 25px;
+margin-left: 4px;
+}
+.stoped {
+background: url("../../img/icons/power/power_buttons.png") -26px 0 no-repeat;
+width: 26px;
+height: 25px;
+margin-left: 4px;
+}
+.updating,
+.warning {
+background: url("../../img/icons/power/power_buttons.png") -52px 0 no-repeat;
+width: 26px;
+height: 25px;
+margin-left: 4px;
+}
+.error {
+background: url("../../img/icons/power/power_buttons.png") -78px 0 no-repeat;
+width: 26px;
+height: 25px;
+margin-left: 4px;
+}
+.processing {
+background: url("../../img/icons/power/power_buttons.png") -104px 0 no-repeat;
+width: 26px;
+height: 25px;
+margin-left: 4px;
+}
+.tbl_out {
+background-color: #fff;
+color: black;
+}
+.tbl_out_hide {
+background-color: #eee;
+color: #555;
+}
+#loading {
+	border: 1px solid #0a0a0a; 
+	border-top: none;
+	position: absolute; 
+	width: 280px; 
+	height: 32px;
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	text-align:center;
+	overflow: hidden;
+	z-index: 2000;
+	border-bottom-left-radius: @common-radius;
+	-moz-border-radius-bottomleft: @common-radius;
+	border-bottom-right-radius: @common-radius;
+	-moz-border-radius-bottomright: @common-radius;
+}
+.error-message {
+	color: red;
+}
+#profile_image_edit {
+	width: 184px;
+	height: 184px;
+	background-image: url("../../img/userimg/avatars/no_avatar_184x184.png");
+}
+#avatar_upload {
+	text-align:center;
+	height: 120px;
+	left: 33%;
+	top: 40%;
+}
+.icons ul {
+	margin-top: 3px;
+/*	margin-bottom: 3px; */
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.icons ul li {
+	cursor: pointer;
+	float: left;
+	list-style: none;
+	margin: 2px;
+	padding: 4px 0px;
+	position: relative;
+}
+.icons ul span.ui-icon {
+	margin: 0px 4px;
+	}
+div.auto_complete    {
+     position         :absolute;
+     width            :250px;
+     background-color :white;
+     border           :1px solid #888;
+     margin           :0px;
+     padding          :0px;
+     border-bottom-left-radius: @common-radius;
+	 -moz-border-radius-bottomleft: @common-radius;
+	 border-bottom-right-radius: @common-radius;
+	 -moz-border-radius-bottomright: @common-radius;
+}
+div.auto_complete ul {
+	list-style-type: none;
+	padding-left: 0px;
+}
+div.auto_complete ul li   { 
+	background-color: white;
+	color: black;
+	padding: 2px;
+	padding-left: 10px;
+	padding-right: 6px;
+}
+div.auto_complete ul li.selected    { 
+	background-color: #CCEA98;
+	color: black;
+}
+.ui-tabs-vertical ul,
+.ui-tabs-vertical-payment ul{
+	font-size: 0.8em !important;
+	font-weight: normal;
+}
+.loading-indicator {
+	height: 80px;
+	width: 80px;
+	background: url( '../../img/loading.gif' );
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+.loading-indicator-bars {
+		background-image: url('../../img/loading-bars.gif');
+		width: 150px;
+	}
+
+.loading-indicator-overlay {
+	background-color: #2B2922;
+	opacity: 0.65;
+	filter: ~"alpha(opacity = 60)";
+}
+
+.radio_image {
+	height: 25px;
+	clear:left;
+	float:left;
+	margin: 0 0 3px;
+	padding: 0 0 0 20px;
+	background: url("../../img/icons/checkbox_minus_plus.png");
+	background-repeat:no-repeat;
+	cursor: default;
+}
+.checkbox_image {
+	height: 25px;
+	clear:left;
+	float:left;
+	margin: 0 0 3px;
+	padding: 0 0 0 20px;
+	background: url('../../img/icons/checkbox_minus_plus.png') no-repeat;
+	cursor: default;
+	text-align:left;
+}
+/*.checkbox input,.radio input {
+	display: none;
+}*/
+.checkbox input.show,.radio input.show {
+	display: inline;
+}
+.selected {
+	background-position: 0 -52px;
+}
+.checkbox_red_cross {
+	height: 25px;
+	clear:left;
+	float:left;
+	margin: 0 0 3px;
+	padding: 0 0 0 20px;
+	background: url('../../img/icons/checkbox.png') no-repeat;
+	cursor: default;
+	text-align:left;
+}

@@ -1,0 +1,236 @@
+#pay_icons {
+	background-color: #fff;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	}
+/* Vertical Tabs payment
+----------------------------------*/
+.ui-tabs-vertical-payment { width: auto; }
+.ui-tabs-vertical-payment .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 180px; }
+.ui-tabs-vertical-payment .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
+.ui-tabs-vertical-payment .ui-tabs-nav li a { display:block; }
+.ui-tabs-vertical-payment .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
+.ui-tabs-vertical-payment .ui-tabs-panel { padding: .2em; margin-left: 10px; float: left; width: 370px;}	
+
+.zone-white {
+	margin: 0px;
+	margin-bottom: 7px;
+	padding: 5px;
+	background-color: #fff;
+	border-radius: 6px;
+	float: left;
+	}
+
+.empty_mid {
+	width: 90px;
+	height: 31px;
+	margin: 5px;
+	float: left;
+	position: relative;
+	}
+
+.yandex_money {
+	background: #fff url("../img/icons/yandex_money_logo_138x60.png") center center no-repeat;
+	width: 140px;
+	height: 60px;
+	margin: 5px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+	
+}
+.yandex_money_mid {
+	background: #fff url("../img/icons/yamoney_logo88x31.gif") center center no-repeat;
+	width: 90px;
+	height: 31px;
+	margin: 5px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+	
+}
+.yandex_money_small {
+	background: #fff url("../img/icons/yandex_money_logo_58x30.png") center center no-repeat;
+	width: 60px;
+	height: 30px;
+	margin: 0px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+	
+}
+
+.yandex_money_grey {
+	background: #fff url("../img/icons/yandex_money_logo_138x60_grey.png") center center no-repeat;
+	width: 140px;
+	height: 60px;
+	margin: 5px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+}
+.rbk_money {
+	background: #fff url("../img/icons/logo_rbk_128x60.png") center center no-repeat;
+	width: 140px;
+	height: 60px;
+	float: left;
+	margin: 5px;
+	position: relative;
+	border-radius: 6px;
+}
+.rbk_money_grey {
+	background: url("../img/icons/logo_rbk_128x60_grey.png") center center no-repeat;
+	width: 150px;
+	height: 65px;
+	float: left;
+	position: relative;
+}
+.webmoney_small {
+	background: url("../img/icons/wm_grey.gif") center center no-repeat;
+	width: 90px;
+	height: 31px;
+	margin: 0px;
+	float: left;
+	position: relative;
+	border-radius: 0px;
+	
+}
+.sberbank_money {
+	background: #fff url("../img/icons/sberbank_114x23.png") center center no-repeat;
+	width: 140px;
+	height: 60px;
+	margin: 5px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+}
+.sberbank_money_small {
+	background: #fff url("../img/icons/sberbank_24x23.png") center center no-repeat;
+	width: 60px;
+	height: 30px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+}
+.sberbank_money_grey {
+	background: url("../img/icons/sberbank_114x23_grey.png") center center no-repeat;
+	width: 150px;
+	height: 65px;
+	float: left;
+	position: relative;
+}
+
+.cards_mid {
+	background: #fff url("../img/icons/visa_mastercard_87x30.png") center center no-repeat;
+	width: 90px;
+	height: 30px;
+	float: left;
+	position: relative;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+}
+.rw-b-part:after,.rw-body:after {
+	display:block;
+	content:'.';
+	clear:both;
+	height:0;
+	visibility: hidden;
+}
+.rw-b-part,.rw-body {zoom:1;}
+.rw-icon,.rw-text,.rw-b-part {display:inline;float:left;}
+.rw-icon, .rwh-arrow {
+	background-color: transparent;
+	background-position:0 0;
+	background-repeat:no-repeat;
+	background-image:url('../img/icons/icons_rbk.png');
+}
+.rw-icon {
+	height:40px;
+	width:40px;
+}
+.rw-icon-1 {background-position:-40px 0;}
+.rw-icon-2 {background-position:-80px 0;}
+.rw-icon-3 {background-position:-120px 0;}
+.rw-icon-4 {background-position:-160px 0;}
+.rw-icon-5 {background-position:-200px 0;}
+.rw-icon-atm {background-image:url('../img/icons/atm.png');}
+.rw-icon-emoney {background-image:url('../img/icons/emoney.png');}
+
+.rw-icon-euroset { 
+	background-image:url('../img/icons/euroset.png');
+	width: 50px;
+	height: 38px;
+	}
+.rw-icon-svyaznoy { 
+	background-image:url('../img/icons/svyaznoy.png');
+	width: 50px;
+	height: 13px;
+	}
+	
+.rw-icon-bank {background-image:url('../img/icons/bank.png');}
+.rw-icon-ibank {background-image:url('../img/icons/ibank.png');}
+.rw-icon-mts { 
+	background-image:url('../img/icons/mts.png');
+	width: 50px;
+	height: 24px;
+	}
+
+.rw-head {
+	height:31px;
+	position:relative;
+	background-color:#62a245;
+	background: -webkit-gradient(linear, left top, left bottom, from(#6fb24d), to(#508838));
+	background: -moz-linear-gradient(top,#6fb24d,#508838);
+	filter:progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr=#6fb24d,endColorstr=#508838,GradientType=0);
+	-moz-border-radius-topleft:2px;
+	-moz-border-radius-topright:2px;
+	-webkit-border-top-left-radius:2px;
+	-webkit-border-top-right-radius:2px;
+	border-top-left-radius:2px;
+	border-top-right-radius:2px;
+}
+.rw-h-text {
+	color:#fff;
+	font:normal 16px/14px Tahoma, sans-serif;
+	padding:8px 0 0 9px;
+}
+.rw-h-logo-float-right {
+	background: #fff url('../img/icons/icons_rbk.png') -240px 0 no-repeat;
+	height:30px;
+	right:6px;
+	border-radius: 6px;
+	width:60px;
+	float: right;
+}
+.rw-h-logo-float-left {
+	background: #fff url('../img/icons/icons_rbk.png') -240px 0 no-repeat;
+	height:30px;
+	width:60px;
+	position: relative;
+	border-radius: 6px;
+	float: left;
+}
+.rw-b-part {
+	padding:7px 0 0 4px;
+	width:106px;
+}
+.rw-text {
+	font-size:9px;
+	padding:8px 0 0 5px;
+	text-align:left;
+	width:60px;
+}
+.rwh-head,.rwh-text {padding-bottom:8px;}
+.rwh-head {color:#4e4e4e;}
+.rwh-text {color:#818181;}
+.rwh-link {color:#70b34b;cursor:pointer;text-decoration:underline;}
+.rwh-link:hover {text-decoration:none;}
+
+.qiwi_mid {
+	background: #fff url("../img/icons/qiwi_goriz_88.png") center center no-repeat;
+	width: 90px;
+	height: 44px;
+	float: left;
+	position: relative;
+	border-radius: 6px;	
+}

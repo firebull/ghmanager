@@ -1,0 +1,211 @@
+/* global */
+div.ui-cluetip {
+  font-size: 1em;
+}
+.ui-cluetip-header,
+.ui-cluetip-content {
+  padding: 12px;
+}
+.ui-cluetip-header {
+  font-size: 1em;
+  margin: 0;
+  overflow: hidden;
+}
+
+#cluetip-title #cluetip-close {
+  float: right;
+  position: relative;
+}
+#cluetip-close img {
+  border: 0;
+}
+
+#cluetip-waitimage {
+  width: 43px;
+  height: 11px;
+  position: absolute;
+  background-image: url(../img/cluetip/wait.gif);
+}
+.cluetip-arrows {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: -11px;
+  height: 22px;
+  width: 11px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+#cluetip-extra {
+  display: none;
+}
+
+/***************************************
+   =cluetipClass: 'default' 
+-------------------------------------- */
+
+.cluetip-default {
+  background-color: #F5F3E5;
+}
+.cluetip-default #cluetip-outer {
+  position: relative;
+  margin: 0;
+  background-color: #F5F3E5;
+}
+.cluetip-default h3#cluetip-title {
+  margin: 0 0 5px;
+  padding: 4px 5px 2px;
+  font-size: 0.9em;
+  font-family: segoe ui, Verdana, Arial, sans-serif;
+  color: #fff;
+  border: 1px solid #84c21b; 
+  background: #84c21b url(ts-theme/images/ui-bg_gloss-wave_100_84c21b_500x100.png) 50% 50% repeat-x; 
+  color: #446805; 
+  font-weight: bold;
+}
+.cluetip-default #cluetip-title a {
+  color: #F5F3E5;
+  font-size: 0.95em;
+}  
+.cluetip-default #cluetip-inner {
+  padding: 10px;
+}
+.cluetip-default div#cluetip-close { 
+  text-align: right;
+  margin: 0 5px 5px;
+  color: #900;
+}
+
+/* default arrows */
+
+.clue-right-default .cluetip-arrows {
+  background-image: url(../img/cluetip/garrowleft.png);
+}
+.clue-left-default .cluetip-arrows {
+  background-image: url(../img/cluetip/darrowright.gif);
+  left: 100%;
+  margin-right: -11px;
+}
+.clue-top-default .cluetip-arrows {
+  background-image: url(../img/cluetip/darrowdown.gif);
+  top: 100%;
+  left: 50%;
+  margin-left: -11px;
+  height: 11px;
+  width: 22px;  
+}  
+.clue-bottom-default .cluetip-arrows {
+  background-image: url(../img/cluetip/darrowup.gif);
+  top: -11px;
+  left: 50%;
+  margin-left: -11px;
+  height: 11px;
+  width: 22px;
+}
+
+/***************************************
+   =cluetipClass: 'jtip'
+-------------------------------------- */
+.cluetip-jtip {
+  background-color: transparent;
+}
+.cluetip-jtip #cluetip-outer {
+  border: 2px solid #ccc;
+  position: relative;
+  background-color: #fff;
+}
+
+.cluetip-jtip h3#cluetip-title {
+  margin: 0 0 5px;
+  padding: 2px 5px;
+  font-size: 16px;
+  font-weight: normal;
+  background-color: #ccc;
+  color: #333;
+}
+
+.cluetip-jtip #cluetip-inner {
+  padding: 0 5px 5px;
+  display: inline-block;
+}
+.cluetip-jtip div#cluetip-close { 
+  text-align: right;
+  margin: 0 5px 5px;
+  color: #900;
+}
+
+/* jtip arrows */
+
+.clue-right-jtip .cluetip-arrows {
+  background-image: url(../img/cluetip/arrowleft.gif);
+}
+.clue-left-jtip .cluetip-arrows {
+  background-image: url(../img/cluetip/arrowright.gif);
+  left: 100%;
+  margin-right: -11px;
+}
+.clue-top-jtip .cluetip-arrows {
+  background-image: url(../img/cluetip/arrowdown.gif);
+  top: 100%;
+  left: 50%;
+  margin-left: -11px;
+  height: 11px;
+  width: 22px;  
+}  
+.clue-bottom-jtip .cluetip-arrows {
+  background-image: url(../img/cluetip/arrowup.gif);
+  top: -11px;
+  left: 50%;
+  margin-left: -11px;
+  height: 11px;
+  width: 22px;
+}
+
+/***************************************
+   =cluetipClass: 'rounded'
+-------------------------------------- */
+.cluetip-rounded {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  color: #333;
+  background-color: #CCEA98;
+  border: 1px solid #84C21B;
+  padding: 1em;
+}
+
+/* stupid IE6 HasLayout hack */
+.cluetip-rounded #cluetip-title,
+.cluetip-rounded #cluetip-inner {
+  zoom: 1;
+}
+/***************************************
+   =cluetipClass: 'informative'
+-------------------------------------- */
+.cluetip-info {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: rgba(0,0,0,0.3) 4px 4px 2px;
+  -moz-box-shadow: rgba(0,0,0,0.3) 4px 4px 2px;
+  box-shadow: rgba(0,0,0,0.3) 4px 4px 2px;
+  border: 1px solid #333; 
+  background: #fff; 
+  color: #333; 
+  padding: .1em;
+
+  z-index: +5000;
+}
+
+
+/* stupid IE6 HasLayout hack */
+.cluetip-info #cluetip-title,
+.cluetip-info #cluetip-inner {
+  zoom: 1;
+}
+
+
+#cluetip ul{
+	margin: 5px;
+	padding-left: 20px;
+	}

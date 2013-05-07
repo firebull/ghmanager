@@ -1,0 +1,123 @@
+/* TipTip CSS - Version 1.2 */
+
+@tip-padding: 5px;
+@tip-backcolor-rgb: rgb(35, 35, 35);
+@tip-backcolor-rgba: rgba(35, 35, 35, 0.92);
+@tip-bordercolor-hex: #fff;
+@tip-bordercolor2-hex: @tip-backcolor-rgb;
+@tip-bordercolor-rgba: rgba(255, 255, 255, 0.35);
+@tip-bordercolor2-rgba: rgba(35, 35, 35, 0.92);
+@tip-shadow: #555;
+
+#tiptip_holder {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 99999;
+}
+
+#tiptip_holder.tip_top {
+	padding-bottom: @tip-padding;
+}
+
+#tiptip_holder.tip_bottom {
+	padding-top: @tip-padding;
+}
+
+#tiptip_holder.tip_right {
+	padding-left: @tip-padding;
+}
+
+#tiptip_holder.tip_left {
+	padding-right: @tip-padding;
+}
+
+#tiptip_content {
+	font-size: 12px;
+	font-family: segoe ui, Verdana, Arial, sans-serif;
+	color: #fff;
+	text-shadow: 0 0 2px #000;
+	padding: 4px 8px;
+	border: 1px solid rgba(255,255,255,0.25);
+	background-color: @tip-backcolor-rgb;
+	background-color: @tip-backcolor-rgba;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(transparent), to(#000));
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	box-shadow: 0 0 3px @tip-shadow;
+	-webkit-box-shadow: 0 0 3px @tip-shadow;
+	-moz-box-shadow: 0 0 3px @tip-shadow;
+}
+
+#tiptip_arrow, #tiptip_arrow_inner {
+	position: absolute;
+	border-color: transparent;
+	border-style: solid;
+	border-width: 6px;
+	height: 0;
+	width: 0;
+}
+
+#tiptip_holder.tip_top #tiptip_arrow {
+	border-top-color: @tip-bordercolor-hex;
+	border-top-color: @tip-bordercolor-rgba;
+}
+
+#tiptip_holder.tip_bottom #tiptip_arrow {
+	border-bottom-color: @tip-bordercolor-hex;
+	border-bottom-color: @tip-bordercolor-rgba;
+}
+
+#tiptip_holder.tip_right #tiptip_arrow {
+	border-right-color: @tip-bordercolor-hex;
+	border-right-color: @tip-bordercolor-rgba;
+}
+
+#tiptip_holder.tip_left #tiptip_arrow {
+	border-left-color: @tip-bordercolor-hex;
+	border-left-color: @tip-bordercolor-rgba;
+}
+
+#tiptip_holder.tip_top #tiptip_arrow_inner {
+	margin-top: -7px;
+	margin-left: -6px;
+	border-top-color: @tip-backcolor-rgb;
+	border-top-color: @tip-bordercolor2-rgba;
+}
+
+#tiptip_holder.tip_bottom #tiptip_arrow_inner {
+	margin-top: -5px;
+	margin-left: -6px;
+	border-bottom-color: @tip-backcolor-rgb;
+	border-bottom-color: @tip-bordercolor2-rgba;
+}
+
+#tiptip_holder.tip_right #tiptip_arrow_inner {
+	margin-top: -6px;
+	margin-left: -5px;
+	border-right-color: @tip-backcolor-rgb;
+	border-right-color: @tip-bordercolor2-rgba;
+}
+
+#tiptip_holder.tip_left #tiptip_arrow_inner {
+	margin-top: -6px;
+	margin-left: -7px;
+	border-left-color: @tip-backcolor-rgb;
+	border-left-color: @tip-bordercolor2-rgba;
+}
+
+/* Webkit Hacks  */
+@media screen and (-webkit-min-device-pixel-ratio:0) {	
+	#tiptip_content {
+		padding: 4px 8px 5px 8px;
+		background-color: rgba(45,45,45,0.88);
+	}
+	#tiptip_holder.tip_bottom #tiptip_arrow_inner { 
+		border-bottom-color: rgba(45,45,45,0.88);
+	}
+	#tiptip_holder.tip_top #tiptip_arrow_inner { 
+		border-top-color: rgba(20,20,20,0.92);
+	}
+}

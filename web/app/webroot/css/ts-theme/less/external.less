@@ -1,0 +1,41 @@
+.bg (@y: 0px){
+	background-position: 0 @y;
+}
+
+.players_load {
+	height: 10px;
+	width: 24px;
+	margin: 0 0 3px;
+	padding: 0 0 0 0px;
+	background: url("https://panel.teamserver.ru/img/load_bars.png");
+	background-repeat: no-repeat;	
+	cursor: default;
+}
+
+.players_load_free {
+	.bg(0px);
+}
+
+.players_load_20 {	
+	.bg(-12px);
+}
+
+.players_load_40 {
+	.bg(-24px);
+}
+
+.players_load_60 {
+	.bg(-36px);
+}
+
+.players_load_80 {
+	.bg(-48px);
+}
+
+.players_load_100 {
+	.bg(-60px);
+}
+
+.players_load_full {
+	.bg(-72px);
+}

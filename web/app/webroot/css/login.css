@@ -1,0 +1,239 @@
+﻿body {
+	background-color: silver;
+}
+.flash_login {
+	width: 60%;
+	max-width: 410px;
+	left: 20%;
+	position: relative;
+	background-color: #fff;
+	border: 2px solid #b4b4b4;
+    border-top-left-radius: 6px;
+    -moz-border-radius-topleft: 6px;
+    border-bottom-right-radius: 6px;
+    -moz-border-radius-bottomright: 6px;
+	}
+#flash .login_error {
+	color: #DD1500;
+	}
+#flash .login_success {
+	color: #446805;
+	}
+#title {
+	width: 60%;
+	max-width: 420px;
+	top: 100px;
+	height: 50px;
+	position: absolute;
+	left: 20%;
+	z-index: +1;
+	}
+#logo {
+	background-image: url('../img/TS_logo.png');
+	float: left;
+	width: 272px;
+	height: 42px;
+	background-position: -10px;
+	}
+#title_text {
+	float: right;
+	width: 110px;
+	height: 38px;
+	margin-top: 12px;
+	padding-right: 5px;
+	text-align: right;
+	font-size: 10px;
+	color: #333;
+	}
+#login_form {
+	height: 250px;
+	background-color: #fff;
+	border: 2px solid #b4b4b4;
+    border-top-left-radius: 8px;
+    -moz-border-radius-topleft: 8px;
+    border-bottom-right-radius: 8px;
+    -moz-border-radius-bottomright: 8px;
+	position: absolute;
+	left: 20%;
+	top: 150px;
+	width: 60%;
+	max-width: 420px;
+	z-index: +1;
+	
+	background-image: -webkit-gradient(
+			    linear,
+			    left bottom,
+			    left top,
+			    color-stop(0.13, rgb(255,255,255)),
+			    color-stop(0.57, rgb(237,237,237))
+	);
+	
+	background-image: -moz-linear-gradient(
+			    center bottom,
+			    rgb(255,255,255) 13%,
+			    rgb(237,237,237) 57%
+	);
+	
+}
+
+#loginform_fieldname {
+	position: relative;
+	width: 100%;
+	height: 13px;
+	z-index: +2;
+	font-size: 11px;
+	font-family: Verdana, Tahoma, Arial;
+	text-align: center;
+}
+
+#loginform_input {
+	position: relative;
+	width: 70%;
+	left: 15%;
+	height: 30px;
+	z-index: +2
+}
+
+#loginform_button {
+	position: relative;
+	width: 100%;
+	height: 30px;
+	z-index: +2;
+	text-align: center;
+}
+
+#loginform_header {
+	height: 22px;
+	vertical-align: bottom;
+	font-family: Verdana, Tahoma, Arial;
+	font-weight: bold;
+	font-size: 14px;
+	color: #DD1500;
+	position: relative;
+	z-index: +2;
+	width: 100%;
+	text-align: center;
+	padding-top: 20px;
+}
+
+input.loginform {
+	width: 100%;
+	font-family: Verdana, Tahoma, Arial;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	color: #555;	
+	
+}
+
+input.loginform_passwd {
+	width: 100%;
+	font-family: Verdana, Tahoma, Arial;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	color: #555;
+}
+
+input.loginform_passwd_validator {
+	width: 100%;
+	font-family: Verdana, Tahoma, Arial;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	color: #fff;
+}
+
+input.login_submit {
+	border-width: 1px;
+	border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+	font-family: Verdana, Tahoma, Arial;
+	font-size: 16px;
+	font-weight: bold;
+	background-color: #888;
+	color: #FFFFFF;
+}
+
+#password_check_result {
+	margin-top: 0px;
+	padding-top: 0px;
+	font-size: 10px;
+	}
+	
+#leftpart {
+	width: 18%;
+	border: none;
+	position: absolute;
+	left: 1%;
+}
+
+#midpart {
+	width: 60%;
+	border: none;
+	position: absolute;
+	left: 20%;
+	z-index: 900;
+}
+
+#rightpart {
+	width: 18%;
+	border: none;
+	position: absolute;
+	left: 81%;
+}
+
+#browsers_list {
+	width: 60%;
+	max-width: 420px;
+	height: 135px;
+	left: 20%;
+	position: absolute;
+	top: 425px;
+	background-color: #fff;
+	border: 2px solid #b4b4b4;
+    border-top-left-radius: 8px;
+    -moz-border-radius-topleft: 8px;
+    border-bottom-right-radius: 8px;
+    -moz-border-radius-bottomright: 8px;
+	}
+
+#browsers_list table {
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+	font-family: Verdana, Tahoma, Arial;
+	font-size: 10px;
+}
+#browsers_list table th{
+	color: #970405;
+	background-color: none;
+	border: none;
+	padding-bottom: 8px;
+}
+#browsers_list table tr.top td {
+	text-align: center;
+	vertical-align: top;
+}
+#browsers_list table tr.bottom td {
+	text-align: center;
+	vertical-align: bottom;
+}
+@-webkit-keyframes pulse {
+	0% {
+	-webkit-box-shadow: 0 0 20px rgba(200, 50, 50, 0.2);
+	}
+	50% {
+	-webkit-box-shadow: 0 0 20px rgba(200, 50, 50, 0.9);
+	}
+	100% {
+	-webkit-box-shadow: 0 0 20px rgba(200, 50, 50, 0.2);
+	}
+}
+form input[type="text"]:focus,
+form input[type="password"]:focus {
+	-webkit-animation: pulse 1.5s infinite ease-in-out;
+}
