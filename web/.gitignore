@@ -4,6 +4,4 @@ app/config
 app/tmp
 app/config/payment_params.ini.php
 app/config/external.ini.php
-vendors
 app/config/core.php
-plugins
