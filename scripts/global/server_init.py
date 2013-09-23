@@ -357,9 +357,9 @@ if lock:
                 print "Перезаписываю пароль пользователя"
                 try:
                     child = pexpect.spawn('passwd -q %s' % userName)
-                    child.expect(['New Password:', 'Новый пароль:'])
+                    child.expect(['New Password:', 'Новый пароль:', 'Enter new UNIX password:'])
                     child.sendline(userPassword)
-                    child.expect(['Reenter New Password:', 'Повторите Новый пароль:'])
+                    child.expect(['Reenter New Password:', 'Повторите Новый пароль:', 'Retype new UNIX password:'])
                     child.sendline(userPassword)
 
                     print child.before
@@ -372,7 +372,7 @@ if lock:
             # Теперь получим uid и gid
             pw = pwd.getpwnam(userName)
             nb = pwd.getpwnam("nobody")
-            apachePw = pwd.getpwnam("wwwrun")
+            apachePw = pwd.getpwnam("www-data")
             nobodyUid = nb.pw_uid
             userUid = pw.pw_uid
             userGid = pw.pw_gid
@@ -597,7 +597,7 @@ if lock:
                     configUser.close()
                     try:
                         print "Перезапуск сервера Apache"
-                        call(['rcapache2', 'restart'])
+                        call(['service', 'apache2', 'restart'])
                     except OSError, e:
                         print "Не удалось перезапустить Apache:", e
                 else:

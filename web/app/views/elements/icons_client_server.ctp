@@ -132,7 +132,7 @@
 
 		$js->get('#plugin_'.$id)->event('click', $event);
 
-    	if ( in_array($name, array( 'css', 'cssv34', 'dods', 'tf', 'cs16'))) 
+    	if ( in_array($name, array( 'css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old'))) 
    		{
 			//Иконка для установки карт
 			echo $html->link('<i class="icon-picture"></i>', '#',

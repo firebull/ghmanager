@@ -309,7 +309,7 @@ if lock:
                 # Дополнительные директории, где могут быть демки
                 if template['name'] == 'css' or template['name'] == 'cssv34':
                     demDirs[1] = demDirs[0] + '/warmod'
-                elif template['name'] == 'cs16':
+                elif template['name'] in ['cs16', 'cs16-old']:
                     demDirs[1] = demDirs[0] + '/demos/HLTV'
 
                     # Файл директорий наблюдения за логами CS 1.6

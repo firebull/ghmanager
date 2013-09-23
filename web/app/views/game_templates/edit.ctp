@@ -12,6 +12,14 @@
 
 <table border="0" cellpadding="0" cellspacing="3" width="95%">
 	<tr>
+		<td align="right">Включён:
+		</td>
+		<td align="left"><?php echo $form->input('active', 
+									array(	'div' => false, 
+											'label' => false));?>
+		</td>
+	</tr>
+	<tr>
 		<td align="right">Тип:
 		</td>
 		<td align="left"><?php echo $form->input('Type.id', 
@@ -34,6 +42,15 @@
 		<td align="right">Полное название:
 		</td>
 		<td align="left"><?php echo $form->input('longname', 
+									array(	'size'=> '30',
+											'div' => false, 
+											'label' => false));?>
+		</td>
+	</tr>
+	<tr>
+		<td align="right">Текущая версия:
+		</td>
+		<td align="left"><?php echo $form->input('current_version', 
 									array(	'size'=> '30',
 											'div' => false, 
 											'label' => false));?>

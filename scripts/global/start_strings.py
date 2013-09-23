@@ -352,17 +352,23 @@ def dedicatedStart(id, user, email, ip, port, slots, slotsMax, type, map, mapGro
         runString = str(interface) + str(options)
     #
     # Counter-strike 1.6 ###########################################################
-    elif type == "cs16" or type == "dmc" or type == 'hl1':
+    elif type in ['cs16', 'cs16-old', 'dmc', 'hl1']:
 
         if int(slots) <= 12:
             nice = '0'
         else:
             nice = str(4 - int(round((float(slots) / float(slotsMax)) * 4)))
 
+        if type == 'cs16-old':
+            binary = '-binary ./hlds_amd'
+        else:
+            binary = ''
+
         # НЕ ТРОГАТЬ кавычки! Так сделано неспроста! Хрень в том, что система и перл убирают по \, потому и надо ставить их 2 подряд.
-        o = Template(' ./hlds_run +ip $hostIP -game $game +clientport $cPort +hostport $hostport +port $hostport \
+        o = Template(' ./hlds_run $platform +ip $hostIP -game $game +clientport $cPort +hostport $hostport +port $hostport \
  -maxplayers $players $fps $master $ticrate -pingboost 1 +map \\\"$serverMap\\\" -pidfile $pid +log on $vacEnable $dbg')
-        options = o.substitute(hostIP=ip,
+        options = o.substitute(platform=binary,
+                               hostIP=ip,
                                game=srcdsTypeToGame(type),
                                cPort=clientPort,
                                hostport=port,
@@ -480,7 +486,7 @@ def hltvStart(id, user, ip, port, slots, type):
 
     #
     # Counter-strike 1.6 ###########################################################
-    if type == "cs16" or type == "dmc":
+    if type in ['cs16', 'cs16-old', 'dmc']:
 
         o = Template('./hltv -ip $hostIP -port $hostport +connect $hostIP:$connectTo \
  +maxclients  $clients -nodns -pidfile $pid -logfile 0')

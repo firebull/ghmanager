@@ -20,6 +20,7 @@
 
   $hltvEnable = array(
   							'cs16',
+  							'cs16-old',
   							'dmc',
   							'hl1'							
   							);
@@ -263,8 +264,8 @@ if ( !empty($serversGrouped) ) { // Если есть список
 							<th></th>
 							<th>ID</th>
 							<th style="width: 30px;"></th>
-							<th style="width: 150px;">Сервер</th>
-							<th style="min-width: 200px !important">Настройка</th>
+							<th style="width: 130px;">Сервер</th>
+							<th style="min-width: 255px !important">Настройка</th>
 							<th>Слотов</th>
 							<th width="130">Адрес</th>
 							<th width="140">Оплачено до</th>
@@ -401,7 +402,7 @@ if ( !empty($serversGrouped) ) { // Если есть список
 														?>
 			</td>
 			<td class="left">
-				<div class="cuttext" style="max-width: 150px;">
+				<div class="cuttext" style="max-width: 125px;">
 					<?php 
 						if (empty($server['Server']['name'])){
 							$serverName = $server['GameTemplate'][0]['longname']; 

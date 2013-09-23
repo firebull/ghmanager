@@ -83,7 +83,7 @@ def srcdsTypeToGame(type):
         return 'tf'
     elif type == 'dods':
         return 'dod'
-    elif type == 'css' or type == 'cs16':
+    elif type == 'css' or type == 'cs16' or type == 'cs16-old':
         return 'cstrike'
     elif type == 'csgo' or type == 'csgo-t128':
         return 'csgo'
@@ -111,7 +111,7 @@ def srcdsTypeToGameForUpdate(type):
         return 'dods'
     elif type == 'css':
         return '"Counter-Strike Source"'
-    elif type == 'cs16':
+    elif type == 'cs16' or type == 'cs16-old':
         return 'cstrike'
     elif type == 'dmc':
         return 'dmc'
@@ -184,7 +184,7 @@ def restartServer(serverID, type, runWithMod, isHltv=False):
         if runWithMod != 'none':
             action = 'restartWith' + runWithMod
 
-        retcode = Popen("/home/configurator/public_html/scripts/subscript_start_stop.py "
+        retcode = Popen("sudo -u configurator /home/configurator/public_html/scripts/subscript_start_stop.py "
                         + " -a " + action
                         + " -s " + serverID,
                         shell=True,

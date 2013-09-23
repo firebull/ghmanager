@@ -152,12 +152,12 @@ Lesser General Public License for more details.
 					// Если есть ошибка, и код ошибки 3, то юзер еще не заведён
 					if (!empty($output['Error'])){
 
-						if ($output['Error']['code'] == 3 and $output['Error']['obj'] == 'user'){
+						if ($output['Error']['code'] == 3 and $output['func'] == 'user.edit'){
 							return 'none';
 						}
 						else
 						{
-							$this->Session->setFlash('Нельзя создать учётную запись. Код ошибки ISP: '.$output['Error']['code'], 'flash_error');
+							$this->Session->setFlash('Не удалось проверить учётную запись. Код ошибки ISP: '.$output['Error']['code'], 'flash_error');
 							return false;
 						}
 
@@ -200,12 +200,12 @@ Lesser General Public License for more details.
 					// Если есть ошибка, и код ошибки 3, то домен свободен
 					if (!empty($output['Error'])){
 
-						if ($output['Error']['code'] == 3 and $output['Error']['obj'] == $type){
+						if ($output['Error']['code'] == 3 and @$output['func'] == $type.'.edit'){
 							return 'none';
 						}
 						else
 						{
-							$this->Session->setFlash('Нельзя создать учётную запись. Код ошибки ISP: '.$output['Error']['code'], 'flash_error');
+							$this->Session->setFlash('Нельзя создать домен. Код ошибки ISP: '.$output['Error']['code'], 'flash_error');
 							return false;
 						}
 					}
@@ -405,7 +405,7 @@ Lesser General Public License for more details.
 
 			// Если есть ошибка, возвращаем только её
 			if (!empty($xmlAsArray['Doc']['Error'])){
-				$return['Error'] = $xmlAsArray['Doc']['Error'];
+				$return = $xmlAsArray['Doc'];
 				return $return;
 			}
 			else
@@ -2606,7 +2606,7 @@ Lesser General Public License for more details.
 
 			$request = "~configurator/scripts/subscript_read_log.py?".$data;
 
-			$response = $this->webGet($ip, 0, $request);
+			$response = $this->TeamServer->webGet($ip, 0, $request);
 
 			if ($response !== false){
 
@@ -2840,7 +2840,7 @@ Lesser General Public License for more details.
 
 			$request = "~configurator/scripts/subscript_read_log.py?".$data;
 
-			$response = $this->webGet($ip, 0, $request);
+			$response = $this->TeamServer->webGet($ip, 0, $request);
 
 			if ($response !== false){
 
@@ -3468,13 +3468,15 @@ Lesser General Public License for more details.
 				Cache::write('serversAllPublic', $servers);
 			}
 
-			$randServersKeys = array_rand($servers, 10);
+			if (count($servers) > 10)
+			{
+				$randServersKeys = array_rand($servers, 10);
 
-			foreach ( $randServersKeys as $key ) {
-       			$randServers[$key] = $servers[$key];
+				foreach ( $randServersKeys as $key ) {
+	       			$randServers[$key] = $servers[$key];
+				}
+				$servers = $randServers;
 			}
-			$servers = $randServers;
-
 		}
 		else
 		{

@@ -149,10 +149,10 @@ def dedicatedUpdate(id, user, type, token):
                                user_group='%s:%s' % (user, user)
                                )
     else:
-        steamPath = "/home/%s/servers/%s_%s/steamcmd/steam.sh" % (user, type, str(id))
+        steamPath = "/home/%s/servers/%s_%s/steamcmd/steamcmd.sh" % (user, type, str(id))
         o = Template('echo "############################" >> $log && \
   date >> $log && \
-  /home/configurator/public_html/scripts/update_valve.py --command=\'STEAMEXE=steamcmd $steam +runscript ./cs16_update.txt\' --token=$action_token >> $log &&\
+  /home/configurator/public_html/scripts/update_valve.py --command=\'$steam +login anonymous +force_install_dir ../ +app_set_config 90 mod cstrike +app_update 90 validate +quit\' --token=$action_token >> $log &&\
   echo "Установка прав на основные файлы" >> $log && \
   find $dir/cstrike/ -type f -exec chmod 644 {} \; >> $log && \
   find $dir/valve/ -type f -exec chmod 644 {} \; >> $log && \

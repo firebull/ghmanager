@@ -43,22 +43,23 @@ else:
 
 try:
     child = pexpect.spawn('passwd -q')
-    child.expect('Old Password:')
+    child.expect(['Old Password\:', '\(текущий\) пароль UNIX\:', '\(current\) UNIX password\:'])
     child.sendline(oldPass)
-    next = child.expect(['New Password:', pexpect.EOF], timeout=5)
-    if next == 0:
+    next = child.expect(['New Password\:', 'Enter new UNIX password\:', 'Введите новый пароль UNIX\:', pexpect.EOF], timeout=5)
+    print next
+    if next < 3:
         print "Перезаписываю пароль пользователя\n<br/>"
         child.sendline(userPassword)
-        child.expect('Reenter New Password:')
+        child.expect(['Reenter New Password\:', 'Retype new UNIX password\:', 'Повторите ввод нового пароля UNIX\:'])
         child.sendline(userPassword)
         print child.before
-        child.expect(pexpect.EOF)
+        child.expect(['passwd: password updated successfully', pexpect.EOF])
 
         print "<!-- RESULT START -->"
         print userPassword
         print "<!-- RESULT END -->"
 
-    elif next == 1:
+    elif next == 3:
         print "Неверен предыдущий пароль. Измените пароль вручную."
         print "<!-- RESULT START -->"
         print "error"

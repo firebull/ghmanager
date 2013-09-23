@@ -93,7 +93,7 @@ configTemplate.close()
 configUser.close()
 try:
     print "Перезапуск сервера Apache"
-    call(['rcapache2', 'restart'])
+    call(['service', 'apache2', 'restart'])
 except OSError, e:
     print "Не удалось перезапустить Apache:", e
 # Конец создания конфига Apache

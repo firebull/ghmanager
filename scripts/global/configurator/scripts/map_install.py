@@ -38,14 +38,14 @@ def valveMapInsert(path, mapName, game='css'):
     mapList = path + '/maplist.txt'
     mapCycle = path + '/mapcycle.txt'
 
-    if game == 'cs16':
+    if game in ['cs16', 'cs16-old']:
         serverCfg = path + '/server.cfg'
     else:
         serverCfg = path + '/cfg/server.cfg'
 
     try:
         # Добавить карты в конфиги
-        if game != 'cs16':
+        if game not in ['cs16', 'cs16-old']:
             if (addInfoToConfig(mapList, mapName) == True):
                 xmlLog('Карта успешно добавлена в maplist.txt')
             else:
@@ -126,7 +126,7 @@ if action == 'install':
         xmlLog("Копирование карты успешно завершено.")
 
         # В зависимости от игры, могут потребоваться дополнительные действия
-        if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16'):
+        if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16', 'cs16-old'):
             valveMapInsert(installTo, mapName, gameTemplate)
 
     except OSError, e:
@@ -159,7 +159,7 @@ elif action == 'delete':
         xmlLog('Подчищаю конфиги')
 
         # В зависимости от игры, могут потребоваться дополнительные действия
-        if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16'):
+        if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16', 'cs16-old'):
 
             valveMapRemove(installTo, mapName, gameTemplate)
 
@@ -175,7 +175,7 @@ elif action == 'turnOn':
     xmlLog('Попытка включить карту ' + mapName)
     # В зависимости от игры, карта включается в разных конфигах
 
-    if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16'):
+    if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16', 'cs16-old'):
 
         valveMapInsert(installTo, mapName, gameTemplate)
 
@@ -187,6 +187,6 @@ elif action == 'turnOff':
     xmlLog('Попытка отключить карту ' + mapName)
     # В зависимости от игры, карта отключается в разных конфигах
 
-    if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16'):
+    if gameTemplate in ('css', 'cssv34', 'tf', 'dods', 'hl2mp', 'cs16', 'cs16-old'):
 
         valveMapRemove(installTo, mapName, gameTemplate)

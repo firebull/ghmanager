@@ -11,6 +11,7 @@
                 'orders'=>'nav',
                 'gametemplates' => 'nav',
                 'services' => 'nav',
+                'messages' => 'nav',
                 'promos' => 'nav',
                 'maintenances' => 'nav');
                 
@@ -84,6 +85,16 @@
         <?php echo $html->link( 'Шаблоны', 
                                         array (
                                         'controller'=>'gameTemplates',
+                                        'action'=>'control'
+                                        )
+        
+                                );
+        ?>
+        </li>
+        <li class="<?php echo $class['messages']; ?>">
+        <?php echo $html->link( 'Новости', 
+                                        array (
+                                        'controller'=>'messages',
                                         'action'=>'control'
                                         )
         

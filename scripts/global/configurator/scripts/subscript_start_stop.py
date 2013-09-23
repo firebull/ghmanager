@@ -245,7 +245,8 @@ if numrows > 0:
                                     shell=True,
                                     stdin=PIPE,
                                     stdout=PIPE,
-                                    stderr=PIPE)
+                                    stderr=PIPE,
+                                    env={'HOME': homeDir})
                     (out, err) = retcode.communicate()
                     for line in out.splitlines():
                         if re.match('EXEC_STATUS', line):  # Искать надо только по началу строки
@@ -294,7 +295,8 @@ if numrows > 0:
                                         shell=True,
                                         stdin=PIPE,
                                         stdout=PIPE,
-                                        stderr=PIPE)
+                                        stderr=PIPE,
+                                        env={'HOME': homeDir})
                         (out, err) = retcode.communicate()
                         for line in out.splitlines():
                             if re.match('EXEC_STATUS', line):  # Искать надо только по началу строки
@@ -396,7 +398,8 @@ if numrows > 0:
                                             shell=True,
                                             stdin=PIPE,
                                             stdout=PIPE,
-                                            stderr=PIPE)
+                                            stderr=PIPE,
+                                            env={'HOME': homeDir})
                             (out, err) = retcode.communicate()
                             for line in out.splitlines():
                                 if re.match('EXEC_STATUS', line):  # Искать надо только по началу строки

@@ -40,16 +40,38 @@ class MessagesController extends AppController {
 		'javascript',
 		'Html',
 		'Text',
-		'Js' => array('Jquery')
+		'Js' => array('Jquery'),
+		'Common'
 	);
 	public $components = array (
 		'RequestHandler',
-		'Session'
+		'Session',
+		'TeamServer'
 	);
+
+	function beforeRender() {
+		$userInfo = $this->DarkAuth->getAllUserInfo();
+
+		// Убрать все теги, xss-уязвимость
+		foreach ( $userInfo['User'] as $key => $value ) {
+   				$userInfo['User'][$key] = strip_tags($value);
+		}
+
+		$this->set('userinfo', $userInfo);
+	}
 
 	function index() {
 		$this->Message->recursive = 0;
 		$this->paginate = array('limit' => 5, 'order' => 'created DESC' );
+
+		$this->set('news', $this->paginate());
+	}
+
+	function control() {
+		$this->layout = 'client';
+		$this->DarkAuth->requiresAuth(array('Admin','GameAdmin'));
+		$this->Message->recursive = 0;
+		$this->paginate = array('limit' => 10, 'order' => 'created DESC' );
 
 		$this->set('news', $this->paginate());
 	}
