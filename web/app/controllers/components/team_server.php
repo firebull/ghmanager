@@ -139,7 +139,7 @@ class TeamServerComponent extends Object
 
                     if ( $httpCode != 200 ){
                         $this->data['Webget']['error']['Http'] = $httpCode;
-                        $this->Session->setFlash('При попытке совершить операцию произошла ошибка: '.$httpCode.
+                        $this->controller->Session->setFlash('При попытке совершить операцию произошла ошибка: '.$httpCode.
                                 '<br/>Попробуйте повторить операцию позднее.', 'flash_error');
                         return  false;
                     }
@@ -152,7 +152,7 @@ class TeamServerComponent extends Object
                 else
                 {
                     $this->data['Webget']['error']['Curl'] = curl_error($handle);
-                    $this->Session->setFlash('Ошибка подключения: '.curl_error($handle), 'flash_error');
+                    $this->controller->Session->setFlash('Ошибка подключения: '.curl_error($handle), 'flash_error');
                     curl_close($handle);
                     return false;
                 }
@@ -187,13 +187,13 @@ class TeamServerComponent extends Object
                 }
                 else
                 {
-                    $this->Session->setFlash('Ошибка подключения: '.curl_error($handle), 'flash_error');
+                    $this->controller->Session->setFlash('Ошибка подключения: '.curl_error($handle), 'flash_error');
                     return false;
                 }
             }
             else
             {
-                $this->Session->setFlash('Указан неправильный метод: '.$method, 'flash_error');
+                $this->controller->Session->setFlash('Указан неправильный метод: '.$method, 'flash_error');
                 curl_close($handle);
                 return false;
             }
