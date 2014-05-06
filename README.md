@@ -11,3 +11,5 @@ Control panel is based on CakePHP 1.3 which is licensed under MIT.
 
 The code of WEB part of panel is in WEB dir.
 Servers part - scripts, configs and so on, are in SCRIPTS dir.
+
+Install instructions can be found in Wiki https://github.com/firebull/ghmanager/wiki
