@@ -1,0 +1,15 @@
+# Add this lines at the end of /etc/crontab
+# Добавьте эти строки в конец /etc/crontab
+*/1  * * * *    root  /images/scripts/global/server_init.py >>/var/log/ghmanager/servers-init.log
+31   3 * * *    root  /images/scripts/global/servers_update_all.py >>/var/log/ghmanager/servers-update.log
+45  */12 * * *  root  /images/scripts/global/servers_clean.py >>/var/log/ghmanager/servers-cleaner.log
+*/30 * * * *    root  /images/scripts/global/servers_stop_unpayed.py >>/var/log/ghmanager/servers-stop.log
+*/15 * * * *    root  /images/scripts/global/servers_check_state.py >>/var/log/ghmanager/servers-check-state.log
+*/5  * * * *    root  /images/scripts/global/servers_check_params.py >>/var/log/ghmanager/servers-check-params.log
+*/15 * * * *    root  /images/scripts/global/build_clients_graphs.py >>/var/log/ghmanager/generate-graphs.log
+20   6 * * *    root  /images/scripts/global/logs_clean.py >>/var/log/ghmanager/logs_cleaner.log
+20   5 * * *    root  /images/scripts/global/dems_clean.py >>/var/log/ghmanager/dems_cleaner.log
+05  */2 * * *   root  /images/scripts/global/servers_regular_reboot.py >>/var/log/ghmanager/servers-regular-reboot.log
+*/11 * * * *    root  /bin/bash /images/scripts/global/watchForDems/dem_watch.sh restart >>/var/log/ghmanager/dem_watch_start.log
+57  */1 * * *   root  /images/scripts/global/log_iptables.py >>/var/log/ghmanager/iptables.log
+#
