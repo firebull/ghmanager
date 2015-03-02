@@ -1,0 +1,5 @@
+# Add this line to the end of /etc/sudoers
+# Добавьте эти строки в конец /etc/sudoers
+configurator	ALL = (ALL) NOPASSWD:/images/scripts/global/configurator/plugin_install.py,/home/configurator/public_html/scripts/start_stop_valve.py ,/images/scripts/global/plugin_install.py ,/home/configurator/public_html/scripts/start_stop_mumble.py ,/home/configurator/public_html/scripts/plugin_check.py ,/home/configurator/public_html/scripts/plugin_delete.py ,/images/scripts/global/unzip.py ,/home/configurator/public_html/scripts/set_permissions.py,/home/configurator/public_html/scripts/start_stop_cod.py,/home/configurator/public_html/scripts/dir_list.py,/home/configurator/public_html/scripts/files_list.py,/home/configurator/public_html/scripts/read_log.py,/home/configurator/public_html/scripts/read_write_param.py,/home/configurator/public_html/scripts/map_install.py,/home/configurator/public_html/scripts/write_admin_to_mod.py
+
+#
