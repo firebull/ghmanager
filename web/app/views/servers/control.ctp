@@ -14,39 +14,40 @@ $sourceTvEnable = array(
   							'cssv34',
   							'hl2mp',
   							'dods'
-  							
+
   							);
 $hltvEnable = array(
   							'cs16',
-  							'dmc'							
+  							'cs16-old',
+  							'dmc'
   							);
 ?>
-<script type="text/javascript">	
+<script type="text/javascript">
 
 		function GetStatuses () {
-			  
+
 			    $.getJSON('/servers/getStatus',
 		                  {id: "<?php echo $serversIds; ?>"},
 		                  function(tmps) {
 		                    if(tmps !== null) {
-		                      SetStatuses(tmps);											  
+		                      SetStatuses(tmps);
 		                    }
 		        		  }
-		                );  						    						
+		                );
 			}
-			
+
 		function SetStatuses (tmps) {
 				var tr = '';
 				var style = '';
-				
+
 				$.each(tmps, function(index, status) {
 					tr = '#server_string_' + index;
 					td = '#server_status_' + index;
 					style = 'tbl_hover_' + status;
-					
+
 					if (!$(td).hasClass(status)){
 						$(td).removeClass().addClass(status);
-						
+
 						if (status == 'stoped'){
 							$(td).attr('title','Сервер выключен');
 						}
@@ -65,11 +66,11 @@ $hltvEnable = array(
 
 					$(tr).attr('onMouseover','this.className="'+style+'"')
 					$(tr).attr('onMouseout','this.className="tbl_out"')
-					
-					
+
+
 				});
-			
-			}																	
+
+			}
 </script>
 <div id="servers_list">
 <?php
@@ -83,7 +84,7 @@ $hltvEnable = array(
 							);
 ?>
 <div id="searchButton" style="margin-bottom: 5px;">
-	<?php 
+	<?php
 			$searchText = 'Поиск';
 			$searchParam = '';
 			$isSearch = false;
@@ -121,7 +122,7 @@ $hltvEnable = array(
 				{
 					$searchParam .= 'Порт сервера: #'.$searchServerPort.'; ';
 				}
-				
+
 				$isSearch = true;
 			}
 
@@ -142,9 +143,9 @@ $hltvEnable = array(
 </div>
 <div id="clear"></div>
 <div id="searchForm" style="display: none;">
-	<?php 
+	<?php
 
-	echo $form->create('Server', array('class' => 'form-inline')); 
+	echo $form->create('Server', array('class' => 'form-inline'));
 	echo $form->input('User.username', array(	'type' => 'hidden',
 												'value' => 'all'));
 	echo $form->input('Server.id', array(
@@ -162,7 +163,7 @@ $hltvEnable = array(
 			<div class="input-prepend">
 				<span class="add-on">Локация</span><?php 	echo $form->input('Location.id', array('options' => @$locationsList,
 										'selected'=>@$locationId,
-										'div' => false, 
+										'div' => false,
 										'id'  => 'locations',
 										'label' => false)); ?>
 			</div>
@@ -170,7 +171,7 @@ $hltvEnable = array(
 			<div class="input-prepend">
 				<span class="add-on">Статус</span><?php 	echo $form->input('Server.status', array('options' => $statusList,
 										'selected'=> @$statusChoise,
-										'div' => false, 
+										'div' => false,
 										'id'  => 'statuses',
 										'label' => false)); ?>
 			</div>
@@ -179,9 +180,9 @@ $hltvEnable = array(
 
 		</div>
 	</fieldset>
-	<?php echo $form->end(); 
+	<?php echo $form->end();
 
-	echo $form->create('Server', array('class' => 'form-inline')); 
+	echo $form->create('Server', array('class' => 'form-inline'));
 	echo $form->input('Location.id', array(
 										'type'=>'hidden',
 										'value' => 'all'));
@@ -202,20 +203,20 @@ $hltvEnable = array(
 	<fieldset>
 		<div class="control-group">
 			<div class="input-prepend input-append">
-				<span class="add-on">Клиент</span><?php echo $form->input('User.username', 
+				<span class="add-on">Клиент</span><?php echo $form->input('User.username',
 										array(	'id' => 'usernameSort',
 												'value' => @$searchUserName,
-												'div' => false, 
+												'div' => false,
 												'label' => false,
 												'style' => 'width: 150px;'));
-					
+
 				echo $form->submit('Искать', array('class' => 'btn btn-primary', 'div' => false));?>
 			</div>
 		</div>
 	</fieldset>
 	<?php echo $form->end();
 
-	echo $form->create('Server', array('class' => 'form-inline')); 
+	echo $form->create('Server', array('class' => 'form-inline'));
 	echo $form->input('Location.id', array(
 										'type'=>'hidden',
 										'value' => 'all'));
@@ -235,11 +236,11 @@ $hltvEnable = array(
 	<fieldset>
 		<div class="control-group">
 			<div class="input-prepend input-append">
-				<span class="add-on">&nbsp;&nbsp;&nbsp;ID #</span><?php echo $form->input('Server.id', 
+				<span class="add-on">&nbsp;&nbsp;&nbsp;ID #</span><?php echo $form->input('Server.id',
 										array(	'id' => 'searchByServerId',
 												'type' => 'text',
 												'value' => @$searchServerId,
-												'div' => false, 
+												'div' => false,
 												'label' => false,
 												'style' => 'width: 150px;'));
 
@@ -250,7 +251,7 @@ $hltvEnable = array(
 
 	<?php echo $form->end();
 
-	echo $form->create('Server', array('class' => 'form-inline')); 
+	echo $form->create('Server', array('class' => 'form-inline'));
 	echo $form->input('Location.id', array(
 										'type'=>'hidden',
 										'value' => 'all'));
@@ -265,23 +266,23 @@ $hltvEnable = array(
 		<div class="control-group">
 
 			<div class="input-prepend">
-				<span class="add-on">IP</span><?php 
+				<span class="add-on">IP</span><?php
 
-					echo $form->input('Server.address', 
+					echo $form->input('Server.address',
 								array(	'id' => 'searchByServerIp',
 										'type' => 'text',
 										'value' => @$searchServerIp,
-										'div' => false, 
+										'div' => false,
 										'label' => false,
 										'style' => 'width: 150px;'));?>
 			</div>
 
 			<div class="input-prepend">
-				<span class="add-on">Порт</span><?php echo $form->input('Server.port', 
+				<span class="add-on">Порт</span><?php echo $form->input('Server.port',
 								array(	'id' => 'searchByServerPort',
 										'type' => 'text',
 										'value' => @$searchServerPort,
-										'div' => false, 
+										'div' => false,
 										'label' => false,
 										'style' => 'width: 100px;'));?>
 
@@ -297,11 +298,11 @@ $hltvEnable = array(
 </div>
 <table class="intext" border="0" cellpadding="0" cellspacing="0">
 	<tr>
-		
+
 		<th></th>
-		<th><?php echo $paginator->sort('ID', 'id'); ?></th>	
+		<th><?php echo $paginator->sort('ID', 'id'); ?></th>
 		<th>Клиент</th>
-		<th>Игра</th>		
+		<th>Игра</th>
 		<th width="280"></th>
 		<th>Слотов</th>
 		<th><?php echo $paginator->sort('Адрес', 'address'); ?>/Cервер</th>
@@ -322,8 +323,8 @@ $hltvEnable = array(
 				case 'cod':
 				case 'ueds':
 				case 'game':
-					$type = 'Game'; 
-					break;					
+					$type = 'Game';
+					break;
 				case 'voice':
 					$type = 'Voice';
 					break;
@@ -337,7 +338,7 @@ $hltvEnable = array(
 					$type = 'Eac';
 					break;
 			}
-			
+
 			if ($server['Server']['action'] == 'delete')
 	//Если сервер установлен на удаление:
 	//**********************************************************************************
@@ -345,22 +346,22 @@ $hltvEnable = array(
 			?>
 		<tr id="opener_<?php echo $server['Server']['id']; ?>" class="tbl_out_hide" onmouseout="this.className='tbl_out_hide'" onmouseover="this.className='tbl_hover_red'">
 			<td class="status"><div class="processing" title="Сервер будет удалён в ближайшее время"></div></td>
-			<td>#<?php echo $server['Server']['id']; ?></td>			
+			<td>#<?php echo $server['Server']['id']; ?></td>
 			<td><?php echo $this->element('client_view', array( 'id'   => @$server['User'][0]['id'],
 																'name' => @$server['User'][0]['username'])); ?>
 			</td>
-			<td  class="left"><?php echo $html->image('icons/servers/'.@$server['GameTemplate'][0]['name'].'.png', 
-														array(  'alt' => @$server['GameTemplate'][0]['longname'], 
-																'width'  => '24', 
-																'height' => '24' )); ?></td>			
-			
+			<td  class="left"><?php echo $html->image('icons/servers/'.@$server['GameTemplate'][0]['name'].'.png',
+														array(  'alt' => @$server['GameTemplate'][0]['longname'],
+																'width'  => '24',
+																'height' => '24' )); ?></td>
+
 			<td colspan="2">
 			Сервер ожидает удаления
 			</td>
 			<td>
-				
-				<?php 
-					
+
+				<?php
+
 					if (!empty($server['Server']['address']))
 					{
 						echo $server['Server']['address'].":".$server['Server']['port'];
@@ -370,19 +371,19 @@ $hltvEnable = array(
 						echo "-";
 					}
 
-					 
+
 					if ( in_array($server['GameTemplate'][0]['name'], $sourceTvEnable) ){
 							echo '<br/>STV: '.(intval($server['Server']['port']) + 1015);
 						}
 					else
 					if ( in_array($server['GameTemplate'][0]['name'], $hltvEnable) ){
 							echo '<br/>HLTV: '.(intval($server['Server']['port']) + 1015);
-						}	
-						
+						}
+
 				?>
 				<br/>
 				<small>
-				<?php 
+				<?php
 						if (!empty($server['RootServer'][0]['id']))
 						{
 							echo '#'.$server['RootServer'][0]['id'].'&nbsp;"'.$server['RootServer'][0]['name'].'"';
@@ -403,21 +404,21 @@ $hltvEnable = array(
 			{
 			?>
 		<tr class="tbl_out" onmouseout="this.className='tbl_out'" onmouseover="this.className='tbl_hover_green'">
-			
+
 			<td class="status">
 				<?php if ($type == 'Game' or $type == 'Voice') {?>
 				<div id='server_status_<?php echo $server['Server']['id']; ?>' class="stoped" title="Сервер выключен"></div>
 				<?php } ?>
 			</td>
 			<td>#<?php echo $server['Server']['id']; ?></td>
-			
+
 			<td><?php echo $this->element('client_view', array( 'id'   => @$server['User'][0]['id'],
-																'name' => @$server['User'][0]['username'])); ?>			
-			</td>	
-			<td  class="left"><?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png', 
-														array(  'alt' => $server['GameTemplate'][0]['longname'], 
-																'width'  => '24', 
-																'height' => '24' )); ?></td>		
+																'name' => @$server['User'][0]['username'])); ?>
+			</td>
+			<td  class="left"><?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
+														array(  'alt' => $server['GameTemplate'][0]['longname'],
+																'width'  => '24',
+																'height' => '24' )); ?></td>
 			<td><?php echo $this->element('icons_control_server', array(
 																	'id'=>$server['Server']['id'],
 																	'name' => $server['GameTemplate'][0]['name'],
@@ -429,9 +430,9 @@ $hltvEnable = array(
 																	 )); ?></td>
 			<td><?php echo $server['Server']['slots']; ?></td>
 			<td>
-				
-				<?php 
-					
+
+				<?php
+
 					if (!empty($server['Server']['address']))
 					{
 						echo $server['Server']['address'].":".$server['Server']['port'];
@@ -441,19 +442,19 @@ $hltvEnable = array(
 						echo "-";
 					}
 
-					 
+
 					if ( in_array($server['GameTemplate'][0]['name'], $sourceTvEnable) ){
 							echo '<br/>STV: '.(intval($server['Server']['port']) + 1015);
 						}
 					else
 					if ( in_array($server['GameTemplate'][0]['name'], $hltvEnable) ){
 							echo '<br/>HLTV: '.(intval($server['Server']['port']) + 1015);
-						}	
-						
+						}
+
 				?>
 				<br/>
 				<small>
-				<?php 
+				<?php
 						if (!empty($server['RootServer'][0]['id']))
 						{
 							echo '#'.$server['RootServer'][0]['id'].'&nbsp;"'.$server['RootServer'][0]['name'].'"';
@@ -464,37 +465,37 @@ $hltvEnable = array(
 						}
 						 ?>
 				</small>
-			</td>			
-			<td><?php 
-				
-				if ($server['Server']['scaleTime'] >= 0 and $server['Server']['scaleTime'] <= 0.2){				
+			</td>
+			<td><?php
+
+				if ($server['Server']['scaleTime'] >= 0 and $server['Server']['scaleTime'] <= 0.2){
 					$scaleColor = '#970405';
-					$dateColor = '#DD1500';							
+					$dateColor = '#DD1500';
 				}
 				else
 				{
 					$scaleColor = '#bbb';
 					$dateColor = '#000';
 				}
-				
+
 				echo $html->tag('small', $this->Common->niceDate($server['Server']['payedTill']));
 				echo "<br/>";
 				if (!empty($server['Server']['giftDays'])
 						and
 					strtotime($server['Server']['giftExpires']) > time())
 					{
-						
+
 						echo $html->tag( 'small', 'Из них '.$server['Server']['giftDays']." в подарок");
-												 
+
 					}
 			?>
 			<div style="width: 150px; height: 8px; padding: 0px; border: 1px solid #777;">
 			<?php
-				// Нарисовать линейку - сколько осталось				
+				// Нарисовать линейку - сколько осталось
 				echo $html->tag('div', '', array( 'style' => 'background-color: '.$scaleColor.'; ' .
 															 'width: '.($server['Server']['scaleTime']*100).'%;' .
 															 'height: 8px;'));
-			
+
 			?>
 			</div>
 			</td>
@@ -517,15 +518,15 @@ $hltvEnable = array(
 			{
 			?>
 		<tr id="opener_<?php echo $server['Server']['id']; ?>" class="tbl_out" onmouseout="this.className='tbl_out'" onmouseover="this.className='tbl_hover_yellow'">
-			
+
 			<td class="status"><div class="processing" title="Ожидание инициализации"></div></td>
 			<td>#<?php echo $server['Server']['id']; ?></td>
-			
+
 			<td><?php echo $this->element('client_view', array( 'id'   => @$server['User'][0]['id'],
-																'name' => @$server['User'][0]['username'])); ?></td>		
-			<td  class="left"><?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png', 
-														array(  'alt' => $server['GameTemplate'][0]['longname'], 
-																'width'  => '24', 
+																'name' => @$server['User'][0]['username'])); ?></td>
+			<td  class="left"><?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
+														array(  'alt' => $server['GameTemplate'][0]['longname'],
+																'width'  => '24',
 																'height' => '24' )); ?></td>
 
 			<td><?php echo $this->element('icons_control_server', array(
@@ -537,7 +538,7 @@ $hltvEnable = array(
 				Ожидание инициализации сервера
 			</td>
 			<td><?php echo $this->Common->niceDate($server['Server']['payedTill']); ?></td>
-			
+
 		</tr>
 			<?php
 			}
@@ -548,15 +549,15 @@ $hltvEnable = array(
 			?>
 		<tr id="opener_<?php echo $server['Server']['id']; ?>" style="border-bottom: 2px solid grey;" class="tbl_out double_border" onmouseout="this.className='tbl_out double_border'" onmouseover="this.className='tbl_hover_red double_border'">
 			<td class="status"><div class="warning" title="Ожидание оплаты"></div></td>
-			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>		
+			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>
 			<td>
 			<?php echo $this->element('client_view', array( 'id'   => @$server['User'][0]['id'],
 																'name' => @$server['User'][0]['username'])); ?>
 			</td>
 			<td  class="left">
-				<?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png', 
-														array(  'alt' => $server['GameTemplate'][0]['longname'], 
-																'width'  => '24', 
+				<?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
+														array(  'alt' => $server['GameTemplate'][0]['longname'],
+																'width'  => '24',
 																'height' => '24' )); ?>
 			</td>
 			<td><?php echo $this->element('icons_control_server', array(
@@ -566,12 +567,12 @@ $hltvEnable = array(
 																	'longname'=>$server['GameTemplate'][0]['longname'],
 																	'type' => strtolower($type),
 																	'serverType' => $server['Type'][0]['name']
-																	 )); ?></td>			
+																	 )); ?></td>
 			<td><?php echo $server['Server']['slots']; ?></td>
 			<td>
-				<?php 
-					
-					echo $server['Server']['address'].":".$server['Server']['port']; 
+				<?php
+
+					echo $server['Server']['address'].":".$server['Server']['port'];
 					if ( in_array($server['GameTemplate'][0]['name'], $sourceTvEnable) ){
 							echo '<br/>Порт Source TV: '.(intval($server['Server']['port']) + 1015);
 					}
@@ -579,19 +580,19 @@ $hltvEnable = array(
 					if ( in_array($server['GameTemplate'][0]['name'], $hltvEnable) ){
 							echo '<br/>Порт HLTV: '.(intval($server['Server']['port']) + 1015);
 						}
-						
-						
+
+
 				?>
 				<br/>
 				<small>#<?php echo @$server['RootServer'][0]['id'].'&nbsp;"'.@$server['RootServer'][0]['name'].'"'; ?>
 				</small>
 				</td>
 			<td>Ожидание оплаты c<br/><?php echo $this->Common->niceDate($server['Server']['payedTill']); ?></td>
-			
+
 		</tr>
 			<?php
 			}
-			 
+
 			else
 	//Если сервер не оплачен, и не инициализирован:
 	//**********************************************************************************
@@ -600,12 +601,12 @@ $hltvEnable = array(
 		<tr id="opener_<?php echo $server['Server']['id']; ?>" class="tbl_out" onmouseout="this.className='tbl_out'" onmouseover="this.className='tbl_hover_red'">
 			<td class="status"><div class="warning"  title="Ожидание оплаты"></div></td>
 			<td>#<?php echo $server['Server']['id']; ?></td>
-			
+
 			<td><?php echo $this->element('client_view', array( 'id'   => @$server['User'][0]['id'],
 																'name' => @$server['User'][0]['username'])); ?></td>
-			<td  class="left"><?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png', 
-														array(  'alt' => $server['GameTemplate'][0]['longname'], 
-																'width'  => '24', 
+			<td  class="left"><?php echo $html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
+														array(  'alt' => $server['GameTemplate'][0]['longname'],
+																'width'  => '24',
 																'height' => '24' )); ?></td>
 			<td><?php echo $this->element('icons_control_server', array(
 																	     'id'=>$server['Server']['id']
@@ -615,7 +616,7 @@ $hltvEnable = array(
 			<td colspan="2">
 			Ожидание оплаты
 			</td>
-			
+
 			<?php
 			}
 			?>
@@ -635,12 +636,12 @@ $hltvEnable = array(
 		echo $html->link('+ Добавить новый сервер', '#',
 							array ('id'=>'server_add_new', 'escape' => false
 							,'onClick'=>"$('#add_server').dialog({modal: true,position: ['center',180], show: 'clip', hide: 'clip', width: 400});"
-							
+
 							));
-		$effect = $js->get('#add_server')->effect('slideIn');		
+		$effect = $js->get('#add_server')->effect('slideIn');
 		$event  = $js->request(array('controller'=>'Servers',
-									 'action'=>'add'), 
-							   array('update' => '#add_server',	  
+									 'action'=>'add'),
+							   array('update' => '#add_server',
 									 'before'=>$effect.$loadingShow,
 									 'complete'=>$loadingHide));
 
@@ -649,7 +650,7 @@ $hltvEnable = array(
 		?>
 	</div>
 
-	
+
 
 <center>
 <!-- Shows the next and previous links -->
@@ -659,16 +660,16 @@ $hltvEnable = array(
 	echo $paginator->numbers();
 	echo '&nbsp;&nbsp;';
 	echo $paginator->next('»»»', null, null, array('class' => 'disabled'));
-	
+
 ?>
 <br/>
 <!-- prints X of Y, where X is current page and Y is number of pages -->
 <?php echo $paginator->counter(array('format' => 'Страница %page% из %pages%')); ?>
-</center> 
+</center>
 <script type="text/javascript">
 					$(function() {
 						$("#edit_server").dialog("destroy");
-						
+
 						$("#usernameSort").autocomplete({
 								source: "/users/autoComplete/",
 								minLength: 1,
@@ -680,14 +681,14 @@ $hltvEnable = array(
 							});
 					});
 </script>
-<script type="text/javascript">	
+<script type="text/javascript">
 
 	GetStatuses();
 	setInterval(function(){GetStatuses();},60000);
-											
+
 </script>
-<?php 
-			echo $js->writeBuffer(); // Write cached scripts 
+<?php
+			echo $js->writeBuffer(); // Write cached scripts
 ?>
     <div id="add_server" style="display:none;"   title="Пожалуйста, заполните форму заказа"></div>
 	<!-- Контейнер для создания диалога редкатирования параметров сервера -->
@@ -707,5 +708,5 @@ $hltvEnable = array(
 	<!-- Контейнер для создания окна просмотра данных клиента -->
 	<div id="client_view" style="display:none;" title="Данные клиента"></div>
 </div>
-	
-	
+
+

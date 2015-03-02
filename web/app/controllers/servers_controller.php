@@ -3044,6 +3044,12 @@ Lesser General Public License for more details.
 		if ($server['ServerTemplate']['hltvStatus'] == 'exec_success'){
 			App::import('Vendor', 'GameQ', array('file'=>'game_q.php'));
 			$handle = new GameQ();
+
+			if ($serverTemplate == 'cs16-old')
+			{
+				$serverTemplate = 'cs16';
+			}
+
 		    $handle->addServer('server#'.$id, array($serverTemplate, $serverIp, $serverport + 1015));
 		    $handle->setOption('timeout', 1000);
 			$infoTv = $handle->requestData();

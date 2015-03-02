@@ -2,9 +2,9 @@
 <center>
 <h3>
 Доступ к серверу по FTP:
-</h3> 
+</h3>
 <span>
-<?php  
+<?php
 	$serverId = $this->data['Server']['id'];
 	$serverIp = $this->data['Server']['address'];
     $ftpUrl = "ftp://client".$userinfo['User']['id']."@".$serverIp;
@@ -17,23 +17,24 @@
 *Пароль вы можете узнать щёлкнув "Пароль FTP" в левой части панели.
 </small>
 
-<?php  
+<?php
    if ( in_array($this->data['GameTemplate'][0]['name'], array( 'css',
    																'cssv34',
    																'dods',
    																'tf',
    																'hl2mp',
    																'cs16',
-   																'dmc'))						  
+   																'cs16-old',
+   																'dmc'))
 	  ){
-	?>	
+	?>
 <hr/>
 <?php ?>
 <h3>
 Доступ к записанным демо по HTTP:
-</h3> 
+</h3>
 <span>
-<?php  
+<?php
     $demoUrl = "http://".$serverIp."/".$userinfo['User']['username']."/dems";
 	echo $html->link($demoUrl,$demoUrl,array("target"=>"_blank"));
 ?>
@@ -42,13 +43,13 @@
 <hr/>
 <h3>
 Закачать дополнительные карты по HTTP:
-</h3> 
+</h3>
 <span>
-	
+
 	<?php
 
-	
-	
+
+
 	$uploaderScript = "http://".$this->data['Server']['address']."/uploadMap/?" .
 					  "id=".$this->data['Server']['id']."&" .
 					  "token=".$this->data['User'][0]['tokenhash'];
@@ -56,31 +57,31 @@
 					array (
 						   'onClick' => "window.open('".$uploaderScript."', 'newUploaderWin#".$this->data['Server']['id']."', 'Toolbar=yes, Location=no, Directories=no, Status=yes, Menubar=yes, Scrollbars=no, Resizable=yes, Width=550, Height=500')")
 							);
-	
+
 ?>
 </span>
-<?php	 
+<?php
 	}
 	else
 	if ( in_array($this->data['GameTemplate'][0]['name'], array( 'cod4',
    																'cod4fixed',
-   																'cod2'))						  
+   																'cod2'))
 	  ){
 ?>
 <br/>
 <hr/>
 <h3>
 Доступ к скриншотам PunkBuster:
-</h3> 
+</h3>
 <span>
-<?php  
+<?php
     $demoUrl = "http://".$serverIp."/".$userinfo['User']['username']."/pb";
 	echo $html->link($demoUrl,$demoUrl,array("target"=>"_blank"));
 ?>
 </span>
 <br/>
-<hr/>	
-<?php	  	
+<hr/>
+<?php
 	}
 ?>
 
@@ -90,9 +91,9 @@
 <hr/>
 <h3>
 Контроль сервера без пароля:
-</h3> 
+</h3>
 <span>
-<?php  
+<?php
     $tockenUrl = "https://panel.teamserver.ru/servers/controlByToken/".@$this->data['Server']['controlToken'];
 	echo $html->link($tockenUrl,
 								  array(

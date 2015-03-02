@@ -75,7 +75,7 @@ def valveMapRemove(path, mapName, game='css'):
     mapCycle = path + '/mapcycle.txt'
     try:
         # Удалить карту из конфигов
-        if game != 'cs16':
+        if game not in ['cs16', 'cs16-old']:
             if (removeParamFromConfig(mapList, mapName) == True):
                 xmlLog('Карта успешно удалена из maplist.txt')
             else:

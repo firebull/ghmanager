@@ -126,7 +126,7 @@
 		<td>
 		<?php
 
-			if (in_array($status['gameshort'], array('cs16', 'css', 'cssv34',
+			if (in_array($status['gameshort'], array('cs16', 'cs16-old', 'css', 'cssv34',
 													'l4d', 'l4d-t100', 'l4d2', 'l4d2-t100',
 													'csgo', 'csgo-t128',
 													'dods', 'tf',
