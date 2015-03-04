@@ -2,8 +2,6 @@
 /**
  * CSS helping functions
  *
- * PHP versions 4 and 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -12,8 +10,6 @@
  *
  * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       cake
- * @subpackage    cake.app.webroot
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -36,7 +32,7 @@ if (!class_exists('File')) {
  * @param unknown_type $name
  * @return unknown
  */
-	function make_clean_css($path, $name) {
+	public function make_clean_css($path, $name) {
 		App::import('Vendor', 'csspp' . DS . 'csspp');
 		$data = file_get_contents($path);
 		$csspp = new csspp();
@@ -52,7 +48,7 @@ if (!class_exists('File')) {
  * @param unknown_type $content
  * @return unknown
  */
-	function write_css_cache($path, $content) {
+	public function write_css_cache($path, $content) {
 		if (!is_dir(dirname($path))) {
 			mkdir(dirname($path));
 		}
