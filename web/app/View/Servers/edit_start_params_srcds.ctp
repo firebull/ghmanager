@@ -1087,10 +1087,10 @@
 			if (fps < 30) {
 				$('#fpsMsg').text('Минимум 30FPS').addClass('highlight2');
 				$('#fpsButton').attr('disabled','disabled');
-			} elseif (fps >= 30 && fps <= fpsMax) {
+			} else if (fps >= 30 && fps <= fpsMax) {
 				$('#fpsMsg').text('от 30 до ' + fpsMax + 'FPS').removeClass('highlight2');
 				$('#fpsButton').removeAttr('disabled');
-			} elseif (fps > fpsMax) {
+			} else if (fps > fpsMax) {
 				$('#fpsMsg').text('Максимум ' + fpsMax + 'FPS').addClass('highlight2');
 				$('#fpsButton').attr('disabled','disabled');
 			}

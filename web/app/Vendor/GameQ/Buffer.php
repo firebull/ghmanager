@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * $Id: Buffer.php,v 1.4 2009/08/13 20:46:40 evilpie Exp $  
+ * $Id: Buffer.php,v 1.4 2009/08/13 20:46:40 evilpie Exp $
  */
 
 
@@ -43,8 +43,8 @@ class GameQ_Buffer
      * @access     public
      */
     private $length;
-    
-    
+
+
     /**
      * Position of pointer
      *
@@ -62,6 +62,13 @@ class GameQ_Buffer
     public function __construct($data)
     {
         $this->data   = $data;
+
+        if (is_array($data))
+        {
+            return false;
+            $data = implode($data);
+        }
+
         $this->length = strlen(strval($data));
     }
 
@@ -75,7 +82,7 @@ class GameQ_Buffer
     {
         return $this->data;
     }
-    
+
 
     /**
      * Return data currently in the buffer
@@ -110,10 +117,10 @@ class GameQ_Buffer
         if (($length + $this->index) > $this->length) {
             throw new GameQ_ParsingException($this);
         }
-        
+
         $string = substr($this->data, $this->index, $length);
         $this->index += $length;
-        
+
         return $string;
     }
 
@@ -132,10 +139,10 @@ class GameQ_Buffer
         $string        = $this->data{strlen($this->data) - 1};
         $this->data    = substr($this->data, 0, $len - 1);
         $this->length -= 1;
-        
+
         return $string;
     }
-    
+
 
     /**
      * Look at the buffer, but don't remove
@@ -146,11 +153,11 @@ class GameQ_Buffer
     public function lookAhead($length = 1)
     {
         $string = substr($this->data, $this->index, $length);
-        
+
         return $string;
     }
-    
-    
+
+
     /**
      * Skip forward in the buffer
      *
@@ -184,8 +191,8 @@ class GameQ_Buffer
     {
         return $this->index;
     }
-    
-    
+
+
     /**
      * Read from buffer until delimiter is reached
      *
@@ -198,7 +205,7 @@ class GameQ_Buffer
     {
         // Get position of delimiter
         $len = strpos($this->data, $delim, min($this->index, $this->length));
-        
+
         // If it is not found then return whole buffer
         if ($len === false) {
             return $this->read(strlen($this->data) - $this->index);
@@ -207,7 +214,7 @@ class GameQ_Buffer
         // Read the string and remove the delimiter
         $string = $this->read($len - $this->index);
         ++$this->index;
-       
+
         return $string;
     }
 
@@ -234,8 +241,8 @@ class GameQ_Buffer
             return substr($this->read($len), 0, $offset);
         }
     }
-        
-    
+
+
     /**
      * Read from buffer until any of the delimiters is reached
      *
@@ -253,7 +260,7 @@ class GameQ_Buffer
                 $pos[] = $p;
             }
         }
-        
+
         // If none are found then return whole buffer
         if (empty($pos)) {
             return $this->read(strlen($this->data) - $this->index);
@@ -263,10 +270,10 @@ class GameQ_Buffer
         sort($pos);
         $string = $this->read($pos[0] - $this->index);
         $delimfound = $this->read();
-       
+
         return $string;
     }
-    
+
 
     /**
      * Read an int32 from the buffer

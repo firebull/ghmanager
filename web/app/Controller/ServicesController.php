@@ -103,13 +103,11 @@ class ServicesController extends AppController {
 		if (!empty($this->params['url']['templateId'])) {
 			$templateId = $this->params['url']['templateId'];
 		}
-		$this->loadModel('GameTemplateClean');
-		$this->GameTemplateClean->bindModel(array(
-					'hasAndBelongsToMany' => array(
-													'Service' => array()
-												)));
-		$this->GameTemplateClean->id = $templateId;
-		$template = $this->GameTemplateClean->read();
+		$this->loadModel('GameTemplate');
+		$this->GameTemplate->contain(['Service']);
+
+		$this->GameTemplate->id = $templateId;
+		$template = $this->GameTemplate->read();
 
 		if (!empty($template['Service'])) {
 			if ($rootServer === 'all') {

@@ -107,13 +107,13 @@
 								<td style="text-align: left;"><?php
 									if (!empty($info['Server']['info'])) {
 
-										$div = $this->Common->getLoadIndicator($info['Server']['info']['playerNumber'], $info['Server']['info']['maxPlayers']);
+										$div = $this->Common->getLoadIndicator($info['Server']['info']['numberOfPlayers'], $info['Server']['info']['maxPlayers']);
 
 										echo $this->Html->tag('div','', array('class' => 'players_load '.$div,
 																		'style' => 'float: left; margin-top: 3px; margin-right: 5px;'));
 
 										echo "<div style='position: relative; float: left;'>";
-										echo @$info['Server']['info']['playerNumber']."/".
+										echo @$info['Server']['info']['numberOfPlayers']."/".
 										     @$info['Server']['info']['maxPlayers'];
 
 									    if (@$info['Server']['info']['botNumber'] > 0) {
@@ -572,7 +572,7 @@
 					</div>
 
 			<?php
-					if (!empty($info['Server']['info']['playerNumber'])) {
+					if (!empty($info['Server']['info']['numberOfPlayers'])) {
 
 						$i=1;
 						$playerForList = '';

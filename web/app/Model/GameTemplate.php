@@ -20,7 +20,7 @@ App::uses('AppModel', 'Model');
  class GameTemplate extends AppModel {
 
     public $name = 'GameTemplate';
-
+    public $actsAs = ['Containable'];
 
     public $hasAndBelongsToMany = array (
 		'Mod' => array (
@@ -63,7 +63,7 @@ App::uses('AppModel', 'Model');
 			'joinTable' => 'game_templates_services',
 			'foreignKey' => 'game_template_id',
 			'associationForeignKey' => 'service_id',
-			'fields' => 'id, name, longname',
+			'fields' => 'id, name, longname, price, description',
 			'unique' => true
 		)
 	);

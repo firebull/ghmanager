@@ -75,3 +75,13 @@ CakeLog::config('security', array(
   'scopes' => array('security'),
   'file' => 'security',
 ));
+
+spl_autoload_register(function ($class) {
+    foreach (App::path('Vendor') as $base) {
+        $path = $base . str_replace('\\', DS, $class) . '.php';
+        if (file_exists($path)) {
+            include $path;
+            return;
+        }
+    }
+});

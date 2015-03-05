@@ -44,7 +44,7 @@ class SupportTicketsController extends AppController {
 
 		 if ($ticket) {
 		 	// Проверим  - владееет ли пользователь сессии этим сервером?
-		 	if (  $ticket['User'][0]['id'] == $sessionUserId // Да, владеет
+		 	if (  @$ticket['User'][0]['id'] == $sessionUserId // Да, владеет
 		 			||
 		 		  in_array($sessionUserGroup, array(1,2)) // Это администратор
 		 		) {
@@ -181,15 +181,24 @@ class SupportTicketsController extends AppController {
 																			 'order' => ' status DESC, created DESC'));
 		}
 
-		$this->set('openTickets', count($openedTickets));
+
 
 		// Составить массив из ID тикета и последненго ответившего
 		$ticketStates = array();
 
-		foreach ($openedTickets as $ticket) {
-			$ticketStates[$ticket['SupportTicket']['id']] = $ticket['Support'][0];
+		foreach ($openedTickets as $key => $ticket)
+		{
+			if (!empty($ticket['Support']))
+			{
+				$ticketStates[$ticket['SupportTicket']['id']] = $ticket['Support'][0];
+			}
+			else
+			{
+				unset($openedTickets[$key]);
+			}
 		}
 
+		$this->set('openTickets', count($openedTickets));
 		$this->set('ticketStates', $ticketStates);
 
 	}
@@ -419,8 +428,9 @@ class SupportTicketsController extends AppController {
 //       			$servers[$serverId] = "#".$serverId." ".$serverTemplate['GameTemplate'][0]['longname'];
 //       		}
 //		}
-		if (@$servers) {
-			asort(@$servers);
+		if (!empty($servers))
+		{
+			asort($servers);
 		}
 
 		$servers['0'] = "Проблема не с сервером";

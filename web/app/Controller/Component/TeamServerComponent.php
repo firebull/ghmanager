@@ -126,7 +126,7 @@ class TeamServerComponent extends Component {
                     ob_end_clean();
 
                     if ( $httpCode != 200 ) {
-                        $this->request->data['Webget']['error']['Http'] = $httpCode;
+                        $this->controller->request->data['Webget']['error']['Http'] = $httpCode;
                         $this->controller->Session->setFlash('При попытке совершить операцию произошла ошибка: '.$httpCode.
                                 '<br/>Попробуйте повторить операцию позднее.', 'flash_error');
                         return  false;
@@ -135,7 +135,7 @@ class TeamServerComponent extends Component {
                     }
 
                 } else {
-                    $this->request->data['Webget']['error']['Curl'] = curl_error($handle);
+                    $this->controller->request->data['Webget']['error']['Curl'] = curl_error($handle);
                     $this->controller->Session->setFlash('Ошибка подключения: '.curl_error($handle), 'flash_error');
                     curl_close($handle);
                     return false;

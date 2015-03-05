@@ -21,7 +21,10 @@ Lesser General Public License for more details.
  App::import('Vendor', 'ValveRcon', array('file'=>'valve_rcon.php'));
  App::import('Vendor', 'CommonRcon', array('file'=>'common_rcon.php'));
  App::import('Vendor', 'cod4Status', array('file'=>'COD4ServerStatus.php'));
- App::import('Vendor', 'SteamCondenser', array('file'=>'steam-condenser.php'));
+ App::import('Vendor', 'Monolog', array('file'=>'SteamCondenser/Monolog/Registry.php'));
+ App::import('Vendor', 'SteamCondenser', array('file'=>'SteamCondenser/SteamCondenser.php'));
+
+
  App::uses('Xml', 'Utility');
  App::uses('HttpSocket', 'Network/Http');
 
@@ -328,25 +331,25 @@ Lesser General Public License for more details.
 	public function parseXmlResponse($xmlAsArray = null) {
 		$output = array('error' => '', 'log' => '');
 		// Парсинг ошибок
- 		if (!empty($xmlAsArray['Response']['Error']) and count($xmlAsArray['Response']['Error']) > 1) {
- 			foreach ( $xmlAsArray['Response']['Error'] as $error ) {
+ 		if (!empty($xmlAsArray['response']['Error']) and count($xmlAsArray['response']['Error']) > 1) {
+ 			foreach ( $xmlAsArray['response']['Error'] as $error ) {
 				if (!is_array($error)) {
 					$output['error'] .= $error.'<br/>';
 				}
 			}
- 		} elseif (!empty($xmlAsArray['Response']['Error']) and count($xmlAsArray['Response']['Error']) == 1) {
-			$output['error'] .= $xmlAsArray['Response']['Error'].'<br/>';
- 		} elseif (!empty($xmlAsArray['Response']['error'])) {
- 			$output['error'] = $xmlAsArray['Response']['error'];
+ 		} elseif (!empty($xmlAsArray['response']['Error']) and count($xmlAsArray['response']['Error']) == 1) {
+			$output['error'] .= $xmlAsArray['response']['Error'].'<br/>';
+ 		} elseif (!empty($xmlAsArray['response']['error'])) {
+ 			$output['error'] = $xmlAsArray['response']['error'];
  		}
 
  		// Парсинг Лога
- 		if (!empty($xmlAsArray['Response']['Log'])) {
- 			foreach ( $xmlAsArray['Response']['Log'] as $logString ) {
+ 		if (!empty($xmlAsArray['response']['Log'])) {
+ 			foreach ( $xmlAsArray['response']['Log'] as $logString ) {
 				$output['log'] .= $logString.'<br/>';
 			}
- 		} elseif (!empty($xmlAsArray['Response']['log'])) {
- 			$output['log'] = $xmlAsArray['Response']['log'];
+ 		} elseif (!empty($xmlAsArray['response']['log'])) {
+ 			$output['log'] = $xmlAsArray['response']['log'];
  		}
 
  		return $output;
@@ -2787,7 +2790,7 @@ Lesser General Public License for more details.
 		$info = array();
 		if ($server['ServerTemplate']['status'] === 'exec_success') {
 			try {
-				$handle = new GoldSrcServer(new InetAddress($serverIp), $serverport);
+				$handle = new SteamCondenser\Servers\GoldSrcServer($serverIp, $serverport);
 				$handle->initialize();
 				$info['Server']['info']    = $handle->getServerInfo();
 				$info['Server']['players'] = $handle->getPlayers();
@@ -4104,10 +4107,9 @@ Lesser General Public License for more details.
 					 		$requestStr = "/~configurator/scripts/subscript_maps_list.py";
 
 					 		$HttpSocket = new HttpSocket();
-					 		$response = $HttpSocket->get($this->request->data['Server']['address'].$requestStr, $data);
-					 		//pr($response);
-					 		$xml = new Xml($response);
-					 		$xmlAsArray = $xml->toArray();
+					 		$response = $HttpSocket->get('http://'.$this->request->data['Server']['address'].$requestStr, $data);
+
+					 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 							Cache::set(array('duration' => '+90 seconds'));
 							Cache::write('maps_'.$id, $xmlAsArray);
@@ -4120,23 +4122,33 @@ Lesser General Public License for more details.
 				 		// Парсинг списка карт
 				 		$mapsList = array();
 				 		$mapExt = $this->request->data['GameTemplate'][0]['mapExt'];
-				 		if (!empty($xmlAsArray['Response']['List']['File'])) {
-				 			foreach ( $xmlAsArray['Response']['List']['File'] as $map ) {
-		       					if (preg_match('@^(\S{1,})(?:\.'.$mapExt.')@i', $map, $match)) {
+				 		if (!empty($xmlAsArray['response']['list']['file']))
+				 		{
+				 			foreach ( $xmlAsArray['response']['list']['file'] as $map )
+				 			{
+		       					if (preg_match('@^(\S{1,})(?:\.'.$mapExt.')@i', $map, $match))
+		       					{
 		       						$mapsList[$match[1]] = $match[1];
 		       						// Для L4D2 надо добавить в список режим сражения
 		       						if ($this->request->data['GameTemplate'][0]['name'] === 'l4d2'
-		       							or
-		       						    $this->request->data['GameTemplate'][0]['name'] === 'l4d2-t100') {
+		       								or $this->request->data['GameTemplate'][0]['name'] === 'l4d2-t100')
+		       						{
 		       							$mapsList[$match[1].' versus'] = $match[1].' (Сражение)';
 		       						}
 		       					}
 							}
-				 		} elseif (!empty($xmlAsArray['Response']['List']['file'])) {
-				 			if (preg_match('@^(\S{1,})(?:\.'.$mapExt.')@i', $xmlAsArray['Response']['List']['file'], $match)) {
+				 		}
+				 		else
+				 		if (!empty($xmlAsArray['response']['list']['file'])
+				 				and count($xmlAsArray['response']['list']['file']) == 1)
+				 		{
+				 			if (preg_match('@^(\S{1,})(?:\.'.$mapExt.')@i', $xmlAsArray['response']['list']['file'], $match))
+				 			{
 		   						$mapsList[$match[1]] = $match[1];
 		   					}
-				 		} else {
+				 		}
+				 		else
+				 		{
 				 			if (!empty($this->request->data['Server']['map'])) {
 				 				$error .= 'Не обнаружено карт сервера вообще, хотя в строке запуска карта установлена! Переинициализируйте сервер, либо загрузите нужную карту и установите её картой по умолчанию!';
 				 			} else {
@@ -4158,10 +4170,9 @@ Lesser General Public License for more details.
 				 			$requestStr = "/~configurator/scripts/subscript_cod_maps_list.py";
 
 					 		$HttpSocket = new HttpSocket();
-					 		$response = $HttpSocket->get($this->request->data['Server']['address'].$requestStr, $data);
+					 		$response = $HttpSocket->get('http://'.$this->request->data['Server']['address'].$requestStr, $data);
 					 		//pr($response);
-					 		$xml = new Xml($response);
-					 		$xmlAsArray = $xml->toArray();
+					 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 							Cache::set(array('duration' => '+90 seconds'));
 							Cache::write('maps_'.$id, $xmlAsArray);
@@ -4199,19 +4210,19 @@ Lesser General Public License for more details.
 
 				 		$mapExt = $this->request->data['GameTemplate'][0]['mapExt'];
 
-				 		if ( !empty($xmlAsArray['Response']['List'])
+				 		if ( !empty($xmlAsArray['response']['list'])
 				 					and
-				 			 count($xmlAsArray['Response']['List'] > 0)) {
+				 			 count($xmlAsArray['response']['list'] > 0)) {
 				 			$dirList = array();
 				 			$fileList = array();
 
-				 			foreach ( $xmlAsArray['Response']['List'] as $list) {
+				 			foreach ( $xmlAsArray['response']['list'] as $list) {
 				 				if (!empty($list['Dir'])) {
 				 					$dirList = array_merge($dirList, $list['Dir']);
 				 				} elseif (!empty($list['dir'])) {
 				 					$dirList = array_merge($dirList, $list['dir']);
-				 				} elseif (!empty($list['File'])) {
-				 					$fileList = array_merge($fileList, $list['File']);
+				 				} elseif (!empty($list['file'])) {
+				 					$fileList = array_merge($fileList, $list['file']);
 				 				} elseif (!empty($list['file'])) {
 				 					$fileList = array_merge($fileList, $list['file']);
 				 				}
@@ -4547,10 +4558,9 @@ Lesser General Public License for more details.
        						$requestStr = '/~configurator/scripts/subscript_write_admin_to_mod.py';
 
 							$HttpSocket = new HttpSocket();
-							$response = $HttpSocket->get($server['Server']['address'].$requestStr, $data);
+							$response = $HttpSocket->get('http://'.$server['Server']['address'].$requestStr, $data);
 
-					 		$xml = new Xml($response);
-					 		$xmlAsArray = $xml->toArray();
+					 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 							// Прасинг лога и ошибок
 					 		$responseMessages = $this->parseXmlResponse($xmlAsArray);
@@ -4716,10 +4726,9 @@ Lesser General Public License for more details.
 						$requestStr = '/~configurator/scripts/subscript_read_write_param.py';
 
 						$HttpSocket = new HttpSocket();
-						$response = $HttpSocket->get($server['Server']['address'].$requestStr, $data);
+						$response = $HttpSocket->get('http://'.$server['Server']['address'].$requestStr, $data);
 
-				 		$xml = new Xml($response);
-				 		$xmlAsArray = $xml->toArray();
+				 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 						// Прасинг лога и ошибок
 				 		$responseMessages = $this->parseXmlResponse($xmlAsArray);
@@ -4739,10 +4748,9 @@ Lesser General Public License for more details.
 									'&a=write';
 
 					 		$HttpSocket = new HttpSocket();
-							$response = $HttpSocket->get($server['Server']['address'].$requestStr, $data);
+							$response = $HttpSocket->get('http://'.$server['Server']['address'].$requestStr, $data);
 
-					 		$xml = new Xml($response);
-					 		$xmlAsArray = $xml->toArray();
+					 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 							// Прасинг лога и ошибок
 					 		$responseMessages = $this->parseXmlResponse($xmlAsArray);
@@ -5257,7 +5265,7 @@ Lesser General Public License for more details.
 
 		if ($this->checkRights($id)) {
 				$this->loadModel('Mod');
-				$this->loadModel('GameTemplatePlugin');
+				$this->loadModel('GameTemplate');
 				$this->loadModel('ServerPlugin');
 		 		$this->Server->id = $id;
 		 		$server = $this->Server->read();
@@ -5278,13 +5286,13 @@ Lesser General Public License for more details.
 					// Запрос модов из списка установленных
 					$mods = $this->Server->Mod->find('all', array( 'conditions' => array ('id' => $installedModsIds)));
 
-					$this->GameTemplatePlugin->bindModel(array(
-														'hasAndBelongsToMany' => array(
-																			'Plugin' => array( 'fields' => 'id, name, longname, version')
-														)));
 
-					$this->GameTemplatePlugin->id = $server['GameTemplate'][0]['id'];
-					$gameTemplate = $this->GameTemplatePlugin->read();
+					$gameTemplate = $this->GameTemplate->find('first',
+						                                      ['contain' =>
+						                                           ['Plugin' =>
+						                                               ['fields' => 'id, name, longname, version']
+						                                           ],
+						                                       'conditions' => ['GameTemplate.id' => $server['GameTemplate'][0]['id']]]);
 
 					/*
 					 * Тут хитрая комбинация. Для того, чтобы вычислить
@@ -5321,39 +5329,34 @@ Lesser General Public License for more details.
 			 		$requestStr = "/~configurator/scripts/subscript_plugin_check_del.py";
 
 			 		$HttpSocket = new HttpSocket();
-			 		$response = $HttpSocket->get($server['Server']['address'].$requestStr, $data);
+			 		$response = $HttpSocket->get('http://'.$server['Server']['address'].$requestStr, $data);
 
-			 		$xml = new Xml($response);
-
-			 		$xmlAsArray = $xml->toArray();
+			 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 			 		$plugins = array();
 
-			 		if (!empty($xmlAsArray['Response']['Plugin'])) {
+			 		if (!empty($xmlAsArray['response']['plugin'])) {
 			 			// Если больше одного плагина, перебираем их
-			 			if (!empty($xmlAsArray['Response']['Plugin'][0])) {
-				 			foreach ( $xmlAsArray['Response']['Plugin'] as $plugin ) {
-
-				 				if (@$plugin['result'] === 'installed') {
-				 					$plugins[] = $plugin['id'];
+			 			if (!empty($xmlAsArray['response']['plugin'][0])) {
+				 			foreach ( $xmlAsArray['response']['plugin'] as $plugin )
+				 			{
+				 				if (@$plugin['result'] == 'installed') {
+				 					$plugins[] = $plugin['@id'];
 				 				}
-
 							}
 			 			}
 			 			else // Иначе просто присваиваем
-			 			{
-			 				if ($xmlAsArray['Response']['Plugin']['result'] === 'installed') {
-			 					$plugins[] = $xmlAsArray['Response']['Plugin']['id'];
-			 				}
-			 			}
+		 				if ($xmlAsArray['response']['plugin']['result'] == 'installed') {
+		 					$plugins[] = $xmlAsArray['response']['plugin']['id'];
+		 				}
 
 						$serverResync['Plugin'] = array('Plugin' => $plugins);
 						$serverResync['ServerPlugin']['id'] = $id;
-
 			 		}
 
-			 		if (!empty($serverResync)) {
-
-				 		if ($this->ServerPlugin->save($serverResync)) {
+			 		if (!empty($serverResync))
+			 		{
+				 		if ($this->ServerPlugin->save($serverResync))
+				 		{
 				 			$this->Session->setFlash('Синхронизация проведена успешно. ' .
 				 					'Проверьте итоговый список и если тут указано, что плагин не установлен, ' .
 				 					'то либо ваша версия сильно отличается от протестированной нами, либо ' .
@@ -5383,9 +5386,6 @@ Lesser General Public License for more details.
 
 	public function pluginDelete($id = null, $pluginId = null) {
 
-		App::uses('Xml', 'Utility');
-		App::uses('HttpSocket', 'Network/Http');
-
 		if ($this->checkRights($id)) {
 			$this->loadModel('ServerPlugin');
 			$this->loadModel('Plugin');
@@ -5401,16 +5401,14 @@ Lesser General Public License for more details.
 		 		$requestStr = "/~configurator/scripts/subscript_plugin_check_del.py";
 
 		 		$HttpSocket = new HttpSocket();
-		 		$response = $HttpSocket->get($server['ServerPlugin']['address'].$requestStr, $data);
+		 		$response = $HttpSocket->get('http://'.$server['ServerPlugin']['address'].$requestStr, $data);
 
-		 		$xml = new Xml($response);
-
-		 		$xmlAsArray = $xml->toArray();
+		 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 		 		//pr($xmlAsArray);
 		 		$plugins = array();
-		 		if ( !empty($xmlAsArray['Response']['Plugin'])
+		 		if ( !empty($xmlAsArray['response']['plugin'])
 		 				and
-		 			  $xmlAsArray['Response']['Plugin']['result'] === 'success'
+		 			  $xmlAsArray['response']['plugin']['result'] === 'success'
 		 			) {
 		 				foreach ( $server['Plugin'] as $plugin ) {
 
@@ -5682,10 +5680,9 @@ Lesser General Public License for more details.
 		 		$requestStr = "/~configurator/scripts/subscript_map_install_delete.py";
 
 		 		$HttpSocket = new HttpSocket();
-		 		$response = $HttpSocket->get($server['ServerClean']['address'].$requestStr, $data);
+		 		$response = $HttpSocket->get('http://'.$server['ServerClean']['address'].$requestStr, $data);
 
-		 		$xml = new Xml($response);
-		 		$xmlAsArray = $xml->toArray();
+		 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 				// Прасинг лога и ошибок
 				$responseMessages = $this->parseXmlResponse($xmlAsArray);
@@ -5906,7 +5903,7 @@ Lesser General Public License for more details.
 		 		$requestStr = "/~configurator/scripts/subscript_cod_mod_list.py";
 
 		 		$HttpSocket = new HttpSocket();
-		 		$response = $HttpSocket->get($server['ServerModPlugin']['address'].$requestStr, $data);
+		 		$response = $HttpSocket->get('http://'.$server['ServerModPlugin']['address'].$requestStr, $data);
 
 		 		$xml = new Xml($response);
 		 		$xmlAsArray = $xml->toArray();
@@ -5917,12 +5914,12 @@ Lesser General Public License for more details.
 
 		 		// Парсинг списка модов
 		 		$modsList = array();
-		 		if (!empty($xmlAsArray['Response']['List']['Dir'])) {
-		 			foreach ( $xmlAsArray['Response']['List']['Dir'] as $mod ) {
+		 		if (!empty($xmlAsArray['response']['list']['Dir'])) {
+		 			foreach ( $xmlAsArray['response']['list']['Dir'] as $mod ) {
        					$modsList[$mod] = $mod;
 					}
-		 		} elseif (!empty($xmlAsArray['Response']['List']['dir'])) {
-		 			$modsList[0] = $xmlAsArray['Response']['List']['dir'];
+		 		} elseif (!empty($xmlAsArray['response']['list']['dir'])) {
+		 			$modsList[0] = $xmlAsArray['response']['list']['dir'];
 		 		} else {
 		 			if (!empty($server['ServerModPlugin']['mod'])) {
 		 				$error .= 'Не обнаружен мод сервера, хотя в строке запуска он установлен! Переинициализируйте сервер, либо загрузите нужный мод и установите его модом по умолчанию!';
@@ -6090,7 +6087,7 @@ Ice.MessageSizeMax=65536
 						$requestStr = '/~configurator/scripts/write_user_configs.py';
 
 						$HttpSocket = new HttpSocket();
-						$response = $HttpSocket->get($server['Server']['address'].$requestStr, $data);
+						$response = $HttpSocket->get('http://'.$server['Server']['address'].$requestStr, $data);
 
 			 		 	$var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response, $out);
 			 		 	$responsecontent = trim($out[1]);
@@ -6624,17 +6621,16 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
 						$requestStr = '/~configurator/scripts/subscript_read_write_param.py';
 
 						$HttpSocket = new HttpSocket();
-						$response = $HttpSocket->get($server['ServerModPlugin']['address'].$requestStr, $data);
+						$response = $HttpSocket->get('http://'.$server['ServerModPlugin']['address'].$requestStr, $data);
 			 			//pr($response);
-				 		$xml = new Xml($response);
-				 		$xmlAsArray = $xml->toArray();
+				 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 				 		// Прасинг лога и ошибок
 				 		$responseMessages = $this->parseXmlResponse($xmlAsArray);
 				 		$error = $responseMessages['error'];
 
-						if (!empty($xmlAsArray['Response']['paramValue'])) {
-							$this->set('serverPassword', $xmlAsArray['Response']['paramValue']);
+						if (!empty($xmlAsArray['response']['paramValue'])) {
+							$this->set('serverPassword', $xmlAsArray['response']['paramValue']);
 						} else {
 							$this->set('serverPassword', false);
 						}
@@ -6651,17 +6647,16 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
 							$requestStr = '/~configurator/scripts/subscript_read_write_param.py';
 
 							$HttpSocket = new HttpSocket();
-							$response = $HttpSocket->get($server['ServerModPlugin']['address'].$requestStr, $data);
+							$response = $HttpSocket->get('http://'.$server['ServerModPlugin']['address'].$requestStr, $data);
 				 			//pr($response);
-					 		$xml = new Xml($response);
-					 		$xmlAsArray = $xml->toArray();
+					 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 					 		// Прасинг лога и ошибок
 					 		$responseMessages = $this->parseXmlResponse($xmlAsArray);
 					 		$error = $responseMessages['error'];
 
-							if (!empty($xmlAsArray['Response']['paramValue'])) {
-								$this->set('rconPassword', $xmlAsArray['Response']['paramValue']);
+							if (!empty($xmlAsArray['response']['paramValue'])) {
+								$this->set('rconPassword', $xmlAsArray['response']['paramValue']);
 							} else {
 								$this->set('rconPassword', false);
 							}
@@ -6791,10 +6786,9 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
 		 		$requestStr = "/~configurator/scripts/subscript_cod_mod_list.py";
 
 		 		$HttpSocket = new HttpSocket();
-		 		$response = $HttpSocket->get($server['ServerModPlugin']['address'].$requestStr, $data);
+		 		$response = $HttpSocket->get('http://'.$server['ServerModPlugin']['address'].$requestStr, $data);
 
-		 		$xml = new Xml($response);
-		 		$xmlAsArray = $xml->toArray();
+		 		$xmlAsArray = Xml::toArray(Xml::build($response->body));
 
 		 		// Прасинг лога и ошибок
 				$responseMessages = $this->parseXmlResponse($xmlAsArray);
@@ -6808,8 +6802,8 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
 		 			$modsList = array('' => 'Без мода');
 		 		}
 
-		 		if (!empty($xmlAsArray['Response']['List']['Dir'])) {
-		 			foreach ( $xmlAsArray['Response']['List']['Dir'] as $mod ) {
+		 		if (!empty($xmlAsArray['response']['list']['Dir'])) {
+		 			foreach ( $xmlAsArray['response']['list']['Dir'] as $mod ) {
        					$modsList[$mod] = $mod;
        					if (@$template['GameTemplate']['name'] === 'cod4' and preg_match('/[A-Z]./', $mod) > 0 and $mod !='ModWarfare') {
        						$error .= 'Имя директории мода - '.$mod.' - содержит заглавные буквы. Имя директории мода может содержать только малые буквы и цифры.<br/>';
@@ -6819,8 +6813,8 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
        					}
 
 					}
-		 		} elseif (!empty($xmlAsArray['Response']['List']['dir'])) {
-		 			$modsList[$xmlAsArray['Response']['List']['dir']] = $xmlAsArray['Response']['List']['dir'];
+		 		} elseif (!empty($xmlAsArray['response']['list']['dir'])) {
+		 			$modsList[$xmlAsArray['response']['list']['dir']] = $xmlAsArray['response']['list']['dir'];
 		 		} else {
 		 			if (!empty($server['ServerModPlugin']['mod'])) {
 		 				$error .= 'Не обнаружен мод сервера, хотя в строке запуска он установлен! Переинициализируйте сервер, либо загрузите нужный мод и установите его модом по умолчанию!<br/>';
@@ -7331,7 +7325,7 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
 							$requestStr = '/~configurator/scripts/subscript_read_write_param.py';
 
 							$HttpSocket = new HttpSocket();
-							$response = $HttpSocket->get($this->request->data['ServerCore']['address'].$requestStr, $data);
+							$response = $HttpSocket->get('http://'.$this->request->data['ServerCore']['address'].$requestStr, $data);
 				 			//pr($response);
 					 		$xml = new Xml($response);
 					 		$xmlAsArray = $xml->toArray();
@@ -7340,8 +7334,8 @@ CleanXML='.$newParams['RadioShoutcastParam']['CleanXML'].'
 					 		$responseMessages = $this->parseXmlResponse($xmlAsArray);
 					 		$error = $responseMessages['error'];
 
-							if (!empty($xmlAsArray['Response']['paramValue'])) {
-								$this->request->data['ServerCore']['nameInGame'] =  $xmlAsArray['Response']['paramValue'];
+							if (!empty($xmlAsArray['response']['paramValue'])) {
+								$this->request->data['ServerCore']['nameInGame'] =  $xmlAsArray['response']['paramValue'];
 							} else {
 								$this->request->data['ServerCore']['nameInGame'] = NULL;
 							}
