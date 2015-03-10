@@ -25,6 +25,27 @@ class TeamServerComponent extends Component {
                 $this->controller = $controller;
         }
 
+        function countUserName($userInfo = array()) {
+            if (!empty($userInfo))
+            {
+                if (!empty($userInfo['User']['first_name'])
+                        and !empty($userInfo['User']['second_name']))
+                {
+                    return $userInfo['User']['first_name'].' '.$userInfo['User']['second_name'];
+                }
+                else
+                if (!empty($userInfo['User']['first_name'])
+                        and empty($userInfo['User']['second_name']))
+                {
+                    return sprintf('%s (%s)', $userInfo['User']['first_name'], ucfirst($userInfo['User']['username']));
+                }
+                else
+                {
+                    return ucfirst($userInfo['User']['username']);
+                }
+            }
+        }
+
         function logAction( $text = null, $status = null, $ownerUserId = null, $creator = null) {
                 $this->controller->loadModel('Action');
                 $this->controller->loadModel('UserGroup');

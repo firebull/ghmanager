@@ -488,7 +488,7 @@ def hltvStart(id, user, ip, port, slots, type):
     # Counter-strike 1.6 ###########################################################
     if type in ['cs16', 'cs16-old', 'dmc']:
 
-        o = Template('./hltv -ip $hostIP -port $hostport +connect $hostIP:$connectTo \
+        o = Template('./hltv_run -ip $hostIP -port $hostport +connect $hostIP:$connectTo \
  +maxclients  $clients -nodns -pidfile $pid -logfile 0')
         options = o.substitute(hostIP=ip,
                                cPort=clientPort,

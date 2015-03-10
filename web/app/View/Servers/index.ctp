@@ -182,7 +182,7 @@
 	<?php
 	if (@$newOrderTemplate) {
 		$event  = $this->Js->request(array('controller'=>'Orders',
-									 'action'=>'add', $newOrderTemplate['Type'][0]['id'], $newOrderTemplate['GameTemplateType']['id']),
+									 'action'=>'add', $newOrderTemplate['Type']['id'], $newOrderTemplate['GameTemplateType']['id']),
 							   array('update' => '#add_server',
 									 'before'=>$effect.$loadingShow,
 									 'complete'=>$loadingHide));
@@ -345,13 +345,13 @@ if ( !empty($serversGrouped) ) { // Если есть список
 		<tr id="opener_<?php echo $server['Server']['id']; ?>" class="tbl_out_hide" onmouseout="this.className='tbl_out_hide'" onmouseover="this.className='tbl_hover_red'">
 			<td class="status"><div class="processing" title="Сервер будет удалён в ближайшее время"></div></td>
 			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>
-			<td  class="left"><?php echo $this->Html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
-														array('alt'=>$server['GameTemplate'][0]['longname'], 'width'=>'24', 'height'=>'24')); ?></td>
+			<td  class="left"><?php echo $this->Html->image('icons/servers/'.$server['GameTemplate']['name'].'.png',
+														array('alt'=>$server['GameTemplate']['longname'], 'width'=>'24', 'height'=>'24')); ?></td>
 			<td class="left">
 				<div class="cuttext">
 					<?php
 						if (empty($server['Server']['name'])) {
-							echo $server['GameTemplate'][0]['longname'];
+							echo $server['GameTemplate']['longname'];
 						} else {
 							echo $server['Server']['name'];
 						}
@@ -382,9 +382,9 @@ if ( !empty($serversGrouped) ) { // Если есть список
 			</td>
 			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>
 			<td width="30px">
-			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
-														array('alt'=>$server['GameTemplate'][0]['longname'],
-														'title'=>$server['GameTemplate'][0]['longname'],
+			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate']['name'].'.png',
+														array('alt'=>$server['GameTemplate']['longname'],
+														'title'=>$server['GameTemplate']['longname'],
 														'style' => 'width: 24px !important;'.
 																   'height: 24px !important;'.
 																   'max-width: 24px !important;'
@@ -395,7 +395,7 @@ if ( !empty($serversGrouped) ) { // Если есть список
 				<div class="cuttext" style="max-width: 125px;">
 					<?php
 						if (empty($server['Server']['name'])) {
-							$serverName = $server['GameTemplate'][0]['longname'];
+							$serverName = $server['GameTemplate']['longname'];
 						} else {
 							$serverName = $server['Server']['name'];
 						}
@@ -421,26 +421,26 @@ if ( !empty($serversGrouped) ) { // Если есть список
 			</td>
 			<td align="center"><?php
 
-			if (in_array($server['GameTemplate'][0]['id'], array(37,38))) {
+			if (in_array($server['GameTemplate']['id'], array(37,38))) {
 				echo $this->element('icons_client_eac', array(
 																	'id'   => $server['Server']['id'],
-																	'name' => $server['GameTemplate'][0]['name'],
-																	'longname' => $server['GameTemplate'][0]['longname'],
+																	'name' => $server['GameTemplate']['name'],
+																	'longname' => $server['GameTemplate']['longname'],
 																	'viewLink' => 'true',
 																	'initialised' => true,
 																	'type' => strtolower($type),
-																	'serverType' => $server['Type'][0]['name'],
+																	'serverType' => $server['Type']['name'],
 																	'state' => @$eacStatus[$server['Server']['id']]
 																	 ));
 			} else {
 				echo $this->element('icons_client_server', array(
 																	'id'   => $server['Server']['id'],
-																	'name' => $server['GameTemplate'][0]['name'],
-																	'longname' => $server['GameTemplate'][0]['longname'],
+																	'name' => $server['GameTemplate']['name'],
+																	'longname' => $server['GameTemplate']['longname'],
 																	'viewLink' => 'true',
 																	'initialised' => true,
 																	'type' => strtolower($type),
-																	'serverType' => $server['Type'][0]['name']
+																	'serverType' => $server['Type']['name']
 																	 ));
 			}
 
@@ -448,7 +448,7 @@ if ( !empty($serversGrouped) ) { // Если есть список
 
 			<td><?php
 
-					if ($server['Type'][0]['name'] != 'eac') {
+					if ($server['Type']['name'] != 'eac') {
 						echo $server['Server']['slots'];
 					}
 
@@ -458,11 +458,11 @@ if ( !empty($serversGrouped) ) { // Если есть список
 
 					if (!empty($server['Server']['address'])) {
 						echo $server['Server']['address'].":".$server['Server']['port'];
-						if ( in_array($server['GameTemplate'][0]['name'], $sourceTvEnable) ) {
+						if ( in_array($server['GameTemplate']['name'], $sourceTvEnable) ) {
 							echo '<br/>Порт STV: '.(intval($server['Server']['port']) + 1015);
-						} elseif ( in_array($server['GameTemplate'][0]['name'], $gotvEnable) ) {
+						} elseif ( in_array($server['GameTemplate']['name'], $gotvEnable) ) {
 							echo '<br/>Порт GOTV: '.(intval($server['Server']['port']) + 1015);
-						} elseif ( in_array($server['GameTemplate'][0]['name'], $hltvEnable) ) {
+						} elseif ( in_array($server['GameTemplate']['name'], $hltvEnable) ) {
 							echo '<br/>Порт HLTV: '.(intval($server['Server']['port']) + 1015);
 						}
 					} else {
@@ -543,13 +543,13 @@ if ( !empty($serversGrouped) ) { // Если есть список
 			<td class="status"><div class="processing" title="Ожидание инициализации"></div></td>
 			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>
 			<td>
-			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
-														array('alt'=>$server['GameTemplate'][0]['longname'], 'width'=>'24', 'height'=>'24')); ?>
+			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate']['name'].'.png',
+														array('alt'=>$server['GameTemplate']['longname'], 'width'=>'24', 'height'=>'24')); ?>
 			</td>
 			<td class="left">
 				<?php
 					if (empty($server['Server']['name'])) {
-						$serverName = $server['GameTemplate'][0]['longname'];
+						$serverName = $server['GameTemplate']['longname'];
 					} else {
 						$serverName = $server['Server']['name'];
 					}
@@ -580,14 +580,14 @@ if ( !empty($serversGrouped) ) { // Если есть список
 			<td class="status"><div class="warning" title="Ожидание оплаты"></div></td>
 			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>
 			<td>
-			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
-														array('alt'=>$server['GameTemplate'][0]['longname'], 'width'=>'24', 'height'=>'24')); ?>
+			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate']['name'].'.png',
+														array('alt'=>$server['GameTemplate']['longname'], 'width'=>'24', 'height'=>'24')); ?>
 			</td>
 			<td class="left">
 
 				<?php
 					if (empty($server['Server']['name'])) {
-						$serverName = $server['GameTemplate'][0]['longname'];
+						$serverName = $server['GameTemplate']['longname'];
 					} else {
 						$serverName = $server['Server']['name'];
 					}
@@ -606,9 +606,9 @@ if ( !empty($serversGrouped) ) { // Если есть список
 				<?php
 
 					echo $server['Server']['address'].":".$server['Server']['port'];
-					if ( in_array($server['GameTemplate'][0]['name'], $sourceTvEnable) ) {
+					if ( in_array($server['GameTemplate']['name'], $sourceTvEnable) ) {
 							echo '<br/>Порт STV: '.(intval($server['Server']['port']) + 1015);
-					} elseif ( in_array($server['GameTemplate'][0]['name'], $hltvEnable) ) {
+					} elseif ( in_array($server['GameTemplate']['name'], $hltvEnable) ) {
 							echo '<br/>Порт HLTV: '.(intval($server['Server']['port']) + 1015);
 						}
 
@@ -629,13 +629,13 @@ if ( !empty($serversGrouped) ) { // Если есть список
 			<td class="status"><div class="warning"  title="Ожидание оплаты"></div></td>
 			<td class="id"><?php echo "#".$server['Server']['id']; ?></td>
 			<td>
-			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate'][0]['name'].'.png',
-														array('alt'=>$server['GameTemplate'][0]['longname'], 'width'=>'24', 'height'=>'24')); ?>
+			<?php echo $this->Html->image('icons/servers/'.$server['GameTemplate']['name'].'.png',
+														array('alt'=>$server['GameTemplate']['longname'], 'width'=>'24', 'height'=>'24')); ?>
 			</td>
 			<td class="left">
 				<?php
 					if (empty($server['Server']['name'])) {
-						$serverName = $server['GameTemplate'][0]['longname'];
+						$serverName = $server['GameTemplate']['longname'];
 					} else {
 						$serverName = $server['Server']['name'];
 					}

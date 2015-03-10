@@ -523,6 +523,9 @@ class ServersController extends AppController {
                 $userInfo['User'][$key] = strip_tags($value);
             }
 
+            // Вычислить имя пользователя
+            $userInfo['User']['fullName'] = $this->TeamServer->countUserName($userInfo);
+
             $this->set('userinfo', $userInfo);
         }
 
@@ -542,6 +545,7 @@ class ServersController extends AppController {
 
     public function index() {
         $this->DarkAuth->requiresAuth();
+        //$this->layout = 'client_new';
         $this->set('title_for_layout', 'Администрирование серверов');
         $this->loadModel('GameTemplateType');
         $this->loadModel('Eac');
@@ -574,8 +578,9 @@ class ServersController extends AppController {
 
         // Переходим к серверам
         // Нефиг запрашивать лишнюю информацию из базы
-        $this->Server->unbindModel(array(
-            'hasAndBelongsToMany' => array(
+        $this->Server->unbindModel([
+            'hasAndBelongsToMany' => [
+            	'Mod',
                 'Plugin',
                 'Location',
                 'RootServer',
@@ -584,16 +589,18 @@ class ServersController extends AppController {
                 'User',
                 'VoiceMumbleParam',
                 'RadioShoutcastParam',
-            )));
+            ]]);
 
-        if (!empty($serversIdsList) and count($serversIdsList) > 15) {
-            $this->paginate = array('conditions' => array('id' => $serversIdsList));
-            $userServers = $this->paginate('Server');
-            $this->set('paginate', true);
-        } else {
-            $userServers = $this->Server->find('all', array(
-                'conditions' => array('id' => $serversIdsList)));
-        }
+        $this->Server->bindModel([
+            'hasAndBelongsToMany' => [
+            	'Type'         => ['fields' => 'id, name, longname'],
+            	'GameTemplate' => ['fields' => 'id, name, longname, current_version']
+            ]]);
+
+        $userServers = $this->Server->find('all',
+        	                               ['conditions' => ['id' => $serversIdsList],
+        	                                'fields' => 'id, address, port, slots, payedTill, initialised, name, action']);
+
 
         // Обнулить переменные, на всякий случай
         $servers = array();
@@ -606,9 +613,9 @@ class ServersController extends AppController {
 
             $serverIps[] = $server['Server']['address'] . ':' . $server['Server']['port'];
             $tmp['Server'] = $server['Server'];
-            $tmp['Type'] = $server['Type'];
-            $tmp['GameTemplate'] = $server['GameTemplate'];
-            $tmp['Mod'] = $server['Mod'];
+            $tmp['Type'] = $server['Type'][0];
+            $tmp['GameTemplate'] = $server['GameTemplate'][0];
+            //$tmp['Mod'] = $server['Mod'];
 
             if (time() < strtotime($server['Server']['payedTill'])
                 &&
@@ -666,6 +673,8 @@ class ServersController extends AppController {
             $this->Session->delete('orderFromSite');
         }
 
+        //pr($servers);
+
         $this->set('serversGrouped', $servers);
         $this->set('serversIds', $serversIds);
         $this->set('journal', $user['Actions']);
@@ -721,6 +730,8 @@ class ServersController extends AppController {
         }
 
         $this->set('iptablesLog', $logs);
+
+        //$this->render('index_new');
 
     }
 
@@ -7716,8 +7727,8 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      * Ради безопасности не хранить пароль в открытом виде в общей базе.
      */
     public function rconResult($id = null, $command = null, $isHltv = false, $return = 'parsed') {
-        //pr($this->request->params);;
-        if ($id === null && !empty($this->request->params['url'])) {
+
+        if (is_null($id) && @count($this->params['url']) >= 2) {
             $id = $this->request->query('id');
             $command = @$this->request->query('command');
             $isHltv = @$this->request->query('isHltv');
