@@ -134,28 +134,28 @@ class DarkAuthComponent extends Component {
      */
     protected $log_the_login_ip_field = 'last_ip';
 
-  /**
-   * Heashes Passwords for secure storage and comparison.
-   *
-   * You can edit this function to explain how you want to hash your passwords.
-   * Also you can use it as a static function in your controller to hash passwords beforeSave
-   */
+    /**
+     * Heashes Passwords for secure storage and comparison.
+     *
+     * You can edit this function to explain how you want to hash your passwords.
+     * Also you can use it as a static function in your controller to hash passwords beforeSave
+     */
     function hasher($plain_text) {
-        $hashed = md5('gh'.$plain_text.'manager'.'321654987321jhasc23c');
+        $hashed = md5('gh' . $plain_text . 'manager' . '321654987321jhasc23c');
         return $hashed;
     }
 
     ##########################################################################
- /*
-  * DON'T EDIT THESE OR ANYTHING BELOW HERE UNLESS YOU KNOW WHAT YOU'RE DOING
-  */
+    /*
+     * DON'T EDIT THESE OR ANYTHING BELOW HERE UNLESS YOU KNOW WHAT YOU'RE DOING
+     */
 
     /**
      * The Controller
      */
     function initialize(Controller $controller, $settings = array()) {
-                $this->controller = $controller;
-        }
+        $this->controller = $controller;
+    }
     /**
      * Where we are
      */
@@ -163,7 +163,7 @@ class DarkAuthComponent extends Component {
     /**
      * Components needed for this Component
      */
-    public $components=array('Session');
+    public $components = array('Session');
     /**
      * The Current logged in User detail
      */
@@ -190,12 +190,12 @@ class DarkAuthComponent extends Component {
             die('<p>Please change the DarkAuth::session_secure_key value from the default.</p>');
         }
         $this->controller = $controller;
-        $this->here = substr($this->controller->here,strlen($this->controller->base));
+        $this->here = substr($this->controller->here, strlen($this->controller->base));
         $this->_login();
         //now check session/cookie info.
         $this->getUserInfoFromSessionOrCookie();
         //now see if the calling controller wants auth
-        if ( array_key_exists('_DarkAuth', $this->controller) ) {
+        if (array_key_exists('_DarkAuth', $this->controller)) {
             // We want Auth for any action here
             if (!empty($this->controller->_DarkAuth['onDeny'])) {
                 $deny = $this->controller->_DarkAuth['onDeny'];
@@ -212,17 +212,17 @@ class DarkAuthComponent extends Component {
         }
         //finally give access to the data through Configure
         $DA = array(
-                'User'=>$this->getUserInfo(),
-                'Access'=>$this->getAccessList(),
-                'Authorized'=>$this->isAllowed()
-                );
+            'User' => $this->getUserInfo(),
+            'Access' => $this->getAccessList(),
+            'Authorized' => $this->isAllowed(),
+        );
         Configure::write('DarkAuth', $DA);
     }
     /**
      * Attempts to login from POST data
      */
     function _login() {
-        if (is_array($this->controller->data) && array_key_exists('DarkAuth', $this->controller->data) ) {
+        if (is_array($this->controller->data) && array_key_exists('DarkAuth', $this->controller->data)) {
             $this->authenticate_from_post($this->controller->data['DarkAuth']);
             $this->controller->request->data['DarkAuth']['password'] = '';
         }
@@ -233,31 +233,31 @@ class DarkAuthComponent extends Component {
     function secure_key() {
         static $key;
         if (!$key) {
-            $key = md5(Configure::read('Security.salt').'!DarkAuth!'.$this->session_secure_key);
+            $key = md5(Configure::read('Security.salt') . '!DarkAuth!' . $this->session_secure_key);
         }
         return $key;
     }
     /**
      *  forces the auth check and displays the login screen, or auth denied page or allows the script to continue as appropriate.
      */
-    function requiresAuth($groups=array(), $deny_redirect=null, $flash = null) {
-        if ( empty($this->current_user) ) {
+    function requiresAuth($groups = array(), $deny_redirect = null, $flash = null) {
+        if (empty($this->current_user)) {
             // Still no info! render login page!
             if ($this->from_post && $this->set_flash_for_failure) {
-                $this->Session->setFlash($this->login_failed_message,'flash_login_error', array(), $this->flash_key);
+                $this->Session->setFlash($this->login_failed_message, 'flash_login_error', array(), $this->flash_key);
             }
             if ($flash) {
-            	$this->Session->setFlash($flash,'flash_login_error');
+                $this->Session->setFlash($flash, 'flash_login_error');
             }
             exit($this->controller->render($this->login_view));
         } else {
             if ($this->from_post) {
                 // user just authed, so redirect to avoid post data refresh.
-                $this->controller->redirect($this->here,null,null,true);
+                $this->controller->redirect($this->here, null, null, true);
                 return;
             }
             // User is authenticated, so we just need to check against the groups.
-            if ( empty($groups) ) {
+            if (empty($groups)) {
                 // No Groups specified so we are good to go!
                 $deny = false;
             } else {
@@ -278,14 +278,14 @@ class DarkAuthComponent extends Component {
     /**
      * Checks for access control on current user in given groups.
      */
-    function isAllowed($groups=array()) {
-        if ( empty($this->current_user) ) {
+    function isAllowed($groups = array()) {
+        if (empty($this->current_user)) {
             // No information about the user! FALSE
             return false;
         } else {
 
             // User is authenticated, so we just need to check against the groups.
-            if ( empty($groups) ) {
+            if (empty($groups)) {
                 // No Groups specified so we are good to go! TRUE
                 return true;
             }
@@ -295,10 +295,10 @@ class DarkAuthComponent extends Component {
             }
             $access = $this->getAccessList();
             // Check the superuser group
-            if (  !empty($this->superuser_group)  //we are using a superuser group
-                  && array_key_exists($this->superuser_group, $access) //and that group exists in the access array.
-                  && $access[$this->superuser_group] //and the auth'd user has superuser access!
-              ) {
+            if (!empty($this->superuser_group) //we are using a superuser group
+                 && array_key_exists($this->superuser_group, $access) //and that group exists in the access array.
+                 && $access[$this->superuser_group]//and the auth'd user has superuser access!
+            ) {
                 return true;
             }
             // Now we have to check whether the user has one of the groups specified.
@@ -319,14 +319,14 @@ class DarkAuthComponent extends Component {
             return false;
         }
         list($hash, $data) = explode("|||", $_COOKIE['DarkAuth']);
-        if ($hash != md5($data.$this->secure_key())) {
+        if ($hash != md5($data . $this->secure_key())) {
             //Cookie has been tampered with
             return false;
         }
         $crumbs = unserialize(base64_decode($data));
         if (!array_key_exists('username', $crumbs) ||
             !array_key_exists('password', $crumbs) ||
-            !array_key_exists('expiry'  , $crumbs)) {
+            !array_key_exists('expiry', $crumbs)) {
             //Cookie doesn't contain the correct info.
             return false;
         }
@@ -342,20 +342,20 @@ class DarkAuthComponent extends Component {
     /**
      * Set a tamper-proof cookie with user login details (yes password is hashed!)
      */
-    function setCookieInfo($data, $expiry=0) {
+    function setCookieInfo($data, $expiry = 0) {
         if ($data === false) {
             //remove cookie!
             $cookie = false;
             $expiry = 100; //should be in the past enough!
         } else {
             $serial = base64_encode(serialize($data));
-            $hash = md5($serial.$this->secure_key());
-            $cookie = $hash."|||".$serial;
+            $hash = md5($serial . $this->secure_key());
+            $cookie = $hash . "|||" . $serial;
         }
-        if ($_SERVER['SERVER_NAME']=='localhost') {
+        if ($_SERVER['SERVER_NAME'] == 'localhost') {
             $domain = null;
         } else {
-            $domain = '.'.$_SERVER['SERVER_NAME'];
+            $domain = '.' . $_SERVER['SERVER_NAME'];
         }
         return setcookie('DarkAuth', $cookie, $expiry, $this->controller->base, $domain);
     }
@@ -383,7 +383,7 @@ class DarkAuthComponent extends Component {
     /**
      * Use the database to authenticate.
      */
-    function authenticate($data, $force_regenerate=false) {
+    function authenticate($data, $force_regenerate = false) {
         if ($data === false) {
             $this->destroyData();
             return false;
@@ -395,19 +395,19 @@ class DarkAuthComponent extends Component {
         }
         switch ($this->user_name_case_folding) {
             case 'lower':
-            $data['username'] = strtolower($data['username']);
-            break;
+                $data['username'] = strtolower($data['username']);
+                break;
             case 'upper';
-            $data['username'] = strtoupper($data['username']);
-            break;
-            default: break;
+                $data['username'] = strtoupper($data['username']);
+                break;
+            default:break;
         }
         $conditions = array(
-            $this->user_model_name.".".$this->user_name_field => $data['username'],
-            $this->user_model_name.".".$this->user_pass_field => $hashed_password
+            $this->user_model_name . "." . $this->user_name_field => $data['username'],
+            $this->user_model_name . "." . $this->user_pass_field => $hashed_password,
         );
         if ($this->user_live_field) {
-            $field = $this->user_model_name.".".$this->user_live_field;
+            $field = $this->user_model_name . "." . $this->user_live_field;
             $conditions[$field] = $this->user_live_value;
         };
 
@@ -422,7 +422,7 @@ class DarkAuthComponent extends Component {
                 $this->allow_cookie && //check we're allowing cookies
                 ($this->from_post || $force_regenerate) && //check this was a posted login attempt.
                 array_key_exists('remember_me', $data) && //check they where given the option!
-                $data['remember_me'] == true //check they WANT a cookie set
+                $data['remember_me'] == true//check they WANT a cookie set
             ) {
                 // set our cookie!
                 if (array_key_exists('cookie_expiry', $data)) {
@@ -434,7 +434,7 @@ class DarkAuthComponent extends Component {
                     // Session cookie? might as well not set at all...
                 } else {
                     $expiry = strtotime($this->cookie_expiry);
-                    $this->setCookieInfo(array('username'=>$data['username'], 'password'=>$hashed_password, 'expiry'=>$expiry), $expiry);
+                    $this->setCookieInfo(array('username' => $data['username'], 'password' => $hashed_password, 'expiry' => $expiry), $expiry);
                 }
             }
             if ($this->log_the_login && ($this->from_post || $this->from_cookie)) {
@@ -442,32 +442,32 @@ class DarkAuthComponent extends Component {
                 //Store the old info!
                 $last_login = array(
                     'time' => $check[$this->user_model_name][$this->log_the_login_time_field],
-                    'ip' => $check[$this->user_model_name][$this->log_the_login_ip_field]
+                    'ip' => $check[$this->user_model_name][$this->log_the_login_ip_field],
                 );
                 $this->Session->write('LastLogin', $last_login);
-                $data = array( $this->user_model_name => array( $this->log_the_login_time_field => date("Y-m-d H:i:s"), $this->log_the_login_ip_field => env('REMOTE_ADDR')));
+                $data = array($this->user_model_name => array($this->log_the_login_time_field => date("Y-m-d H:i:s"), $this->log_the_login_ip_field => env('REMOTE_ADDR')));
                 $this->controller->{$this->user_model_name}->{$this->controller->{$this->user_model_name}->primaryKey} = $check[$this->user_model_name][$this->controller->{$this->user_model_name}->primaryKey];
-                $this->controller->{$this->user_model_name}->save( $data );
+                $this->controller->{$this->user_model_name}->save($data);
             }
             $this->current_user = $check;
             if ($this->from_post && $this->set_flash_for_success) {
-                $this->Session->setFlash($this->login_success_message,'flash_success', array(), $this->flash_key);
+                $this->Session->setFlash($this->login_success_message, 'flash_success', array(), $this->flash_key);
 
                 $this->controller->loadModel('Action');
 
-                $log['Action'] = array( 'user_id' => $this->getUserId(),
-                                        'action'  => 'Успешный вход в панель',
-                                        'creator' => 'user',
-                                        'ip'      =>  env('REMOTE_ADDR'),
-                                        'status'  => 'ok'
-                                      );
+                $log['Action'] = array('user_id' => $this->getUserId(),
+                    'action' => 'Успешный вход в панель',
+                    'creator' => 'user',
+                    'ip' => env('REMOTE_ADDR'),
+                    'status' => 'ok',
+                );
                 $this->controller->Action->save($log);
             }
             Configure::write('DarkAuth.User', $this->getUserInfo());
             return true;
         } else {
             if ($this->from_post && $this->set_flash_for_failure) {
-                $this->Session->setFlash($this->login_failed_message,'flash_error', array(), $this->flash_key);
+                $this->Session->setFlash($this->login_failed_message, 'flash_error', array(), $this->flash_key);
             }
             $this->destroyData();
             return false;
@@ -477,7 +477,7 @@ class DarkAuthComponent extends Component {
     /**
      * Returns the current loggin user info (just User Model)
      */
-    function getUserInfo($all=false) {
+    function getUserInfo($all = false) {
         return ($all) ? $this->current_user : $this->current_user[$this->user_model_name];
     }
     /**
@@ -512,8 +512,8 @@ class DarkAuthComponent extends Component {
         $this->controller->loadModel($this->user_model_name);
 
         $all_groups = $this->controller->{$this->user_model_name}->{$this->group_model_name}->find('list');
-        if (!count($all_groups)) {  return array(); }
-        $access = array_combine($all_groups,array_fill(0,count($all_groups),0)); //create empty array.
+        if (!count($all_groups)) {return array();}
+        $access = array_combine($all_groups, array_fill(0, count($all_groups), 0)); //create empty array.
 
         if (empty($this->current_user)) {
             // NO AUTHENTICATION, SO EMTPY ARRAY!
@@ -521,7 +521,7 @@ class DarkAuthComponent extends Component {
         }
         if ($this->HABTM) {
             // could be many groups
-            $ugroups = Set::combine($this->current_user[$this->group_model_name],'{n}.id','{n}.'.$this->group_name_field);
+            $ugroups = Set::combine($this->current_user[$this->group_model_name], '{n}.id', '{n}.' . $this->group_name_field);
             foreach ($all_groups as $id => $role) {
                 if (in_array($role, $ugroups)) {
                     $access[$role] = 1;
@@ -535,7 +535,7 @@ class DarkAuthComponent extends Component {
             foreach ($all_groups as $id => $role) {
                 if ($this->current_user[$this->user_model_name][$foreign_key] == $id) {
                     $access[$role] = 1;
-                 } else {
+                } else {
                     $access[$role] = 0;
                 }
             }
@@ -557,7 +557,7 @@ class DarkAuthComponent extends Component {
     /**
      * Securely Log out a user.
      */
-    function logout($redirect=false) {
+    function logout($redirect = false) {
 
         $userId = $this->getUserId();
 
@@ -566,20 +566,20 @@ class DarkAuthComponent extends Component {
             $redirect = $this->logout_page;
         }
         if ($this->set_flash_for_logout) {
-            $this->Session->setFlash($this->logout_message,'flash_login_success', array(), $this->flash_key);
+            $this->Session->setFlash($this->logout_message, 'flash_login_success', array(), $this->flash_key);
         }
 
         $this->controller->loadModel('Action');
 
-        $log['Action'] = array( 'user_id' => $userId,
-                                'action'  => 'Успешный выход из панели',
-                                'creator' => 'user',
-                                'ip'      =>  env('REMOTE_ADDR'),
-                                'status'  => 'ok'
-                              );
+        $log['Action'] = array('user_id' => $userId,
+            'action' => 'Успешный выход из панели',
+            'creator' => 'user',
+            'ip' => env('REMOTE_ADDR'),
+            'status' => 'ok',
+        );
         $this->controller->Action->save($log);
 
-        $this->controller->redirect($redirect,null,true);
+        $this->controller->redirect($redirect, null, true);
         exit();
     }
 
@@ -587,15 +587,15 @@ class DarkAuthComponent extends Component {
      * Try and find existing user info from Session or Cookie.
      */
     function getUserInfoFromSessionOrCookie() {
-        if ( !empty($this->current_user) ) {
+        if (!empty($this->current_user)) {
             return false;
         }
-        if ($this->Session->valid() && $this->Session->check($this->secure_key()) ) {
+        if ($this->Session->valid() && $this->Session->check($this->secure_key())) {
             $this->current_user = $this->Session->read($this->secure_key());
             return $this->authenticate_from_session(array(
-                    'username' => $this->current_user[$this->user_model_name][$this->user_name_field],
-                    'password' => $this->current_user[$this->user_model_name][$this->user_pass_field],
-                ));
+                'username' => $this->current_user[$this->user_model_name][$this->user_name_field],
+                'password' => $this->current_user[$this->user_model_name][$this->user_pass_field],
+            ));
         } elseif ($this->allow_cookie) {
             return $this->authenticate_from_cookie();
         }

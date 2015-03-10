@@ -43,7 +43,7 @@ echo "\n\n";
 	<div id="global_wrapper" align="center">
 		<div id="content_wrapper" style="max-width: 320px;">
 			<div id="content_logo">
-			<?php echo $this->Html->image('TS_logo.png', array(   'width' => 272,
+			<?php echo $this->Html->image('ghmanager_272x42.png', array(   'width' => 272,
                                                             'height' => 42,
                                                             'class' => 'pull-left',
                                                             'style' => 'margin-left: 5px;'));?>

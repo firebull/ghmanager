@@ -12,9 +12,6 @@
 
 namespace SteamCondenser;
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-
 class SteamCondenser {
 
     const VERSION = '1.3.9';

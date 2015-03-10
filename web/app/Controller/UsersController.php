@@ -38,7 +38,8 @@ class UsersController extends AppController {
 		'RequestHandler',
 		'Session',
 		'TeamServer',
-		'DarkAuth'
+		'DarkAuth',
+		'Captcha'
 	);
 
 	public $paginate = array(
@@ -48,15 +49,19 @@ class UsersController extends AppController {
 						        )
 						    );
 
+	public function logout() {
+		if (!empty($this->DarkAuth->current_user))
+		{
+			$this->DarkAuth->logout();
+		}
+	}
+
 	public function result() {
 		// Функция пустышка для вывода результатов в окнах Ajax
 	}
 
 	public function createCaptcha() {
-		App::import("Component","Captcha"); //including captcha class
-		$this->Captcha =  new CaptchaComponent(); //creating an object instance
-		$this->Captcha->controller = $this; //assign this conroller(CaptchaController) object to its captcha object's controller property.
-		$this->set('captcha_src', $captcha_src=$this->Captcha->create()); //create a capthca and assign to a variable
+		$this->set('captcha_src', $captcha_src = $this->Captcha->create()); //create a capthca and assign to a variable
 	}
 
 	public function generatePass( $length = 8) {

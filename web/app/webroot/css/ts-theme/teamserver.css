@@ -11,7 +11,7 @@ body{background-color:#c0c0c0;}
 #flash .login_error{color:#DD1500;}
 #flash .login_success{color:#446805;}
 #title{width:60%;max-width:420px;top:100px;height:50px;position:absolute;left:20%;z-index:1;}
-#logo{background-image:url('../../img/TS_logo.png');float:left;width:272px;height:42px;background-position:-10px;}
+#logo{background-image:url('../../img/ghmanager_272x42.png');float:left;width:272px;height:42px;background-position:-10px;}
 #title_text{float:right;width:110px;height:38px;margin-top:12px;padding-right:5px;text-align:right;font-size:10px;color:#333;}
 #login_form{height:250px;background-color:#fff;border:2px solid #b4b4b4;border-top-left-radius:4px;-moz-border-radius-topleft:4px;border-bottom-right-radius:4px;-moz-border-radius-bottomright:4px;position:absolute;left:20%;top:150px;width:60%;max-width:420px;z-index:1;background-image:-webkit-gradient(linear, left bottom, left top, color-stop(0.13, #ffffff), color-stop(0.57, #ededed));background-image:-moz-linear-gradient(center bottom, #ffffff 13%, #ededed 57%);}
 #loginform_fieldname{position:relative;width:100%;height:13px;z-index:2;font-size:11px;font-family:Verdana, Tahoma, Arial;text-align:center;}

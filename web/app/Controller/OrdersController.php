@@ -2101,8 +2101,7 @@ class OrdersController extends AppController {
 			if (@$soap->load('php://input') and !empty($paymentParams)) {
 
 				$s = new WSSESoapServer($soap);
-				$xml = new Xml($s->saveXML());
-				$xmlAsArray = $xml->toArray();
+				$xmlAsArray = Xml::toArray(Xml::build($s->saveXML()));
 
 				if (!empty($xmlAsArray['Envelope']['Body']['UpdateBill'])) {
 					// Данные получены кооректно и обработаны

@@ -10,7 +10,7 @@
 <div id="flash"><?php echo $this->Session->flash(); ?></div>
 <div id="change_server_name">
 
-<?php echo $this->Form->create('ServerCore', array( 'url' => '/servers/changeName')); ?>
+<?php echo $this->Form->create('Server', array( 'url' => '/servers/changeName')); ?>
 
 <table border="0" cellpadding="0" cellspacing="2">
 	<tr>
