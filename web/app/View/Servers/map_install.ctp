@@ -7,7 +7,7 @@
  */
  include('loading_params.php');
 
- function mapLink( $serverId = null, $mapId = null, $official = false, $installed = null, $canDelete = false, $on = false, $this->Html = null) {
+ function mapLink( $serverId = null, $mapId = null, $official = false, $installed = null, $canDelete = false, $on = false, $html = null) {
  	if ($serverId !== null and $mapId !== null) {
 	 	// официальная карта установлена и включена
 		if ( $official  === true
@@ -16,7 +16,7 @@
 			 	and
 			 $on === true) {
 
-			return $this->Html->tag('button','<i class="icon-ban-circle"></i> Выключить',
+			return $html->tag('button','<i class="icon-ban-circle"></i> Выключить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'turnOff');",
 							   		  'escape' => false,
 							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
@@ -30,7 +30,7 @@
 			 $installed === true
 			 	and
 			 $on === false) {
-			return $this->Html->tag('button','<i class="icon-plus-sign"></i> Включить',
+			return $html->tag('button','<i class="icon-plus-sign"></i> Включить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'turnOn');",
 							   		  'escape' => false,
 							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
@@ -46,14 +46,14 @@
 			 	and
 			 $official === false) {
 
-			return $this->Html->tag('button','<i class="icon-remove-sign"></i> Удалить',
+			return $html->tag('button','<i class="icon-remove-sign"></i> Удалить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'delete');",
 							   		  'escape' => false,
 							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
 
 
 		} elseif ( $canDelete === true and $installed === false) {
-			return $this->Html->tag('button','<i class="icon-plus-sign"></i> Установить',
+			return $html->tag('button','<i class="icon-plus-sign"></i> Установить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'install');",
 							   		  'escape' => false,
 							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
@@ -443,11 +443,11 @@
 
 			if (action == 'install') {
 				okMessage  = 'Установлена на сервер';
-			} elseif (action == 'delete') {
+			} else if (action == 'delete') {
 				okMessage  = 'Удалена с сервера';
-			} elseif (action == 'turnOn') {
+			} else if (action == 'turnOn') {
 				okMessage  = 'Включена в конфигах';
-			} elseif (action == 'turnOff') {
+			} else if (action == 'turnOff') {
 				okMessage  = 'Отключена в конфигах';
 			}
 
@@ -456,7 +456,7 @@
 			$.getJSON(reqLink, {}, function(result) {
 					                    if (result == 'ok') {
 					                        $('#map_action_' + mapId).html('<strong class="highlight5">' + okMessage + '</strong>');
-					                    } elseif (result == 'error') {
+					                    } else if (result == 'error') {
 					                    	$('#map_action_' + mapId).html('<span class="highlight2">' + errMessage + '</span>');
 					                    } else {
 					                    	$('#map_action_' + mapId).html('<span class="highlight2">Неизвестная ошибка</span>');
