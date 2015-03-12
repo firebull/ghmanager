@@ -63,7 +63,7 @@ class PromosController extends AppController {
 			/* Промо код может быть простым, одним словом,
 			 * так и быть задан необходимым кол-м
 			 * одноразовых кодов*/
-			$this->loadModel('PromoWithCode');
+			//$this->loadModel('PromoWithCode');
 			if (!empty($promo['PromoCode'][0]['code'])) { // простой код
 				$promo['PromoCode'][0]['code'] = strtoupper($promo['PromoCode'][0]['code']);
 			} elseif (!empty($promo['Promo']['number'])) // кол-то кодов, которое надо сгенерировать
@@ -82,7 +82,10 @@ class PromosController extends AppController {
 
 				$promo['PromoCode'] = $codes;
 			}
-			if ($this->PromoWithCode->saveAll($promo)) {
+
+			$this->Promo->bindModel(['hasMany' => ['PromoCode']]);
+
+			if ($this->Promo->saveAll($promo)) {
 				$this->Session->setFlash('Акция сохранена','flash_success');
 			} else {
 				$this->Session->setFlash('Не удалось сохранить акцию:'.mysql_error(),'flash_error');
@@ -105,12 +108,10 @@ class PromosController extends AppController {
 									'belongsTo' => array(
 														'Promo' => array()
 													)));
-		$promo = $this-> PromoCode->find('first', array(
-															'conditions' => array (
-																					'used not' => '1',
-																					'code' => $code,
-																					'valid_through > NOW()'
-																				   )));
+		$promo = $this->PromoCode->find('first', ['conditions' => ['used not' => '1',
+																   'code' => $code,
+																   'valid_through > NOW()'
+																  ]]);
 
 		if ( !empty($promo) ) {
 			$this->set('promo', array('discount' => $promo['Promo']['discount']));
@@ -123,14 +124,14 @@ class PromosController extends AppController {
 		$this->layout = 'ajax';
 		$this->DarkAuth->requiresAuth(array('Admin','GameAdmin','OrdersAdmin'));
 
-		$this->loadModel('PromoWithCode');
-
 		if ($id === null) {
 			$id = $this->data['Promo']['id'];
 		}
 
-		$this->PromoWithCode->id = $id;
-		$this->data = $this->PromoWithCode->read();
+		$this->Promo->bindModel(['hasMany' => ['PromoCode']]);
+
+		$this->Promo->id = $id;
+		$this->data = $this->Promo->read();
 
 	}
 

@@ -14,7 +14,7 @@
 		<tr>
 			<td align="right">Тип:</td>
 			<td align="left">
-			<?php echo $this->Form->input('PromoWithCode.type',array (
+			<?php echo $this->Form->input('Promo.type',array (
 												  'options' => $types,
 												  'selected' => 'code',
 												  'id' => 'typesPromo',
@@ -41,7 +41,7 @@
 		<tr>
 			<td align="right">Описание акции:</td>
 			<td align="left">
-			<?php echo $this->Form->input('PromoWithCode.description',array (
+			<?php echo $this->Form->input('Promo.description',array (
 												  'type' => 'textfield',
 												  'div' => false,
 												  'label' => false));?></td>
@@ -49,14 +49,14 @@
 		<tr>
 			<td align="right">Скидка, %:</td>
 			<td align="left">
-			<?php echo $this->Form->input('PromoWithCode.discount',array (
+			<?php echo $this->Form->input('Promo.discount',array (
 												  'div' => false,
 												  'label' => false));?></td>
 		</tr>
 		<tr>
 			<td align="right">Срок окончания:</td>
 			<td align="left">
-			<?php echo $this->Form->input('PromoWithCode.valid_through',array (
+			<?php echo $this->Form->input('Promo.valid_through',array (
 												  'type' => 'text',
 												  'id' => 'validTrough',
 												  'value' => date('Y-m-d 23:59:59', strtotime('+1 month')),

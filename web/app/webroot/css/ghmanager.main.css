@@ -1,0 +1,21 @@
+html { height: 100%; }
+
+body {
+	margin: 0px;
+	font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+	text-rendering: optimizeLegibility;
+	background-image: url(../img/diagonal-noise.png); background-position: initial initial; background-repeat: initial initial;
+	color: #555555;
+  height: 100%;
+}
+
+.menu-home-image {
+	padding: .1em .5em !important;
+}
+
+.menu-shadow {
+	-webkit-box-shadow: 0px 5px 3px 0px rgba(50, 50, 50, 0.3) !important;
+	-moz-box-shadow:    0px 5px 3px 0px rgba(50, 50, 50, 0.3) !important;
+	box-shadow:         0px 5px 3px 0px rgba(50, 50, 50, 0.3) !important;
+}
+

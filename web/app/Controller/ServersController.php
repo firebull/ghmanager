@@ -595,11 +595,14 @@ class ServersController extends AppController {
             'hasAndBelongsToMany' => [
             	'Type'         => ['fields' => 'id, name, longname'],
             	'GameTemplate' => ['fields' => 'id, name, longname, current_version']
-            ]]);
+            ],
+            'hasMany' => [
+            	'Eac' => ['fields' => 'Eac.id, Eac.active']]
+            ]);
 
         $userServers = $this->Server->find('all',
-        	                               ['conditions' => ['id' => $serversIdsList],
-        	                                'fields' => 'id, address, port, slots, payedTill, initialised, name, action']);
+        	                               ['conditions' => ['Server.id' => $serversIdsList],
+        	                                'fields' => 'id, address, port, slots, payedTill, initialised, name, action, status, statusDescription']);
 
 
         // Обнулить переменные, на всякий случай
@@ -616,6 +619,10 @@ class ServersController extends AppController {
             $tmp['Type'] = $server['Type'][0];
             $tmp['GameTemplate'] = $server['GameTemplate'][0];
             //$tmp['Mod'] = $server['Mod'];
+            if (!empty($server['Eac']))
+            {
+            	$tmp['Eac'] = $server['Eac'][0];
+            }
 
             if (time() < strtotime($server['Server']['payedTill'])
                 &&
@@ -4473,9 +4480,9 @@ class ServersController extends AppController {
                     if (!empty($server['Type'][0]['name'])
                         and
                         (
-                            $server['Type'][0]['name'] === 'srcds'
+                            $server['Type'][0]['name'] == 'srcds'
                             or
-                            $server['Type'][0]['name'] === 'hlds'
+                            $server['Type'][0]['name'] == 'hlds'
                         )
                     ) {
                         $this->request->data['Server']['paramName'] = 'rcon_password';
@@ -4756,23 +4763,45 @@ class ServersController extends AppController {
                         '&val=' . $paramValue .
                         '&desc=Пароль сервера, к которому подключается HLTV' .
                         '&conf=hltv.cfg' .
-                        '&path=.' .
-                        '&a=write';
+                        '&path=' . $rootPath . '/' . $configPath .
+                        '&a=write' .
+                        '&d=' . $delim;
 
                         $HttpSocket = new HttpSocket();
                         $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
-
                         $xmlAsArray = Xml::toArray(Xml::build($response->body));
 
                         // Прасинг лога и ошибок
                         $responseMessages = $this->parseXmlResponse($xmlAsArray);
                         $error .= $responseMessages['error'];
-                        $log .= $responseMessages['log'];
+                        $log = array_merge($log, $responseMessages['log']);
+                    }
+                    else
+                    if ($server['Type'][0]['name'] == 'hlds'
+                        and $paramName == 'rcon_password') {
+                        $data = 'id=' . $id .
+                        '&p=adminpassword' .
+                        '&val=' . $paramValue .
+                        '&desc=Пароль RCON и комментатора' .
+                        '&conf=hltv.cfg' .
+                        '&path=' . $rootPath . '/' .
+                        '&a=write' .
+                        '&d=' . $delim;
+
+                        $HttpSocket = new HttpSocket();
+                        $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
+                        $xmlAsArray = Xml::toArray(Xml::build($response->body));
+
+                        // Прасинг лога и ошибок
+                        $responseMessages = $this->parseXmlResponse($xmlAsArray);
+                        $error .= $responseMessages['error'];
+                        $log = array_merge($log, $responseMessages['log']);
+
                     }
                     /* Конец записи пароля в HLTV*/
 
                     if (empty($responseMessages['error'])) {
-                        if ($paramDesc === 'None') {
+                        if ($paramDesc == 'None') {
                             $this->Session->setFlash('Параметр ' . $paramName . ' установлен успешно. Перезагрузите сервер.', 'flash_success');
                         } else {
                             $this->Session->setFlash($paramDesc . ' ' . $message . ' успешно. Перезагрузите сервер.', 'flash_success');

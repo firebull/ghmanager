@@ -4,7 +4,7 @@
 	$promoType = array('code'  => 'Многоразовый код',
 					   'token' => 'Одноразовые коды');
 
-	echo $this->Html->tag('h3', $promoType[$this->data['PromoWithCode']['type']]);
+	echo $this->Html->tag('h3', $promoType[$this->data['Promo']['type']]);
 
 	foreach ( $this->data['PromoCode'] as $code ) {
 			if ($code['used'] == 0){
