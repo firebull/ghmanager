@@ -430,10 +430,10 @@ class ServersController extends AppController {
             $this->ServerClean->id = $id;
             $server = $this->ServerClean->read();
 
-            if ($period === 'all') {
-                $periods = array('24h', '7d');
+            if ($period == 'all') {
+                $periods = ['24h', '7d'];
             } else {
-                $periods = array($period);
+                $periods = [$period];
             }
 
             // Получить кодированное имя файла
@@ -449,11 +449,12 @@ class ServersController extends AppController {
                 $graphFileName = md5($graphKey . $id . $period) . '.png';
 
                 // Проверить на наличие изображения графика
-
                 $fullGraphUrl = 'http://' . $server['ServerClean']['address'] . '/gamestats/' . $graphFileName;
-                $response = get_headers($fullGraphUrl, 1);
 
-                if ($response[0] === 'HTTP/1.1 200 OK') {
+                $http = new HttpSocket();
+				$response = $http->get($fullGraphUrl);
+
+                if ($response->code === '200') {
                     $graphs[$period] = $fullGraphUrl;
                 }
             }
@@ -545,7 +546,7 @@ class ServersController extends AppController {
 
     public function index() {
         $this->DarkAuth->requiresAuth();
-        //$this->layout = 'client_new';
+        $this->layout = 'client_new';
         $this->set('title_for_layout', 'Администрирование серверов');
         $this->loadModel('GameTemplateType');
         $this->loadModel('Eac');
@@ -602,8 +603,50 @@ class ServersController extends AppController {
 
         $userServers = $this->Server->find('all',
         	                               ['conditions' => ['Server.id' => $serversIdsList],
-        	                                'fields' => 'id, address, port, slots, payedTill, initialised, name, action, status, statusDescription']);
+        	                                'fields' => 'id, name, slots, address, port, slots, map, mapGroup,'.
+        	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
+        	                                            'initialised, action, status, statusDescription, statusTime,'.
+        	                                            'crashReboot, crashCount, crashTime, controlByToken']);
 
+
+        // Сгенерировать массив из всех карт по шаблонам и закэшировать его навсегда
+        if (($mapsByTemplate = Cache::read('mapsByTemplate')) === false)
+        {
+        	$this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' =>
+        										['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
+
+        	$this->Server->GameTemplate->bindModel(['hasAndBelongsToMany' => ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
+
+        	$gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
+
+        	if (!empty($gameTemplateMaps))
+        	{
+        		$mapsByTemplate = array();
+        		foreach ($gameTemplateMaps as $gameTemplateMap)
+        		{
+        			if (!empty($gameTemplateMap['Map']))
+        			{
+        				foreach ($gameTemplateMap['Map'] as $map) {
+
+        					$mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']] =
+        						$map;
+
+        					// Проверить на наличие изображения карты
+                            if (file_exists(WWW_ROOT . 'img/gameMaps/' . $map['id'] . '.jpg')) {
+                                $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = '/img/gameMaps/' . $map['id'] . '.jpg';
+                            } else {
+                                $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = NULL;
+                            }
+        				}
+        			}
+        		}
+
+        		if (!empty($mapsByTemplate))
+        		{
+		    		Cache::write('mapsByTemplate', $mapsByTemplate);
+		    	}
+		    }
+		}
 
         // Обнулить переменные, на всякий случай
         $servers = array();
@@ -613,6 +656,11 @@ class ServersController extends AppController {
         $eacStatus = array();
         $serverIps = array();
         foreach ($userServers as $server):
+        	$tmp = ['Server' => [],
+                    'Type'   => [],
+                    'GameTemplate' => [],
+                    'Eac' => [],
+                    'Status' => ['graphs' => ['24h', '7d']]];
 
             $serverIps[] = $server['Server']['address'] . ':' . $server['Server']['port'];
             $tmp['Server'] = $server['Server'];
@@ -640,7 +688,32 @@ class ServersController extends AppController {
             // Теперь создадим массивы, из типов серверов
             switch (@$server['Type'][0]['name']) {
                 case 'srcds':
+                	$servers['Game'][] = $tmp;
+                    break;
                 case 'hlds':
+                	if ($tmp['Server']['initialised'] and $tmp['Server']['status'] == 'exec_success')
+                	{
+	                	$handle = new SteamCondenser\Servers\GoldSrcServer($tmp['Server']['address'], $tmp['Server']['port']);
+	                	$handle->initialize();
+	                	$tmp['Status'] = $handle->getServerInfo();
+	                	if (!empty($tmp['Status']['mapName'])
+	                		  and !empty($mapsByTemplate[$server['GameTemplate'][0]['id']][$tmp['Status']['mapName']]['image']))
+	                	{
+	                		$tmp['Status']['image'] = $mapsByTemplate[$server['GameTemplate'][0]['id']][$tmp['Status']['mapName']]['image'];
+	                	}
+	                	else
+	                	{
+	                		$tmp['Status']['image'] = NULL;
+	                	}
+	                }
+
+	                if ($tmp['Server']['initialised'])
+	                {
+	                	$tmp['Status']['graphs'] = $this->getStatGraph($tmp['Server']['id']);
+	                }
+
+                	$servers['Game'][] = $tmp;
+                    break;
                 case 'cod':
                 case 'ueds':
                 case 'game':
@@ -738,7 +811,7 @@ class ServersController extends AppController {
 
         $this->set('iptablesLog', $logs);
 
-        //$this->render('index_new');
+        $this->render('index_new');
 
     }
 

@@ -19,3 +19,29 @@ body {
 	box-shadow:         0px 5px 3px 0px rgba(50, 50, 50, 0.3) !important;
 }
 
+.ui.mini_gh.images .image,
+.ui.mini_gh.images img,
+.ui.mini_gh.images svg,
+.ui.mini_gh.image {
+  width: 60px;
+  height: auto;
+  font-size: 0.71428571rem;
+}
+
+.ui.tiny_gh.images .image,
+.ui.tiny_gh.images img,
+.ui.tiny_gh.images svg,
+.ui.tiny_gh.image {
+  width: 120px;
+  height: auto;
+  font-size: 0.71428571rem;
+}
+
+.green {
+	color: #5bbd72;
+}
+
+.red {
+	color: #d95c5c;
+}
+
