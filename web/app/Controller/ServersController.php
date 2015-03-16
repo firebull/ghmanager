@@ -487,18 +487,52 @@ class ServersController extends AppController {
         $this->Server->GameTemplate->id = $gameTemplateId;
         $gameTemplate = $this->Server->GameTemplate->read();
 
+
+        ///////
+        // Сгенерировать массив из всех карт по шаблонам и закэшировать его навсегда
+        if (($mapsByTemplate = Cache::read('mapsByTemplate')) === false)
+        {
+        	$this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' =>
+        										['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
+
+        	$this->Server->GameTemplate->bindModel(['hasAndBelongsToMany' => ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
+
+        	$gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
+
+        	if (!empty($gameTemplateMaps))
+        	{
+        		$mapsByTemplate = array();
+        		foreach ($gameTemplateMaps as $gameTemplateMap)
+        		{
+        			if (!empty($gameTemplateMap['Map']))
+        			{
+        				foreach ($gameTemplateMap['Map'] as $map) {
+
+        					$mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']] =
+        						$map;
+
+        					// Проверить на наличие изображения карты
+                            if (file_exists(WWW_ROOT . 'img/gameMaps/' . $map['id'] . '.jpg')) {
+                                $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = '/img/gameMaps/' . $map['id'] . '.jpg';
+                            } else {
+                                $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = NULL;
+                            }
+        				}
+        			}
+        		}
+
+        		if (!empty($mapsByTemplate))
+        		{
+		    		Cache::write('mapsByTemplate', $mapsByTemplate);
+		    	}
+		    }
+		}
+
+        //////
+
         //pr($gameTemplate);
-        if (!empty($gameTemplate['Map'][0])) {
-            $mapDesc = $gameTemplate['Map'][0];
-
-            // Проверить на наличие изображения карты
-            if (file_exists(WWW_ROOT . '/img/gameMaps/' . $mapDesc['id'] . '.jpg')) {
-                $mapDesc['image'] = $mapDesc['id'];
-            } else {
-                $mapDesc['image'] = NULL;
-            }
-
-            return $mapDesc;
+        if (isset($mapsByTemplate[$gameTemplateId][$map])) {
+            return $mapsByTemplate[$gameTemplateId][$map];
         } else {
             return false;
         }
@@ -546,7 +580,7 @@ class ServersController extends AppController {
 
     public function index() {
         $this->DarkAuth->requiresAuth();
-        //$this->layout = 'client_new';
+        $this->layout = 'client_new';
         $this->set('title_for_layout', 'Администрирование серверов');
         $this->loadModel('GameTemplateType');
         $this->loadModel('Eac');
@@ -609,45 +643,6 @@ class ServersController extends AppController {
         	                                            'crashReboot, crashCount, crashTime, controlByToken']);
 
 
-        // Сгенерировать массив из всех карт по шаблонам и закэшировать его навсегда
-        if (($mapsByTemplate = Cache::read('mapsByTemplate')) === false)
-        {
-        	$this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' =>
-        										['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
-
-        	$this->Server->GameTemplate->bindModel(['hasAndBelongsToMany' => ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
-
-        	$gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
-
-        	if (!empty($gameTemplateMaps))
-        	{
-        		$mapsByTemplate = array();
-        		foreach ($gameTemplateMaps as $gameTemplateMap)
-        		{
-        			if (!empty($gameTemplateMap['Map']))
-        			{
-        				foreach ($gameTemplateMap['Map'] as $map) {
-
-        					$mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']] =
-        						$map;
-
-        					// Проверить на наличие изображения карты
-                            if (file_exists(WWW_ROOT . 'img/gameMaps/' . $map['id'] . '.jpg')) {
-                                $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = '/img/gameMaps/' . $map['id'] . '.jpg';
-                            } else {
-                                $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = NULL;
-                            }
-        				}
-        			}
-        		}
-
-        		if (!empty($mapsByTemplate))
-        		{
-		    		Cache::write('mapsByTemplate', $mapsByTemplate);
-		    	}
-		    }
-		}
-
         // Обнулить переменные, на всякий случай
         $servers = array();
         $tmp = array();
@@ -660,13 +655,15 @@ class ServersController extends AppController {
                     'Type'   => [],
                     'GameTemplate' => [],
                     'Eac' => [],
-                    'Status' => ['graphs' => ['24h', '7d']]];
+                    'Status' => ['graphs'  => ['24h', '7d'],
+                                 'players' => [],
+                                 'hltv' => []]];
 
             $serverIps[] = $server['Server']['address'] . ':' . $server['Server']['port'];
             $tmp['Server'] = $server['Server'];
             $tmp['Type'] = $server['Type'][0];
             $tmp['GameTemplate'] = $server['GameTemplate'][0];
-            //$tmp['Mod'] = $server['Mod'];
+
             if (!empty($server['Eac']))
             {
             	$tmp['Eac'] = $server['Eac'][0];
@@ -696,14 +693,32 @@ class ServersController extends AppController {
 	                	$handle = new SteamCondenser\Servers\GoldSrcServer($tmp['Server']['address'], $tmp['Server']['port']);
 	                	$handle->initialize();
 	                	$tmp['Status'] = $handle->getServerInfo();
-	                	if (!empty($tmp['Status']['mapName'])
-	                		  and !empty($mapsByTemplate[$server['GameTemplate'][0]['id']][$tmp['Status']['mapName']]['image']))
+	                	if (!empty($tmp['Status']['mapName']))
 	                	{
-	                		$tmp['Status']['image'] = $mapsByTemplate[$server['GameTemplate'][0]['id']][$tmp['Status']['mapName']]['image'];
+	                		$map = $this->mapDesc($server['GameTemplate'][0]['id'], $tmp['Status']['mapName']);
+
+	                		if ($map)
+	                		{
+	                			$tmp['Status']['image'] = $map['image'];
+	                		}
+	                		else
+	                		{
+	                			$tmp['Status']['image'] = NULL;
+	                		}
 	                	}
 	                	else
 	                	{
 	                		$tmp['Status']['image'] = NULL;
+	                	}
+
+	                	// Подрезать версию
+	                	if (!empty($tmp['Status']['gameVersion']))
+	                	{
+	                		$v = preg_split('/\//', $tmp['Status']['gameVersion']);
+	                		if (count($v) > 1)
+	                		{
+	                			$tmp['Status']['gameVersion'] = $v[0];
+	                		}
 	                	}
 	                }
 
@@ -715,6 +730,7 @@ class ServersController extends AppController {
                 	$servers['Game'][] = $tmp;
                     break;
                 case 'cod':
+                	//$tmp['Mod'] = $server['Mod'];
                 case 'ueds':
                 case 'game':
                     $servers['Game'][] = $tmp;
@@ -811,7 +827,7 @@ class ServersController extends AppController {
 
         $this->set('iptablesLog', $logs);
 
-        //$this->render('index_new');
+        $this->render('index_new');
 
     }
 
@@ -1870,7 +1886,7 @@ class ServersController extends AppController {
      * Данная функция переадресует на просмотр параметров
      * сервера определенного типа
      */
-    public function viewServer($id = null) {
+    public function viewServer($id = null, $output = 'html') {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('GameTemplate');
         $this->Server->id = $id;
@@ -1898,7 +1914,15 @@ class ServersController extends AppController {
 
         }
 
-        return $this->redirect(array('action' => $redirTo, $id));
+        if ($output == 'json')
+        {
+        	$redirTo .= 'Json';
+        	return $this->redirect(array('action' => $redirTo, $id));
+        }
+        else
+        {
+        	return $this->redirect(array('action' => $redirTo, $id));
+        }
 
     }
 
@@ -2809,7 +2833,7 @@ class ServersController extends AppController {
         $this->render("print_log");
     }
 
-    public function viewSrcds($id = null) {
+    public function viewSrcds($id = null, $output = 'html') {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerTemplate');
 
@@ -2934,6 +2958,194 @@ class ServersController extends AppController {
 
         $this->set('mapDesc', $this->mapDesc($server['GameTemplate'][0]['id'], $map));
 
+    }
+
+    /* Вывод состояния HLDS серверов, атакже HLTV
+     * Информацию о сервере собирать библиотечкой steam-condenser,
+     * а о HLTV - gameQ */
+    public function viewHldsJson($id = null) {
+        $this->DarkAuth->requiresAuth();
+        $this->loadModel('ServerTemplate');
+        $this->layout = 'ajax';
+
+        //Проверка прав на сервер
+        if ($this->checkRights($id)) {
+	        $status = [ 'Server' => [],
+	                    'Type'   => [],
+	                	'GameTemplate' => [],
+	                	'Eac' => [],
+	                	'Status' => ['graphs'  => ['24h', '7d'],
+	                                 'players' => [],
+	                                 'hltv' => [] ],
+	                    'error'  => 'ok'];
+
+
+	        // Переходим к серверам
+	        // Нефиг запрашивать лишнюю информацию из базы
+	        $this->Server->unbindModel([
+	            'hasAndBelongsToMany' => [
+	            	'Mod',
+	                'Plugin',
+	                'Location',
+	                'RootServer',
+	                'Service',
+	                'Order',
+	                'User',
+	                'VoiceMumbleParam',
+	                'RadioShoutcastParam',
+	            ]]);
+
+	        $this->Server->bindModel([
+	            'hasAndBelongsToMany' => [
+	            	'Type'         => ['fields' => 'id, name, longname'],
+	            	'GameTemplate' => ['fields' => 'id, name, longname, current_version']
+	            ],
+	            'hasMany' => [
+	            	'Eac' => ['fields' => 'Eac.id, Eac.active']]
+	            ]);
+
+	        $server = $this->Server->find('first',
+	    	                               ['conditions' => ['Server.id' => $id],
+	    	                                'fields' => 'id, name, slots, address, port, slots, map, mapGroup,'.
+	    	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
+	    	                                            'initialised, action, status, statusDescription, statusTime,'.
+	    	                                            'hltvStatus, hltvStatusDescription, hltvStatusTime,'.
+	    	                                            'crashReboot, crashCount, crashTime, controlByToken,'.
+	    	                                            'rconPassword']);
+
+	        if ($server)
+	        {
+	        	$rconPassword = $server['Server']['rconPassword'];
+	        	unset($server['Server']['rconPassword']);
+
+	        	$status['Server'] = $server['Server'];
+	            $status['Type'] = $server['Type'][0];
+	            $status['GameTemplate'] = $server['GameTemplate'][0];
+
+	            $status['Server']['name'] = strip_tags($status['Server']['name']); //XSS
+
+	            if ($status['Server']['initialised'] and $status['Server']['status'] == 'exec_success')
+            	{
+                	$handle = new SteamCondenser\Servers\GoldSrcServer($status['Server']['address'], $status['Server']['port']);
+                	$handle->initialize();
+                	$status['Status'] = $handle->getServerInfo();
+                	if (!empty($status['Status']['mapName']))
+                	{
+                		$map = $this->mapDesc($server['GameTemplate'][0]['id'], $status['Status']['mapName']);
+
+                		if ($map)
+                		{
+                			$status['Status']['image'] = $map['image'];
+                		}
+                		else
+                		{
+                			$status['Status']['image'] = NULL;
+                		}
+                	}
+                	else
+                	{
+                		$status['Status']['image'] = NULL;
+                	}
+
+                	// Запрос игроков
+                	if (isset($status['Status']['numberOfPlayers'])
+                			and intval($status['Status']['numberOfPlayers']) > 0)
+                	{
+                		if (!empty($rconPassword))
+                		{
+                			$players = $handle->getPlayers($rconPassword);
+                		}
+                		else
+                		{
+                			$players = $handle->getPlayers();
+                		}
+
+                		$playersToArray = array();
+
+                		foreach ($players as $playerName => $playerData) {
+
+                			$secondsFull = intval($playerData->getconnectTime());
+							$minutesFull = intval($secondsFull/60);
+							$seconds = $secondsFull - $minutesFull*60;
+							$hours = intval($minutesFull/60);
+							$minutes = $minutesFull - $hours*60;
+
+
+                			$playersToArray[] = ['id' => $playerData->getId(),
+                			                     'name' => $playerData->getName(),
+                			                     'connectTime' => sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds),
+                			                     'ipAddress' => $playerData->getIpAddress(),
+                			                     'loss' => $playerData->getLoss(),
+                			                     'ping' => $playerData->getPing(),
+                			                     'rate' => $playerData->getRate(),
+                			                     'realId' => $playerData->getRealId(),
+                			                     'score' => $playerData->getScore(),
+                			                     'state' => $playerData->getState(),
+                			                     'steamId' => $playerData->getSteamId(),
+
+                			                     ];
+                		}
+
+                		$status['Status']['players'] = $playersToArray;
+                	}
+
+                	// Подрезать версию
+                	if (!empty($status['Status']['gameVersion']))
+                	{
+                		$v = preg_split('/\//', $status['Status']['gameVersion']);
+                		if (count($v) > 1)
+                		{
+                			$status['Status']['gameVersion'] = $v[0];
+                		}
+                	}
+                }
+
+                if ($status['Server']['initialised'])
+                {
+                	$status['Status']['graphs'] = $this->getStatGraph($status['Server']['id']);
+                }
+
+                // Пройтись по HLTV
+                if ($server['Server']['hltvStatus'] == 'exec_success')
+                {
+                	App::import('Vendor', 'GameQ', array('file' => 'game_q.php'));
+		            $handleTv = new GameQ();
+
+		            if ($server['GameTemplate'][0]['name'] === 'cs16-old') {
+		                $server['GameTemplate'][0]['name'] = 'cs16';
+		            }
+
+		            $handleTv->addServer(0, array($server['GameTemplate'][0]['name'],
+		            	                                        $status['Server']['address'],
+		            	                                        $status['Server']['port'] + 1015));
+		            $handleTv->setOption('timeout', 1000);
+		            $infoTv = $handleTv->requestData();
+
+		            if ($infoTv[0]['gq_online']) {
+
+		                $status['Status']['hltv'] = ['hostname' => $infoTv[0]['hostname'],
+		                							 'numberOfPlayers' => $infoTv[0]['num_players'],
+		                							 'maxPlayers' => $infoTv[0]['max_players'],
+		                							 'password' => $infoTv[0]['password'],
+		                							 'secure' => $infoTv[0]['secure'],
+		                							];
+		            }
+                }
+
+
+	        	$this->set('result', $status);
+	        }
+	        else
+	        {
+	        	$this->set('result', ['error' => 'Сервера не существует.']);
+	        }
+	    }
+	    else
+	    {
+	    	$this->set('result', ['error' => 'Сервера не существует или у вас нет прав на просмотр данных этого сервера.']);
+	    }
+
+        $this->render('result_json');
     }
 
     // Просмотр состояния серверов COD

@@ -127,6 +127,9 @@
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Изменить настройки сервера', '/servers/editParams/' + renderedServer().Server.id)}">
 			<i class="file text icon"></i>Настройки
 		</a>
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Просмотр логов сервера', '/servers/viewLog/' + renderedServer().Server.id)}">
+			<i class="file text outline icon"></i>Логи
+		</a>
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Установка модов и плагинов', '/servers/pluginInstall/' + renderedServer().Server.id)}">
 			<i class="suitcase icon"></i>Плагины
 		</a>
@@ -150,31 +153,52 @@
 							<p>При отсутствии оплаты в течение 2-х недель с момента создания заказа, сервер и заказ будут удалены.</p>
 						</div>
 					</div>
+					<div class="ui labeled icon fluid small menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed'">
+						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stoped'"><i class="orange stop icon"></i> Выключить</a>
+						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="orange repeat icon"></i> Рестарт</a>
+						<a class="item"><i class="terminal icon"></i> RCON</a>
+						<a class="item"><i class="download icon"></i> Обновление</a>
+						<div class="ui labeled icon right menu" style="box-shadow: none !important;" data-bind="visible: renderedServer().Type.name == 'hlds'">
+							<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="stop icon"></i> Выключить HLTV</a>
+							<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="repeat icon"></i> Рестарт HLTV</a>
+							<a class="item"><i class="terminal icon"></i> HLTV RCON</a>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="ui equal height stretched row" data-bind="visible: renderedServer().Server.initialised">
-				<div class="ui four wide column">
-					<div class="ui vertical labeled icon fluid menu">
-						<a class="active item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="orange stop icon"></i> Выключить</a>
-						<a class="active item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="orange repeat icon"></i> Перезапустить</a>
-						<a class="active item"><i class="file text icon"></i> Логи</a>
-						<a class="active item"><i class="download icon"></i> Обновление</a>
-					</div>
-				</div>
-				<div class="ui six wide column">
-					<div data-bind="visible: renderedServer().Server.status == 'exec_success'">
+				<div class="ui eight wide column">
+					<div data-bind="visible: renderedServer().Status.serverName">
+						<div class="description" data-bind="visible: renderedServer().Status.serverName, html: '<b>Имя:</b> ' + renderedServer().Status.serverName"></div>
 						<div class="description" data-bind="visible: renderedServer().Status.mapName, html: '<b>Карта:</b> ' + renderedServer().Status.mapName"></div>
 	    				<div class="description"><span data-bind="visible: renderedServer().Server.slots, html: $root.showSlots(renderedServer().Server.slots, renderedServer().Status.numberOfPlayers)"></span></div>
-	    				<div class="ui small top attached header">Игроки</div>
+	    				<div class="description" data-bind="visible: renderedServer().Status.secureServer">
+	    					<b>VAC:</b>
+	    					<span data-bind="html: renderedServer().Status.secureServer ? '<span class=\'green\'>Активен</span>' : 'Выключен'"></span>
+	    				</div>
+	    				<div class="description" data-bind="visible: renderedServer().Status.gameVersion">
+	    					<b>Версия:</b>
+	    					<span data-bind="html: renderedServer().Status.gameVersion ==  renderedServer().GameTemplate.current_version ? '<span class=\'green\'>' + renderedServer().Status.gameVersion + '</span>' : '<span class=\'red\'>' + renderedServer().Status.gameVersion + '</span>'"></span>
+	    				</div>
+	    				<div class="ui small top attached block header">Игроки</div>
 	    				<div class="ui bottom attached basic segment" data-bind="visible: renderedServer().Status.numberOfPlayers == 0">
 	    					На сервере нет игроков
 	    				</div>
+	    				<div class="ui bottom attached basic segment" data-bind="visible: renderedServer().Status.numberOfPlayers > 0">
+	    					<table class="ui very basic table">
+								<tbody data-bind="template: {name: 'render-players-valve', foreach: renderedServer().Status.players, as: 'player' }"></tbody>
+	    					</table>
+	    				</div>
     				</div>
 				</div>
-				<div class="ui six wide column">
+				<div class="ui eight wide column">
 					<img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
+					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['24h']">Игроков за сутки</div>
 					<img data-bind="visible: renderedServer().Status.graphs['24h'], attr: {src: renderedServer().Status.graphs['24h']}" />
+					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['7d']">Игроков за неделю</div>
 					<img data-bind="visible: renderedServer().Status.graphs['7d'], attr: {src: renderedServer().Status.graphs['7d']}" />
+					<br/>
+					<small data-bind="visible: renderedServer().Status.graphs['24h'] || renderedServer().Status.graphs['7d']">Графики обновляются каждые 15 минут </small>
 				</div>
 
 			</div>
@@ -188,6 +212,14 @@
 
 <script type="text/html" id="render-template-eac">
 
+</script>
+
+<script type="text/html" id="render-players-valve">
+	<tr>
+		<td data-bind="text: '#' + player.id"></td>
+		<td data-bind="text: player.name"></td>
+		<td data-bind="text: player.connectTime"></td>
+	</tr>
 </script>
 
 <script type="text/javascript">
@@ -289,6 +321,8 @@
 							self.selectedType('voice');
 						}
 					}
+
+					self.updateServerInfo();
 				}
 
 				return true;
@@ -309,6 +343,7 @@
 					self.selectedType('voice');
 				}
 
+				self.updateServerInfo();
 
 			}.bind(this);
 
@@ -377,6 +412,51 @@
 		    	 	self.errors.push(answer);
 		    	 	self.loadingModal(false);
 		    	 });
+
+			}.bind(this);
+
+			this.updateServerInfo = function(){
+				var self = this;
+				console.log($(self.renderedServer()).size());
+
+				if ($(self.renderedServer()).size() > 0)
+				{
+					var id = self.renderedServer().Server.id;
+
+					self.loadingModal(true);
+
+					$.post( "/servers/viewServer/" + id + "/json")
+			    	 .done(
+				    	 	function(data){
+								answer = JSON.parse(data);
+								if (answer.error === undefined){
+									self.errors.push('Неизвестная ошибка');
+								}
+								else
+								if (answer.error != 'ok'){
+									self.errors.push(answer.error);
+								}
+								else
+								if (answer.error == 'ok')
+								{
+									self.renderedServer(answer);
+									/*
+									$('.playerInfo').popup(
+										{distanceAway: 0,
+										 offset: -50,
+									     position: 'right center',
+									     delay: {show: 300, hide: 10},
+									     hoverable: true});*/
+								}
+
+								self.loadingModal(false);
+							})
+			    	 .fail( function(data, status, statusText) {
+			    	 	answer = "HTTP Error: " + statusText;
+			    	 	self.errors.push(answer);
+			    	 	self.loadingModal(false);
+			    	 });
+		    	}
 
 			}.bind(this);
 

@@ -400,7 +400,7 @@
 					<div style="position: relative; float: left; vertical-align:bottom; margin-top: 5px; margin-right: 5px;">
 						<?php
 							if (!empty($mapDesc['image'])) {
-								echo $this->Html->image('gameMaps/'.$mapDesc['image'].'.jpg', array('title'  => @$mapDesc['longname'],
+								echo $this->Html->image($mapDesc['image'], array('title'  => @$mapDesc['longname'],
 																									'width'  => 320,
 																									'height' => 240));
 							}
