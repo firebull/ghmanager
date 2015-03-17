@@ -12,7 +12,7 @@
 	<style>
 	.ui-autocomplete {
 		max-height: 150px;
-		max-width:  600px;
+		max-width:  800px;
 		overflow-y: auto;
 	}
 	/* IE 6 doesn't support max-height
@@ -33,48 +33,28 @@
 ***********************************************************
 
  GHmanager RCON console
- Пишите команды в поле ниже. Вам автоматически будут
- предлагаться варианты. Если нужной вам команды нет в
- списке, сообщите нам, она будет добавлена в
- кратчайшие сроки.
+ Пишите команды в поле ниже. Автоматически будут предложены варианты.
+ Если нужной команды нет в списке, сообщите нам, она будет добавлена
+ в кратчайшие сроки.
 
 ***********************************************************</div>
 </pre>
 <?php
-
-
 echo $this->Form->input('id', array('type'=>'hidden','value'=>$serverID,'id'=>'serverID'));
 ?>
-
+<div class="ui inverted divider"></div>
 <div class="controls">
-	<div class="input-append input-prepend"><span class="add-on"><i class="icon-edit"></i></span><?php
+	<div class="input-append input-prepend ui fluid action input"><span class="add-on"><i class="icon-edit"></i></span><?php
 
-echo $this->Form->input('command', array('div' => false,
-									'label' => false,
-									'title'=>'Введите команду',
-									'id'=>'command',
-									'class'=>'span4',
-									'style'=>'font-weight:bold;'));
-//echo $this->Js->submit('Отправить',
-//							array(
-//								'url'=> array(
-//												'controller'=>'Servers',
-//												'action'=>'rconResult'
-//								 ),
-//								'update' => '#rcon',
-//								'class' => 'ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only',
-//								'before' =>$loadingShow,
-//								'complete'=>$loadingHide,
-//								'buffer' => false));
-
-
-
-
-
-
+		echo $this->Form->input('command', array('div' => false,
+											'label' => false,
+											'title'=>'Введите команду',
+											'id'=>'command',
+											'class'=>'span4',
+											'style'=>'font-weight:bold;'));
 ?><button
 		id="sendRcon"
-		class="btn btn-primary"
+		class="btn btn-primary ui right labeled orange button"
 		role="button"
 		aria-disabled="false">
 		Отправить
@@ -82,6 +62,7 @@ echo $this->Form->input('command', array('div' => false,
 
 	</div>
 </div>
+<div class="ui hidden divider"></div>
 </cake:nocache>
 
 <script type="text/javascript">
@@ -95,13 +76,12 @@ echo $this->Form->input('command', array('div' => false,
 			});
 
 
-
 		function Send() {
 
 			var serverID = $('#serverID').val();
 			var command = $('#command').val();
 
-
+			$('#sendRcon').addClass("loading");
 
 			$.get("/servers/rconResult",
 				{ 'id': serverID,
@@ -113,6 +93,7 @@ echo $this->Form->input('command', array('div' => false,
 				  var scrollDiv = document.getElementById("rcon");
 				  var scroll = scrollDiv.scrollHeight;
 				  $('#rcon').scrollTop(scroll);
+				  $('#sendRcon').removeClass('loading');
 				}
 
 
@@ -130,32 +111,61 @@ echo $this->Form->input('command', array('div' => false,
 					 });
 		$("#sendRcon").ajaxStop(function() {
 					   $('#loading').hide();
+
 					 });
 
+		var vernums = $.fn.jquery.split('.');
 
-		$( "#command" ).autocomplete({
-			minLength: 1,
-			source: "/servers/rconAutoComplete/<?php echo @$serverType;?>",
-			focus: function( event, ui ) {
-				$( "#command" ).val( ui.item.command );
-				return false;
-			},
-			select: function( event, ui ) {
-				$( "#command" ).val( ui.item.command );
+		if (parseInt(vernums[0]) >= 2) {
+			$( "#command" ).autocomplete({
+				minLength: 1,
+				source: "/servers/rconAutoComplete/<?php echo @$serverType;?>",
+				focus: function( event, ui ) {
+					$( "#command" ).val( ui.item.command );
+					return false;
+				},
+				select: function( event, ui ) {
+					$( "#command" ).val( ui.item.command );
 
-				return false;
-			}
-		})
-		.data( "autocomplete" )._renderItem = function( ul, item ) {
-			if (item.cheat == "1") {
-				cheat = "<span class='cheatHihglight'>&nbsp;(cheat)&nbsp;</span>"
-			} else {
-				cheat = ""
-			}
-			return $( "<li></li>" )
-				.data( "item.autocomplete", item )
-				.append( "<a><strong><small>" + item.command + cheat + "</small></strong><br><small>" + item.desc + "</small></a>" )
-				.appendTo( ul );
-		};
+					return false;
+				}
+			})
+			.autocomplete( "instance" )._renderItem = function( ul, item ) {
+				if (item.cheat == "1") {
+					cheat = "<span class='cheatHihglight'>&nbsp;(cheat)&nbsp;</span>"
+				} else {
+					cheat = ""
+				}
+				return $( "<li>" )
+					.append( "<a><strong><small>" + item.command + cheat + "</small></strong><br><small>" + item.desc + "</small></a>" )
+					.appendTo( ul );
+			};
+
+		} else {
+			$( "#command" ).autocomplete({
+				minLength: 1,
+				source: "/servers/rconAutoComplete/<?php echo @$serverType;?>",
+				focus: function( event, ui ) {
+					$( "#command" ).val( ui.item.command );
+					return false;
+				},
+				select: function( event, ui ) {
+					$( "#command" ).val( ui.item.command );
+
+					return false;
+				}
+			})
+			.data( "autocomplete" )._renderItem = function( ul, item ) {
+				if (item.cheat == "1") {
+					cheat = "<span class='cheatHihglight'>&nbsp;(cheat)&nbsp;</span>"
+				} else {
+					cheat = ""
+				}
+				return $( "<li></li>" )
+					.data( "item.autocomplete", item )
+					.append( "<a><strong><small>" + item.command + cheat + "</small></strong><br><small>" + item.desc + "</small></a>" )
+					.appendTo( ul );
+			};
+		}
 	});
 	</script>

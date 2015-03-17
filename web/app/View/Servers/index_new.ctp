@@ -191,10 +191,12 @@
 						</div>
 					</div>
 					<!-- Конец предупреждений и ошибок -->
-					<div class="ui labeled icon fluid small menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed'">
+					<div class="ui labeled icon fluid small pointing  menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed'">
 						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stoped'"><i class="orange stop icon"></i> Выключить</a>
 						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="orange repeat icon"></i> Рестарт</a>
-						<a class="item"><i class="terminal icon"></i> RCON</a>
+						<a class="item" data-bind="event: {click: $root.showRcon.bind($data, false)}, css: {'active' : $root.showRconConsole}">
+							<i class="terminal icon"></i> RCON
+						</a>
 						<a class="item"><i class="download icon"></i> Обновление</a>
 						<div class="ui labeled icon right menu" style="box-shadow: none !important;" data-bind="visible: renderedServer().Type.name == 'hlds'">
 							<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="stop icon"></i> Выключить HLTV</a>
@@ -203,6 +205,9 @@
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="ui row" data-bind="visible: $root.showRconConsole">
+				<div class="ui column" id="rconConsole" style="background-color: #272822; color: white;"></div>
 			</div>
 			<div class="ui equal height stretched row" data-bind="if: renderedServer().Server.initialised">
 				<div class="ui eight wide column">
@@ -323,6 +328,7 @@
 			this.selectedServer = ko.observable(false);
 			this.selectedType   = ko.observable(false);
 			this.renderedServer = ko.observableArray([]);
+			this.showRconConsole = ko.observable(false);
 
 			this.loading      = ko.observable(false);
 			this.loadingModal = ko.observable(false);
@@ -602,7 +608,6 @@
 								{
 									if (answer.Server.id == self.renderedServer().Server.id){
 										self.renderedServer(answer);
-										console.log(answer);
 									}
 
 									/*
@@ -621,6 +626,38 @@
 			    	 	self.errors.push(answer);
 			    	 	self.loadingModal(false);
 			    	 });
+		    	}
+
+			}.bind(this);
+
+			this.showRcon = function(hltv, data){
+				var self = this;
+
+				if ($(self.renderedServer()).size() > 0
+						&& self.renderedServer().Server.initialised == 1
+						&& self.renderedServer().Server.status == 'exec_success')
+				{
+					if (self.showRconConsole() === true){
+						self.showRconConsole(false);
+						$('#rconConsole').empty();
+					} else {
+					var id = self.renderedServer().Server.id;
+					self.loadingModal(true);
+
+					$.get('/servers/rcon/' + id )
+			    	 .done(
+				    	 	function(data){
+
+				    	 		$('#rconConsole').html(data);
+				    	 		self.showRconConsole(true);
+								self.loadingModal(false);
+							})
+			    	 .fail( function(data, status, statusText) {
+			    	 	answer = "HTTP Error: " + statusText;
+			    	 	self.errors.push(answer);
+			    	 	self.loadingModal(false);
+			    	 });
+			    	}
 		    	}
 
 			}.bind(this);
