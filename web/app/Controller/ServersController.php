@@ -617,7 +617,6 @@ class ServersController extends AppController {
             'hasAndBelongsToMany' => [
             	'Mod',
                 'Plugin',
-                'Location',
                 'RootServer',
                 'Service',
                 'Order',
@@ -629,7 +628,8 @@ class ServersController extends AppController {
         $this->Server->bindModel([
             'hasAndBelongsToMany' => [
             	'Type'         => ['fields' => 'id, name, longname'],
-            	'GameTemplate' => ['fields' => 'id, name, longname, current_version']
+            	'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
+            	'Location'     => ['fields' => 'id, name, collocation']
             ],
             'hasMany' => [
             	'Eac' => ['fields' => 'Eac.id, Eac.active']]
@@ -638,9 +638,11 @@ class ServersController extends AppController {
         $userServers = $this->Server->find('all',
         	                               ['conditions' => ['Server.id' => $serversIdsList],
         	                                'fields' => 'id, name, slots, address, port, slots, map, mapGroup,'.
-        	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
-        	                                            'initialised, action, status, statusDescription, statusTime,'.
-        	                                            'crashReboot, crashCount, crashTime, controlByToken']);
+	    	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
+	    	                                            'initialised, action, status, statusDescription, statusTime,'.
+	    	                                            'hltvStatus, hltvStatusDescription, hltvStatusTime,'.
+	    	                                            'crashReboot, crashCount, crashTime, controlByToken,'.
+	    	                                            'rconPassword']);
 
 
         // Обнулить переменные, на всякий случай
@@ -652,6 +654,7 @@ class ServersController extends AppController {
         $serverIps = array();
         foreach ($userServers as $server):
         	$tmp = ['Server' => [],
+        			'Location' => [],
                     'Type'   => [],
                     'GameTemplate' => [],
                     'Eac' => [],
@@ -663,6 +666,11 @@ class ServersController extends AppController {
             $tmp['Server'] = $server['Server'];
             $tmp['Type'] = $server['Type'][0];
             $tmp['GameTemplate'] = $server['GameTemplate'][0];
+
+            if (!empty($server['Location']))
+            {
+            	$tmp['Location'] = $server['Location'][0];
+            }
 
             if (!empty($server['Eac']))
             {
@@ -690,9 +698,18 @@ class ServersController extends AppController {
                 case 'hlds':
                 	if ($tmp['Server']['initialised'] and $tmp['Server']['status'] == 'exec_success')
                 	{
-	                	$handle = new SteamCondenser\Servers\GoldSrcServer($tmp['Server']['address'], $tmp['Server']['port']);
-	                	$handle->initialize();
-	                	$tmp['Status'] = $handle->getServerInfo();
+	                	try {
+	                		$handle = new SteamCondenser\Servers\GoldSrcServer($tmp['Server']['address'], $tmp['Server']['port']);
+	                		$handle->initialize();
+	                		$tmp['Status'] = $handle->getServerInfo();
+	                	} catch (SteamCondenser\Exceptions\TimeoutException $e) {
+	                		$tmp['Status']['error'] = 'Невозможно соединиться с сервером';
+	                		$tmp['Status']['errorType'] = 'timeout';
+	                	} catch (Exception $e) {
+	                		$tmp['Status']['error'] = $e->getFile();
+	                		$tmp['Status']['errorType'] = 'other';
+	                	}
+
 	                	if (!empty($tmp['Status']['mapName']))
 	                	{
 	                		$map = $this->mapDesc($server['GameTemplate'][0]['id'], $tmp['Status']['mapName']);
@@ -2950,7 +2967,7 @@ class ServersController extends AppController {
         $this->set('info', $info);
         $this->set('graphs', $this->getStatGraph($id));
 
-        if (!empty($info['Server'])) {
+        if (isset($info['Server']['info'])) {
             $map = $info['Server']['info']['mapName'];
         } else {
             $map = $server['ServerTemplate']['map'];
@@ -2971,6 +2988,7 @@ class ServersController extends AppController {
         //Проверка прав на сервер
         if ($this->checkRights($id)) {
 	        $status = [ 'Server' => [],
+	                    'Location' => [],
 	                    'Type'   => [],
 	                	'GameTemplate' => [],
 	                	'Eac' => [],
@@ -2986,7 +3004,6 @@ class ServersController extends AppController {
 	            'hasAndBelongsToMany' => [
 	            	'Mod',
 	                'Plugin',
-	                'Location',
 	                'RootServer',
 	                'Service',
 	                'Order',
@@ -2998,7 +3015,8 @@ class ServersController extends AppController {
 	        $this->Server->bindModel([
 	            'hasAndBelongsToMany' => [
 	            	'Type'         => ['fields' => 'id, name, longname'],
-	            	'GameTemplate' => ['fields' => 'id, name, longname, current_version']
+	            	'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
+	            	'Location'     => ['fields' => 'id, name, collocation']
 	            ],
 	            'hasMany' => [
 	            	'Eac' => ['fields' => 'Eac.id, Eac.active']]
@@ -3024,11 +3042,25 @@ class ServersController extends AppController {
 
 	            $status['Server']['name'] = strip_tags($status['Server']['name']); //XSS
 
+	            if (!empty($server['Location']))
+	            {
+	            	$status['Location'] = $server['Location'][0];
+	            }
+
 	            if ($status['Server']['initialised'] and $status['Server']['status'] == 'exec_success')
             	{
-                	$handle = new SteamCondenser\Servers\GoldSrcServer($status['Server']['address'], $status['Server']['port']);
-                	$handle->initialize();
-                	$status['Status'] = $handle->getServerInfo();
+                	try{
+            			$handle = new SteamCondenser\Servers\GoldSrcServer($status['Server']['address'], $status['Server']['port']);
+                		$handle->initialize();
+                		$status['Status'] = $handle->getServerInfo();
+                	} catch (SteamCondenser\Exceptions\TimeoutException $e) {
+                		$status['Status']['error'] = 'Невозможно соединиться с сервером';
+                		$status['Status']['errorType'] = 'timeout';
+                	} catch (Exception $e) {
+                		$status['Status']['error'] = $e->getFile();
+                		$status['Status']['errorType'] = 'other';
+                	}
+
                 	if (!empty($status['Status']['mapName']))
                 	{
                 		$map = $this->mapDesc($server['GameTemplate'][0]['id'], $status['Status']['mapName']);
@@ -3121,7 +3153,7 @@ class ServersController extends AppController {
 		            $handleTv->setOption('timeout', 1000);
 		            $infoTv = $handleTv->requestData();
 
-		            if ($infoTv[0]['gq_online']) {
+		            if (isset($infoTv[0]['gq_online'])) {
 
 		                $status['Status']['hltv'] = ['hostname' => $infoTv[0]['hostname'],
 		                							 'numberOfPlayers' => $infoTv[0]['num_players'],
@@ -3129,6 +3161,15 @@ class ServersController extends AppController {
 		                							 'password' => $infoTv[0]['password'],
 		                							 'secure' => $infoTv[0]['secure'],
 		                							];
+
+		                if (isset($infoTv[0]['HLTVDelay']))
+		                {
+		                	$status['Status']['hltv']['HLTVDelay'] = intval($infoTv[0]['HLTVDelay']);
+		                }
+		                else
+		                {
+		                	$status['Status']['hltv']['HLTVDelay'] = null;
+		                }
 		            }
                 }
 

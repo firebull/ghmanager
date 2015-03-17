@@ -91,7 +91,7 @@
     <div class="description"><span data-bind="visible: Server.slots, html: $root.showSlots(Server.slots, Status.numberOfPlayers)"></span></div>
     <div style="margin-top: 5px;">
     	<div class="ui small label" data-bind="visible: $root.daysLeft(Server.payedTill) == 'payed' && Server.initialised === false"><div class="ui active mini inline loader"></div> Установка</div>
-	    <div class="ui small label" data-bind="visible: Server.status && Server.initialised"><i data-bind="css: $root.serverIconClass(Server.status)" class="circle icon"></i> <span data-bind="text: $root.serverStatus(Server.status)"></span></div>
+	    <div class="ui small label" data-bind="visible: Server.status && Server.initialised"><i data-bind="css: $root.serverIconClass(Server, Status)" class="circle icon"></i> <span data-bind="text: $root.serverStatus(Server, Status)"></span></div>
 		<div class="ui small label"><i data-bind="css: {green: $root.daysLeft(Server.payedTill) == 'payed', red: $root.daysLeft(Server.payedTill) == 'nonpayed'}" class="circle icon"></i> <span data-bind="text: $root.daysLeft(Server.payedTill) == 'payed' ? 'Оплачен' : 'Не оплачен'"></span></div>
     </div>
 </script>
@@ -101,10 +101,12 @@
 		<img data-bind="attr: {src: '/img/icons/servers/big/' + serverIcon(renderedServer().GameTemplate['name'])}" src="/img/personage01.png"/>
 		<div class="content">
 			<span data-bind='text: "\"" + renderedServer().Server.name + "\"", visible: gameServers()[selectedServer()].Server.name'></span>
-			<span data-bind='text: renderedServer().GameTemplate.longname'></span>
+			<span data-bind='text: renderedServer().GameTemplate.longname'></span>,
+			<span data-bind='text: $root.privateType()'></span>
 			<span data-bind="text: '(ID: ' + renderedServer().Server.id + ')'"></span>
 			<br/>
-			<span data-bind="visible: renderedServer().Server.address, text: renderedServer().Server.address + ':' + renderedServer().Server.port"></span>
+			<span data-bind="visible: renderedServer().Server.address, text: renderedServer().Server.address + ':' + renderedServer().Server.port + ', '"></span>
+			<span data-bind="visible: renderedServer().Location.name, text: renderedServer().Location.collocation + ' (' + renderedServer().Location.name + ')'"></span>
 		</div>
 		<div class="ui active inline loader" data-bind="visible: loadingModal"></div>
 
@@ -141,8 +143,43 @@
 		<div class="ui grid">
 			<div class="ui row">
 				<div class="ui column">
+					<!-- Предупреждения и ошибки -->
+					<!-- Если сервер запущен более 5 минут назад и нет статуса -->
+					<div class="ui negative message" data-bind="visible: renderedServer().Status.error && moment().diff(renderedServer().Server.statusTime, 'minutes', true) > 5">
+						<div class="header">
+							При попытке проверить состояние сервера, обнаружена ошибка:
+						</div>
+						<ul class="list">
+							<li data-bind="text: renderedServer().Status.error"></li>
+						</ul>
+
+						Сервер был запущен более 5 минут назад, но до сих пор не удаётся прочесть его статус.<br/>
+						Вероятными причинами этого могут быть:
+						<ul class="list">
+							<li>Сервер обновляется. В этом случае процесс запуска может затянуться. Читайте соответсвующий лог.</li>
+							<li>Вы включили читы параметром 'sv_cheats 1'</li>
+							<li>Вы внесли IP вашего сервера в бан-лист. Проверьте banned_ip.cfg на наличие в нем IP-адреса вашего сервера.</li>
+						</ul>
+
+						Если в логе нет данных, либо есть ошибки, попробуйте перезапустить сервер. Если не поможет - обратитесь в техподдержку.<br/>
+						<small>Время статуса: <span data-bind="text: moment(renderedServer().Server.statusTime).format('HH:mm:ss DD.MM.YYYY')"></span></small>
+					</div>
+					<!-- Если сервер запущен менее 5 минут назад и нет статуса -->
+					<div class="ui warning message" data-bind="visible: renderedServer().Status.error && moment().diff(renderedServer().Server.statusTime, 'minutes', true) <= 5">
+						Сервер запущен менее 5 минут назад. <br/>
+						Если сервер требует обновления, процесс запуска может затянуться. Читайте соответствующий лог.
+					</div>
+					<!-- Если запуск не удался -->
+					<div class="ui error message" data-bind="visible: renderedServer().Server.status == 'exec_error'">
+						Ошибка запуска. <br/>
+						Попробуйте перезапустить сервер. <br/>
+						Если не поможет - обратитесь в техподдержку
+						<span data-bind="visible: renderedServer().Server.statusDescription, text: 'Причина: ' + renderedServer().Server.statusDescription"></span>
+						<br/>
+						<small>Время статуса: <span data-bind="text: moment(renderedServer().Server.statusTime).format('HH:mm:ss DD.MM.YYYY')"></span></small>
+					</div>
 					<div class="ui negative message" data-bind="visible: renderedServer().Server.crashCount > 0">
-					С момента последнего запуска сервера было зафиксировано <span data-bind="text: Number(renderedServer().Server.crashCount)"></span> падений.<br/>Последнее падение было <span data-bind="text: moment(renderedServer().Server.crashTime).format('DD.MM.YYYY')"></span>
+					С момента последнего запуска сервера было зафиксировано <span data-bind="text: Number(renderedServer().Server.crashCount)"></span> падений.<br/>Последнее падение было <span data-bind="text: moment(renderedServer().Server.crashTime).format('HH:mm:ss DD.MM.YYYY')"></span>
 					</div>
 					<div class="ui warning icon message" data-bind="visible: !renderedServer().Server.initialised && !renderedServer().Server.payedTill">
 						<i class="info icon"></i>
@@ -153,6 +190,7 @@
 							<p>При отсутствии оплаты в течение 2-х недель с момента создания заказа, сервер и заказ будут удалены.</p>
 						</div>
 					</div>
+					<!-- Конец предупреждений и ошибок -->
 					<div class="ui labeled icon fluid small menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed'">
 						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stoped'"><i class="orange stop icon"></i> Выключить</a>
 						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="orange repeat icon"></i> Рестарт</a>
@@ -166,12 +204,29 @@
 					</div>
 				</div>
 			</div>
-			<div class="ui equal height stretched row" data-bind="visible: renderedServer().Server.initialised">
+			<div class="ui equal height stretched row" data-bind="if: renderedServer().Server.initialised">
 				<div class="ui eight wide column">
-					<div data-bind="visible: renderedServer().Status.serverName">
-						<div class="description" data-bind="visible: renderedServer().Status.serverName, html: '<b>Имя:</b> ' + renderedServer().Status.serverName"></div>
+					<div class="ui top attached small block header">
+						Статус сервера
+					</div>
+					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Status.error">
+						Нет данных
+					</div>
+					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Status.serverName">
+						<div class="description" data-bind="visible: renderedServer().Status.serverName">
+							<b>Имя:</b>
+							<span data-bind="text: renderedServer().Status.serverName"></span>
+						</div>
 						<div class="description" data-bind="visible: renderedServer().Status.mapName, html: '<b>Карта:</b> ' + renderedServer().Status.mapName"></div>
-	    				<div class="description"><span data-bind="visible: renderedServer().Server.slots, html: $root.showSlots(renderedServer().Server.slots, renderedServer().Status.numberOfPlayers)"></span></div>
+	    				<div class="description">
+	    					<span data-bind="visible: renderedServer().Server.slots, html: $root.showSlots(renderedServer().Server.slots, renderedServer().Status.numberOfPlayers)"></span>
+	    				</div>
+	    				<div class="description">
+	    					<b>Пароль:</b>
+	    					<span data-bind="visible: $root.passwordState() == -1" class="red">Не установлен</span>
+	    					<span data-bind="visible: $root.passwordState() == 0">Не установлен</span>
+	    					<span data-bind="visible: $root.passwordState() == 1" class="green">Установлен</span>
+	    				</div>
 	    				<div class="description" data-bind="visible: renderedServer().Status.secureServer">
 	    					<b>VAC:</b>
 	    					<span data-bind="html: renderedServer().Status.secureServer ? '<span class=\'green\'>Активен</span>' : 'Выключен'"></span>
@@ -190,6 +245,38 @@
 	    					</table>
 	    				</div>
     				</div>
+
+					<!-- HLTV -->
+					<div class="ui top attached small block header">
+						Статус HLTV
+					</div>
+					<div class="ui bottom attached segment" data-bind="visible: !renderedServer().Status.hltv && renderedServer().Server.hltvStatus == 'exec_success'">
+						Нет данных
+					</div>
+					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_error'">
+						<span class="red">Ошибка</span>
+					</div>
+					<div class="ui bottom attached segment" data-bind="if: renderedServer().Status.hltv, visible: renderedServer().Status.hltv && renderedServer().Server.hltvStatus == 'exec_success'">
+						<div class="description" data-bind="visible: renderedServer().Status.hltv.hostname">
+							<b>Имя:</b>
+							<span data-bind="text: renderedServer().Status.hltv.hostname"></span>
+						</div>
+						<div class="description">
+							<b>Порт:</b>
+							<span data-bind="text: Number(renderedServer().Server.port) + 1015"></span>
+						</div>
+						<div class="description">
+	    					<span data-bind="visible: renderedServer().Status.hltv.maxPlayers, html: $root.showSlotsHltv(renderedServer().Status.hltv.maxPlayers, renderedServer().Status.hltv.numberOfPlayers)"></span>
+	    				</div>
+	    				<div class="description" data-bind="visible: renderedServer().Status.hltv.HLTVDelay">
+							<b>Задержка:</b>
+							<span data-bind="text: renderedServer().Status.hltv.HLTVDelay + 'с.'"></span>
+						</div>
+						<div class="description" data-bind="visible: renderedServer().Status.hltv.password !== undefined">
+	    					<b>Пароль:</b>
+	    					<span data-bind="text: renderedServer().Status.hltv.password ? 'Установлен' : 'Не установлен'"></span>
+	    				</div>
+					</div>
 				</div>
 				<div class="ui eight wide column">
 					<img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
@@ -258,30 +345,46 @@
 				}
 			}
 
-			this.serverStatus = function(status){
-				if (status == 'stoped' || status == 'stopped') {
+			this.serverStatus = function(Server, state){
+				if (Server.status == 'stoped' || Server.status == 'stopped') {
 					return 'Выключен';
-				} else if (status == 'update_started') {
+				} else if (Server.status == 'update_started') {
 					return 'Обновление';
-				} else if (status == 'update_error' || status == 'exec_error') {
+				} else if (Server.status == 'update_error' || Server.status == 'exec_error') {
 					return 'Ошибка';
-				} else if (status == 'exec_success') {
-					return 'Работает';
+				} else if (Server.status == 'exec_success') {
+					if (state.error !== undefined) {
+						if (moment().diff(Server.statusTime, 'minutes', true) < 5){
+							return 'Запускается';
+						} else {
+							return 'Ошибка';
+						}
+					} else {
+						return 'Работает';
+					}
 				} else {
 					return 'Неизвестно'
 				}
 
 			};
 
-			this.serverIconClass = function(status){
-				if (status == 'stoped' || status == 'stopped') {
+			this.serverIconClass = function(Server, state){
+				if (Server.status == 'stoped' || Server.status == 'stopped') {
 					return 'black';
-				} else if (status == 'update_started') {
+				} else if (Server.status == 'update_started') {
 					return 'purple';
-				} else if (status == 'update_error' || status == 'exec_error') {
+				} else if (Server.status == 'update_error' || Server.status == 'exec_error') {
 					return 'red';
-				} else if (status == 'exec_success') {
-					return 'green';
+				} else if (Server.status == 'exec_success') {
+					if (state.error !== undefined) {
+						if (moment().diff(Server.statusTime, 'minutes', true) < 5){
+							return 'blue';
+						} else {
+							return 'red';
+						}
+					} else {
+						return 'green';
+					}
 				} else {
 					return ''
 				}
@@ -361,10 +464,67 @@
 					}
 				}
 
+				return true;
+			}
 
+			this.showSlotsHltv = function(serverSlots, players, data) {
+
+				serverSlots = Number(serverSlots);
+
+				if (serverSlots > 0 && players === undefined) {
+					return '<b>Слотов:</b> ' + serverSlots;
+				} else if (serverSlots > 0 && players >= 0) {
+					if (players < serverSlots){
+						return '<b>Зрителей:</b> <span class="green">' + players + '/' + serverSlots + '</span>';
+					} else {
+						return '<b>Зрителей:</b> <span class="red">' + players + '/' + serverSlots + '</span>';
+					}
+				}
 
 				return true;
 			}
+
+			this.passwordState = function(){
+				var self = this;
+
+				if ($(self.renderedServer()).size() > 0){
+					if (self.renderedServer().Status.passwordProtected !== undefined
+							&& self.renderedServer().Server.privateType !== undefined)
+					{
+
+						var passwordProtected = self.renderedServer().Status.passwordProtected;
+						var privateType = self.renderedServer().Server.privateType;
+
+						if (privateType > 0 && passwordProtected === false){
+							return -1;
+						} else if (passwordProtected) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}
+				}
+
+			}.bind(this);
+
+			this.privateType = function(){
+				var self = this;
+
+				if ($(self.renderedServer()).size() > 0){
+					if (self.renderedServer().Server.privateType !== undefined){
+						var privateType = Number(self.renderedServer().Server.privateType);
+
+						if (privateType == 0){
+							return 'Публичный';
+						} else if (privateType == 1){
+							return 'Приватный';
+						} if (privateType == 2){
+							return 'Приватный с автоотключением';
+						}
+					}
+				}
+
+			}.bind(this);
 
 			this.renderSelected = ko.computed(function() {
 				var self = this;
@@ -417,9 +577,10 @@
 
 			this.updateServerInfo = function(){
 				var self = this;
-				console.log($(self.renderedServer()).size());
 
-				if ($(self.renderedServer()).size() > 0)
+				if ($(self.renderedServer()).size() > 0
+						&& self.renderedServer().Server.initialised == 1
+						&& self.renderedServer().Server.status == 'exec_success')
 				{
 					var id = self.renderedServer().Server.id;
 
@@ -439,7 +600,11 @@
 								else
 								if (answer.error == 'ok')
 								{
-									self.renderedServer(answer);
+									if (answer.Server.id == self.renderedServer().Server.id){
+										self.renderedServer(answer);
+										console.log(answer);
+									}
+
 									/*
 									$('.playerInfo').popup(
 										{distanceAway: 0,

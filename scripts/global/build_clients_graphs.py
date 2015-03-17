@@ -105,7 +105,7 @@ if lock:
                                 "--color=BACK#fdfdfd", "--color=FONT#020202", "--color=AXIS#970405",
                                 "--color=SHADEA#555", "--color=SHADEB#555",
                                 "--x-grid=HOUR:2:HOUR:8:HOUR:8:0:%H:%M", "--alt-y-grid", "--border=1",
-                                "--full-size-mode", "--width=260", "--height=130",
+                                "--full-size-mode", "--width=320", "--height=130",
                                 "DEF:players=" + rrdDb + ":players:AVERAGE",
                                 # "CDEF:plrs=players,UN,0,players,IF", # Если данных нет, считать их 0. Тут ошибка, надо разобраться.
                                 "CDEF:plrs=players",
@@ -130,7 +130,7 @@ if lock:
                                 "--color=BACK#fdfdfd", "--color=FONT#020202", "--color=AXIS#970405",
                                 "--color=SHADEA#555", "--color=SHADEB#555",
                                 "--x-grid=HOUR:8:DAY:1:DAY:2:86400:%d.%m", "--alt-y-grid", "--border=1",
-                                "--full-size-mode", "--width=260", "--height=130",
+                                "--full-size-mode", "--width=320", "--height=130",
                                 "DEF:players=" + rrdDb + ":players:AVERAGE",
                                 # "CDEF:plrs=players,UN,0,players,IF", # Если данных нет, считать их 0. Тут ошибка, надо разобраться.
                                 "CDEF:plrs=players",
