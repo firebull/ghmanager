@@ -143,7 +143,26 @@
 		<div class="ui grid">
 			<div class="ui row">
 				<div class="ui column">
+					<div class="ui active inverted dimmer" data-bind="visible: $root.executing">
+					    <div class="ui small text loader">Выполняю</div>
+					</div>
 					<!-- Предупреждения и ошибки -->
+					<!-- Информационные сообщения -->
+					<div class="ui positive message" data-bind="visible: $root.infos().length > 0">
+						<ul data-bind="foreach: {data: infos, as: 'info'}">
+				            <li>
+				                <span data-bind="text: info"></span>:
+				            </li>
+				        </ul>
+					</div>
+					<!-- Общие ошибки -->
+					<div class="ui negative message" data-bind="visible: $root.errors().length > 0">
+						<ul data-bind="foreach: {data: errors, as: 'error'}">
+				            <li>
+				                <span data-bind="text: error"></span>:
+				            </li>
+				        </ul>
+					</div>
 					<!-- Если сервер запущен более 5 минут назад и нет статуса -->
 					<div class="ui negative message" data-bind="visible: renderedServer().Status.error && moment().diff(renderedServer().Server.statusTime, 'minutes', true) > 5">
 						<div class="header">
@@ -191,17 +210,45 @@
 						</div>
 					</div>
 					<!-- Конец предупреждений и ошибок -->
+					<!-- Меню действий -->
 					<div class="ui labeled icon fluid small pointing  menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed'">
-						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stoped'"><i class="orange stop icon"></i> Выключить</a>
-						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="orange repeat icon"></i> Рестарт</a>
-						<a class="item" data-bind="event: {click: $root.showRcon.bind($data, false)}, css: {'active' : $root.showRconConsole}">
+						<a class="item" data-bind="event: {click: actionLogEnable.bind($data)}, visible: actionLog().length > 0, css: {'active': actionLogShow}">
+							<i class="info circle orange icon"></i> Журнал
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.status != 'exec_success', event: {click: $root.serverAction.bind($element, 'start')}"  id="serverStop">
+							<i class="green play icon"></i> Включить
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stopped', event: {click: $root.serverAction.bind($element, 'stop')}"  id="serverStop">
+							<i class="orange stop icon"></i> Выключить
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'">
+							<i class="orange repeat icon"></i> Рестарт
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success', event: {click: $root.showRcon.bind($data, false)}, css: {'red active' : $root.showRconConsole() == 'server'}">
 							<i class="terminal icon"></i> RCON
 						</a>
 						<a class="item"><i class="download icon"></i> Обновление</a>
 						<div class="ui labeled icon right menu" style="box-shadow: none !important;" data-bind="visible: renderedServer().Type.name == 'hlds'">
-							<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="stop icon"></i> Выключить HLTV</a>
-							<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'"><i class="repeat icon"></i> Рестарт HLTV</a>
-							<a class="item"><i class="terminal icon"></i> HLTV RCON</a>
+							<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success'"><i class="stop icon"></i> Выключить HLTV</a>
+							<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success'"><i class="repeat icon"></i> Рестарт HLTV</a>
+							<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success', event: {click: $root.showRcon.bind($data, true)}, css: {'red active' : $root.showRconConsole() == 'hltv'}">
+								<i class="terminal icon"></i> HLTV RCON
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Лог операций -->
+			<div class="ui row" data-bind="visible: actionLogShow">
+				<div class="ui column" style="height: 400px; overflow: auto;">
+					<div class="ui small feed" data-bind="foreach: actionLog()">
+						<div class="event">
+							<div class="content">
+								<div class="summary" data-bind="text: time"></div>
+								<div class="extra text" style="max-width: 100% !important;">
+									<pre data-bind="html: log"></pre>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -216,6 +263,9 @@
 					</div>
 					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Status.error">
 						Нет данных
+					</div>
+					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Server.status == 'stopped'">
+						Выключен <span data-bind="visible: renderedServer().Server.statusTime, text: moment(renderedServer().Server.statusTime).calendar()"></span>
 					</div>
 					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Status.serverName">
 						<div class="description" data-bind="visible: renderedServer().Status.serverName">
@@ -257,6 +307,9 @@
 					</div>
 					<div class="ui bottom attached segment" data-bind="visible: !renderedServer().Status.hltv && renderedServer().Server.hltvStatus == 'exec_success'">
 						Нет данных
+					</div>
+					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Server.hltvStatus == 'stopped'">
+						HLTV сервер выключен <span data-bind="visible: renderedServer().Server.hltvStatusTime, text: moment(renderedServer().Server.hltvStatusTime).calendar()"></span>
 					</div>
 					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_error'">
 						<span class="red">Ошибка</span>
@@ -319,6 +372,8 @@
 	$('#indexModal').modal();
 
 	var userServersViewModel = function(){
+			var self = this;
+
 			this.gameServers = ko.observableArray(<?php echo @json_encode($serversGrouped['Game']); ?>);
 
 			this.voiceServers = ko.observableArray(<?php echo @json_encode($serversGrouped['Voice']); ?>);
@@ -327,12 +382,15 @@
 
 			this.selectedServer = ko.observable(false);
 			this.selectedType   = ko.observable(false);
-			this.renderedServer = ko.observableArray([]);
+			this.renderedServer = ko.observableArray();
 			this.showRconConsole = ko.observable(false);
 
-			this.loading      = ko.observable(false);
+			this.executing    = ko.observable(false);
 			this.loadingModal = ko.observable(false);
-			this.errors       = ko.observableArray([]);
+			this.errors       = ko.observableArray();
+			this.infos        = ko.observableArray();
+			this.actionLog    = ko.observableArray();
+			this.actionLogShow = ko.observable(false);
 
 
 			moment.locale('ru');
@@ -585,8 +643,7 @@
 				var self = this;
 
 				if ($(self.renderedServer()).size() > 0
-						&& self.renderedServer().Server.initialised == 1
-						&& self.renderedServer().Server.status == 'exec_success')
+						&& self.renderedServer().Server.initialised == 1)
 				{
 					var id = self.renderedServer().Server.id;
 
@@ -630,6 +687,61 @@
 
 			}.bind(this);
 
+			this.serverAction = function(action, event, data){
+				var self = this;
+				//console.log($(event.currentTarget).addClass('disabled'));
+
+				if ($(self.renderedServer()).size() > 0
+						&& self.renderedServer().Server.initialised == 1
+						&& action !== undefined)
+				{
+					var id = self.renderedServer().Server.id;
+					self.executing(true);
+
+					$.post( '/servers/script/' + id + '/' + action +'/0/json' )
+			    	 .done(
+				    	 	function(data, status, statusText){
+
+				    	 		answer = JSON.parse(data);
+								if (answer.error === undefined){
+									self.errors.push('Неизвестная ошибка');
+								}
+								else
+								if (answer.error.length > 0){
+									self.errors.push(answer.error);
+								}
+								else
+								if (answer.error.length == 0){
+									self.actionLog.push({'log' : answer.result,
+								                         'time': moment().calendar()});
+
+									self.updateServerInfo();
+									setTimeout(function(){self.updateServerInfo()}, 10000);
+								}
+
+								if (answer.info.length > 0){
+									self.infos.push(answer.info);
+								}
+
+								self.executing(false);
+							})
+			    	 .fail( function(data, status, statusText) {
+			    	 	answer = "HTTP Error: " + statusText;
+			    	 	self.errors.push(answer);
+			    	 	self.executing(false);
+			    	 });
+				}
+
+			}.bind(this);
+
+			this.actionLogEnable = function(){
+				if (this.actionLogShow()){
+					this.actionLogShow(false);
+				} else {
+					this.actionLogShow(true);
+				}
+			}.bind(this);
+
 			this.showRcon = function(hltv, data){
 				var self = this;
 
@@ -637,19 +749,35 @@
 						&& self.renderedServer().Server.initialised == 1
 						&& self.renderedServer().Server.status == 'exec_success')
 				{
-					if (self.showRconConsole() === true){
+					if ((self.showRconConsole() == 'server' && hltv === false)
+							|| (self.showRconConsole() == 'hltv' && hltv === true)){
 						self.showRconConsole(false);
 						$('#rconConsole').empty();
 					} else {
 					var id = self.renderedServer().Server.id;
 					self.loadingModal(true);
 
-					$.get('/servers/rcon/' + id )
+					if (hltv){
+						var url = '/servers/rcon/' + id + '/true';
+					}
+					else
+					{
+						var url = '/servers/rcon/' + id;
+					}
+
+					$.get( url )
 			    	 .done(
-				    	 	function(data){
+				    	 	function(data, status, statusText){
 
 				    	 		$('#rconConsole').html(data);
-				    	 		self.showRconConsole(true);
+				    	 		if (hltv){
+									self.showRconConsole('hltv');
+								}
+								else
+								{
+									self.showRconConsole('server');
+								}
+
 								self.loadingModal(false);
 							})
 			    	 .fail( function(data, status, statusText) {
@@ -662,9 +790,12 @@
 
 			}.bind(this);
 
+			setInterval(function() {self.updateServerInfo();},90000);
+
 		};
 
 	ko.applyBindings(new userServersViewModel(), document.getElementById("usersServersIndex"));
+
 </script>
 
 

@@ -25,6 +25,7 @@ App::import('Vendor', 'Monolog', array('file' => 'SteamCondenser/Monolog/Registr
 App::import('Vendor', 'SteamCondenser', array('file' => 'SteamCondenser/SteamCondenser.php'));
 
 App::uses('Xml', 'Utility');
+App::uses('CakeTime', 'Utility');
 App::uses('HttpSocket', 'Network/Http');
 
 class ServersController extends AppController {
@@ -529,9 +530,9 @@ class ServersController extends AppController {
 		}
 
         //////
-
         //pr($gameTemplate);
-        if (isset($mapsByTemplate[$gameTemplateId][$map])) {
+        if (!empty($mapsByTemplate)
+        		and isset($mapsByTemplate[$gameTemplateId][$map])) {
             return $mapsByTemplate[$gameTemplateId][$map];
         } else {
             return false;
@@ -844,7 +845,7 @@ class ServersController extends AppController {
 
         $this->set('iptablesLog', $logs);
 
-        $this->render('index_new');
+        $this->render('v2/index');
 
     }
 
@@ -4146,17 +4147,16 @@ class ServersController extends AppController {
 
     }
 
-    public function script($id = null, $action = null, $token = null) {
+    public function script($id = null, $action = null, $token = null, $result = 'html') {
 
-        if ($token) {
+        if (!is_null($token) and (bool)$token !== false) {
             $this->loadmodel('ServerClean');
             $this->layout = 'simple';
-            $server = $this->ServerClean->find('first', array(
-                'conditions' => array(
-                    'controlToken' => $token,
-                ),
-            )
-            );
+            $server = $this->ServerClean->find('first', [
+									                'conditions' => [
+									                    'controlToken' => $token,
+									                                ],
+									                    ]);
             if ($server) {
                 $byToken = true;
                 $id = $server['ServerClean']['id'];
@@ -4170,6 +4170,8 @@ class ServersController extends AppController {
         }
 
         if (@$byToken or $this->checkRights($id)) {
+
+        	$messages = ['info' => [], 'error' => []];
 
             // Нефиг запрашивать лишнюю информацию из базы
             $this->Server->unbindModel(array(
@@ -4187,153 +4189,219 @@ class ServersController extends AppController {
             $this->Server->id = $id;
             $server = $this->Server->read();
 
-            $this->Server->GameTemplate->unbindModel(array(
-                'hasAndBelongsToMany' => array(
-                    'Mod',
-                    'Plugin',
-                    'Config',
-                    'Service',
-                    'Protocol',
-                )));
-
-            $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
-            $gameTemplate = $this->Server->GameTemplate->read();
-
             $serverIp = $server['Server']['address'];
             $serverId = $server['Server']['id'];
             $userId = $server['User'][0]['id'];
 
             $this->set('serverId', $serverId);
 
-            // Составить список сообщений для лога
-            $logMessages = array('start' => 'запущен',
-                'startDebug' => 'запущен в режиме отладки',
-                'startWithManu' => 'запущен вместе с ManuAdminMod',
-                'startHltv' => 'запущен HLTV',
-                'stop' => 'выключен',
-                'stopHltv' => 'выключен HLTV',
-                'restart' => 'перезапущен',
-                'restartHltv' => 'перезапущен HLTV',
-                'restartWithManu' => 'перезапущен вместе с ManuAdminMod',
-                'update' => ': запущено обновление',
-                'setServerPass' => 'запущен в режиме установки пароля',
-            );
+            if ($server and
+            		CakeTime::fromString('now') <= CakeTime::fromString($server['Server']['payedTill']))
+            {
+	            $this->Server->GameTemplate->unbindModel(array(
+	                'hasAndBelongsToMany' => array(
+	                    'Mod',
+	                    'Plugin',
+	                    'Config',
+	                    'Service',
+	                    'Protocol',
+	                )));
 
-            $logErrorMessages = array('start' => 'запуска',
-                'startDebug' => 'запуска в режиме отладки',
-                'startWithManu' => 'запуска вместе с ManuAdminMod',
-                'startHltv' => 'запуска HLTV',
-                'stop' => 'выключения',
-                'stopHltv' => 'выключения HLTV',
-                'restart' => 'перезапуска',
-                'restartHltv' => 'перезапуска HLTV',
-                'restartWithManu' => 'перезапуска вместе с ManuAdminMod',
-                'update' => ': запуска обновления',
-                'setServerPass' => 'запуска в режиме установки пароля',
-            );
+	            $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
+	            $gameTemplate = $this->Server->GameTemplate->read();
 
-            if (!empty($logMessages[$action])) {
-                $currentLogMessage = $logMessages[$action];
-                $currentErrorLogMessage = $logErrorMessages[$action];
-            } else {
-                $currentLogMessage = ': действие -> ' . $action;
-                $currentErrorLogMessage = 'совершения действия: ' . $action;
-            }
+	            // Составить список сообщений для лога
+	            $logMessages = array('start' => 'запущен',
+	                'startDebug' => 'запущен в режиме отладки',
+	                'startWithManu' => 'запущен вместе с ManuAdminMod',
+	                'startHltv' => 'запущен HLTV',
+	                'stop' => 'выключен',
+	                'stopHltv' => 'выключен HLTV',
+	                'restart' => 'перезапущен',
+	                'restartHltv' => 'перезапущен HLTV',
+	                'restartWithManu' => 'перезапущен вместе с ManuAdminMod',
+	                'update' => ': запущено обновление',
+	                'setServerPass' => 'запущен в режиме установки пароля',
+	            );
 
-            $response = '';
+	            $logErrorMessages = array('start' => 'запуска',
+	                'startDebug' => 'запуска в режиме отладки',
+	                'startWithManu' => 'запуска вместе с ManuAdminMod',
+	                'startHltv' => 'запуска HLTV',
+	                'stop' => 'выключения',
+	                'stopHltv' => 'выключения HLTV',
+	                'restart' => 'перезапуска',
+	                'restartHltv' => 'перезапуска HLTV',
+	                'restartWithManu' => 'перезапуска вместе с ManuAdminMod',
+	                'update' => ': запуска обновления',
+	                'setServerPass' => 'запуска в режиме установки пароля',
+	            );
 
-            // Если сервер запускается в debug-режиме - Остановить его сначала, потом поставить ключ
-            // Иначе проверить его наличие и снять его
-            if ($action === 'startDebug') {
+	            if (!empty($logMessages[$action])) {
+	                $currentLogMessage = $logMessages[$action];
+	                $currentErrorLogMessage = $logErrorMessages[$action];
+	            } else {
+	                $currentLogMessage = ': действие -> ' . $action;
+	                $currentErrorLogMessage = 'совершения действия: ' . $action;
+	            }
 
-                $request = "~configurator/scripts/subscript_start_stop.py?s=" . $serverId . '&a=stop';
-                $response = chop($this->TeamServer->webGet($serverIp, 0, $request, "GET"));
+	            $response = '';
 
-                $action = 'start';
+	            // Если сервер запускается в debug-режиме - Остановить его сначала, потом поставить ключ
+	            // Иначе проверить его наличие и снять его
+	            if ($action === 'startDebug') {
 
-                if ($this->Server->saveField('debug', 1)) {
-                    $this->Session->setFlash('Сервер запущен в режиме отладки и будет отключен автоматически через 30 минут. Результаты читайте в соответсвующих логах.', 'flash_success');
-                } else {
-                    $this->Session->setFlash('Не удалось запустить сервер в режиме отладки. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.', 'flash_error');
+	                $request = "~configurator/scripts/subscript_start_stop.py?s=" . $serverId . '&a=stop';
+	                $response = chop($this->TeamServer->webGet($serverIp, 0, $request, "GET"));
+
+	                $action = 'start';
+
+	                if ($this->Server->saveField('debug', 1)) {
+	                    $messages['info'][] = 'Сервер запущен в режиме отладки и будет отключен автоматически через 30 минут. Результаты читайте в соответсвующих логах.';
+	                } else {
+	                    $messages['error'][] = 'Не удалось запустить сервер в режиме отладки. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
+	                }
+	            } elseif ($server['Server']['debug'] === '1') {
+	                if (!$this->Server->saveField('debug', 0)) {
+	                    $messages['error'][] = 'Не удалось отключить режим отладки. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+	                }
+	            }
+
+	            // Режим установки пароля для KillingFloor
+	            if ($action === 'setServerPass') {
+	                $action = 'start';
+
+	                if ($this->Server->saveField('setAdmPass', 1)) {
+	                    $messages['info'][] = 'Сервер запущен в режиме установки пароля.<br/>' .
+	                        'Для доступа к настройкам сервера используйте:<br/>' .
+	                        ' - логин: admin<br/>' .
+	                        ' - пароль: ' . $serverId . '<br/>' .
+	                        'После установки новых данных, перезагрузите сервер в обычном режиме!<br/>' .
+	                        'Результаты запуска и работы сервера читайте в соответсвующих логах.';
+	                } else {
+	                    $messages['error'][] = 'Не удалось запустить сервер в режиме установки пароля. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
+	                }
+	            } elseif ($server['Server']['setAdmPass'] === '1') {
+	                if (!$this->Server->saveField('setAdmPass', 0)) {
+	                    $messages['error'][] = 'Не удалось отключить режим установки пароля. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+	                }
+	            }
+
+	            // Создание одноразового токена
+	            if ($action === 'update' and $server['Server']['status'] !== 'update_started') {
+	                if (!$this->Server->saveField('action_token', md5(rand(26858, 8000064000) . time()))) {
+	                    $messages['error'][] = 'Не удалось создать токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+	                    $this->render();
+	                    return false;
+	                }
+	            } elseif ($action !== 'update' and $server['Server']['status'] !== 'update_started') {
+	                if (!$this->Server->saveField('action_token', NULL)) {
+	                    $messages['error'][] = 'Не удалось очистить токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+	                }
+	            }
+
+	            // Совершаем запрос и форматируем вывод
+	            $data = "s=" . $serverId .
+	            "&a=" . $action;
+
+	            switch ($gameTemplate['Type'][0]['name']) {
+	                case 'srcds':
+	                case 'hlds':
+	                case 'cod':
+	                case 'ueds':
+	                    $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
+	                    break;
+
+	                case 'voice':
+	                    if ($gameTemplate['GameTemplate']['name'] === 'mumble') {
+	                        $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
+	                    }
+	                    break;
+
+	                default:
+	                    $request = "~client" . $userId . "/.server_" . $action . "_" . $serverId . ".sh";
+	                    break;
+	            }
+
+	            $response .= $this->TeamServer->webGet($serverIp, 0, $request, "GET");
+
+	            if (empty($this->request->data['Webget']['error'])) {
+	            	//Лог успешного запуска
+	                $this->TeamServer->logAction('Сервер ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId . ' ' . $currentLogMessage, 'ok', $userId);
+
+	            	if ($result == 'html')
+	            	{
+	                	if (!empty($messages['error']))
+	                	{
+	                		$this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
+	                	}
+	                	else
+	                	if (!empty($messages['info']))
+	                	{
+	                		$this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
+	                	}
+
+	                	$this->set('result', chop(@$response));
+	                }
+	                else
+	                if ($result == 'json')
+	                {
+	                	$messages['result'] = chop(@$response);
+	                	$this->set('result', $messages);
+	                	$this->layout = 'ajax';
+	                	$this->render('result_json');
+	                }
+
+	            } else {
+	                $this->TeamServer->logAction('Ошибка при попытке ' . $currentErrorLogMessage . ' сервера ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId, 'error', $userId);
+
+	                if ($result == 'html')
+	            	{
+	                	if (!empty($messages['error']))
+	                	{
+	                		$this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
+	                	}
+	                	else
+	                	if (!empty($messages['info']))
+	                	{
+	                		$this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
+	                	}
+
+	                	$this->set('result', '<strong>Возникла ошибка при совершении запроса.</strong>');
+	                }
+	                else
+	                if ($result == 'json')
+	                {
+	                	$messages['error'] = array_merge($messages['error'], $this->request->data['Webget']['error']);
+	                	$messages['result'] = 'Возникла ошибка при совершении запроса.';
+	                	$this->set('result', $messages);
+	                	$this->layout = 'ajax';
+	                	$this->render('result_json');
+	                }
+	            }
+	        }
+	        // Если сервер не оплачен
+	        else
+	        {
+	        	if ($result == 'html'){
+	        		$this->Session->setFlash('Невозможно совершить запрос: сервер не оплачен.', 'flash_error');
+	        	}
+	        	else
+                if ($result == 'json')
+                {
+                	$this->set('result', ['result' => '', 'error' => 'Невозможно совершить запрос: сервер не оплачен.']);
+                	$this->layout = 'ajax';
+                	$this->render('result_json');
                 }
-            } elseif ($server['Server']['debug'] === '1') {
-                if (!$this->Server->saveField('debug', 0)) {
-                    $this->Session->setFlash('Не удалось отключить режим отладки. Обратитесь в техподдержку. Ошибка: ' . mysql_error(), 'flash_error');
-                }
-            }
+	        }
 
-            // Режим установки пароля для KillingFloor
-            if ($action === 'setServerPass') {
-                $action = 'start';
 
-                if ($this->Server->saveField('setAdmPass', 1)) {
-                    $this->Session->setFlash('Сервер запущен в режиме установки пароля.<br/>' .
-                        'Для доступа к настройкам сервера используйте:<br/>' .
-                        ' - логин: admin<br/>' .
-                        ' - пароль: ' . $serverId . '<br/>' .
-                        'После установки новых данных, перезагрузите сервер в обычном режиме!<br/>' .
-                        'Результаты запуска и работы сервера читайте в соответсвующих логах.', 'flash_success');
-                } else {
-                    $this->Session->setFlash('Не удалось запустить сервер в режиме установки пароля. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.', 'flash_error');
-                }
-            } elseif ($server['Server']['setAdmPass'] === '1') {
-                if (!$this->Server->saveField('setAdmPass', 0)) {
-                    $this->Session->setFlash('Не удалось отключить режим установки пароля. Обратитесь в техподдержку. Ошибка: ' . mysql_error(), 'flash_error');
-                }
-            }
-
-            // Создание одноразового токена
-            if ($action === 'update' and $server['Server']['status'] !== 'update_started') {
-                if (!$this->Server->saveField('action_token', md5(rand(26858, 8000064000) . time()))) {
-                    $this->Session->setFlash('Не удалось создать токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error(), 'flash_error');
-                    $this->render();
-                    return false;
-                }
-            } elseif ($action !== 'update' and $server['Server']['status'] !== 'update_started') {
-                if (!$this->Server->saveField('action_token', NULL)) {
-                    $this->Session->setFlash('Не удалось очистить токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error(), 'flash_error');
-                }
-            }
-
-            // Совершаем запрос и форматируем вывод
-            $data = "s=" . $serverId .
-            "&a=" . $action;
-
-            switch ($gameTemplate['Type'][0]['name']) {
-                case 'srcds':
-                case 'hlds':
-                case 'cod':
-                case 'ueds':
-                    $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
-                    break;
-
-                case 'voice':
-                    if ($gameTemplate['GameTemplate']['name'] === 'mumble') {
-                        $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
-                    }
-                    break;
-
-                default:
-                    $request = "~client" . $userId . "/.server_" . $action . "_" . $serverId . ".sh";
-                    break;
-            }
-
-            $response .= $this->TeamServer->webGet($serverIp, 0, $request, "GET");
-
-            if (empty($this->request->data['Webget']['error'])) {
-                $this->set('result', chop(@$response));
-
-                //Лог успешного запуска
-                $this->TeamServer->logAction('Сервер ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId . ' ' . $currentLogMessage, 'ok', $userId);
-            } else {
-                $this->set('result', '<strong>Возникла ошибка при совершении запроса.</strong>');
-                $this->TeamServer->logAction('Ошибка при попытке ' . $currentErrorLogMessage . ' сервера ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId, 'error', $userId);
-            }
 
             if (@$byToken) {
                 $this->set('token', $token);
                 $this->render('result_for_token');
             }
+
 
             return true;
         }
@@ -8272,7 +8340,8 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                                 ) {
                                     $tableClose = true;
                                     $tableHeaders = preg_split("/\s+/", $string);
-                                    $rconResult .= '<table border="0" cellspacing="3">' . "\n";
+                                    $rconResult .= '<table border="0" cellspacing="3" class="ui table">' . "\n";
+                                    $rconResult .= '<thead>' . "\n";
                                     $rconResult .= '<tr style="background-color: #555; color: white;">' . "\n";
 
                                     foreach ($tableHeaders as $statusTableHeader) {
@@ -8283,10 +8352,11 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                                         }
                                     }
 
-                                    $rconResult .= '</tr>';
+                                    $rconResult .= '</tr></thead>';
                                 } elseif (preg_match($pattern['valveStatsHeader'], $string, $matches)) {
                                     $tableClose = true;
-                                    $rconResult .= '<table border="0" cellspacing="3">' . "\n";
+                                    $rconResult .= '<table border="0" cellspacing="3" class="ui table">' . "\n";
+                                    $rconResult .= '<thead>' . "\n";
                                     $rconResult .= '<tr style="background-color: #555; color: white;">' . "\n";
 
                                     unset($matches[0]);
@@ -8315,7 +8385,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
                                     }
 
-                                    $rconResult .= '</tr>';
+                                    $rconResult .= '</tr></thead>';
                                     $tableHeaders = $matches;
                                 } elseif (preg_match($pattern['valveBot'], $string, $matches)) {
                                     $rconResult .= '<tr style="background-color: #ccc;">' . "\n";

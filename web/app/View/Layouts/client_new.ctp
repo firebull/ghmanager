@@ -68,9 +68,10 @@ $cakeDescription = __('GH Manager');
 </head>
 <body>
 	<!-- Top Menu start -->
-	<?php echo $this->element('new/top_menu'); ?>
+	<?php echo $this->element('v2/top_menu'); ?>
 	<!-- Top Menu end -->
 	<div style="margin-top: 50px !important;"></div>
+	<div id="flash"><?php echo $this->Session->flash(); ?></div>
 	<?php echo $this->fetch('content'); ?>
 
 

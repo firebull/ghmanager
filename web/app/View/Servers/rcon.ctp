@@ -117,6 +117,12 @@ echo $this->Form->input('id', array('type'=>'hidden','value'=>$serverID,'id'=>'s
 		var vernums = $.fn.jquery.split('.');
 
 		if (parseInt(vernums[0]) >= 2) {
+
+			$.ui.autocomplete.prototype._resizeMenu = function () {
+				var ul = this.menu.element;
+				ul.outerWidth(this.element.outerWidth());
+			}
+
 			$( "#command" ).autocomplete({
 				minLength: 1,
 				source: "/servers/rconAutoComplete/<?php echo @$serverType;?>",
