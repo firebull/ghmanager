@@ -230,7 +230,7 @@
 						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stopped', event: {click: $root.serverAction.bind($element, 'stop')}"  id="serverStop">
 							<i class="orange stop icon"></i> Выключить
 						</a>
-						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success'">
+						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success', event: {click: $root.serverAction.bind($element, 'restart')}" id="serverRestart">
 							<i class="orange repeat icon"></i> Рестарт
 						</a>
 						<a class="item" data-bind="visible: renderedServer().Server.status == 'exec_success', event: {click: $root.showRcon.bind($data, false)}, css: {'red active' : $root.showRconConsole() == 'server'}">
@@ -277,16 +277,16 @@
 			</div>
 			<div class="ui equal height stretched row" data-bind="if: renderedServer().Server.initialised && $root.showType() == 'server'">
 				<div class="ui eight wide column">
-					<div class="ui top attached small block header">
-						Статус сервера
+					<div class="ui top attached tertiary segment">
+						<b>Статус сервера</b>
 					</div>
 					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Status.error">
 						Нет данных
 					</div>
-					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Server.status == 'stopped'">
+					<div class="ui attached segment" data-bind="visible: renderedServer().Server.status == 'stopped'">
 						Выключен <span data-bind="visible: renderedServer().Server.statusTime, text: moment(renderedServer().Server.statusTime).calendar()"></span>
 					</div>
-					<div class="ui bottom attached segment" data-bind="visible: renderedServer().Status.serverName">
+					<div class="ui bottom attached segment">
 						<div class="description" data-bind="visible: renderedServer().Status.serverName">
 							<b>Имя:</b>
 							<span data-bind="text: renderedServer().Status.serverName"></span>
@@ -295,7 +295,7 @@
 	    				<div class="description">
 	    					<span data-bind="visible: renderedServer().Server.slots, html: $root.showSlots(renderedServer().Server.slots, renderedServer().Status.numberOfPlayers)"></span>
 	    				</div>
-	    				<div class="description">
+	    				<div class="description" data-bind="visible: renderedServer().Status.secureServer !== undefined">
 	    					<b>Пароль:</b>
 	    					<span data-bind="visible: $root.passwordState() == -1" class="red">Не установлен</span>
 	    					<span data-bind="visible: $root.passwordState() == 0">Не установлен</span>
@@ -309,25 +309,57 @@
 	    					<b>Версия:</b>
 	    					<span data-bind="html: renderedServer().Status.gameVersion ==  renderedServer().GameTemplate.current_version ? '<span class=\'green\'>' + renderedServer().Status.gameVersion + '</span>' : '<span class=\'red\'>' + renderedServer().Status.gameVersion + '</span>'"></span>
 	    				</div>
-	    				<div class="ui small top attached block header">Игроки</div>
-	    				<div class="ui bottom attached basic segment" data-bind="visible: renderedServer().Status.numberOfPlayers == 0">
-	    					На сервере нет игроков
-	    				</div>
-	    				<div class="ui bottom attached basic segment" data-bind="visible: renderedServer().Status.numberOfPlayers > 0">
-	    					<table class="ui very basic table">
-								<tbody data-bind="template: {name: 'render-players-valve', foreach: renderedServer().Status.players, as: 'player' }"></tbody>
-	    					</table>
+	    				<div
+	    					class="description"
+	    					data-bind="
+	    					css: {'green': Number(renderedServer().Server.scaleTime) >= 0.3, 'orange': Number(renderedServer().Server.scaleTime) > 0.15 && Number(renderedServer().Server.scaleTime) < 0.3,
+	    					'red': Number(renderedServer().Server.scaleTime) < 0.15}">
+	    					<b>Аренда истекает:</b>
+	    					<span data-bind="text: moment(renderedServer().Server.payedTill).fromNow()"></span>
+	    				<?php /*
+	    					<div
+		    					class="ui tiny  progress"
+		    					id="paymentBar"
+		    					data-bind="
+		    					css: {'green': Number(renderedServer().Server.scaleTime) >= 0.3, 'yellow': Number(renderedServer().Server.scaleTime) > 0.15 && Number(renderedServer().Server.scaleTime) < 0.3,
+		    					'red': Number(renderedServer().Server.scaleTime) < 0.15}">
+		    					<div class="bar" data-bind="attr: {'style': 'width:' + Number(renderedServer().Server.scaleTime)*100 + '%;'}"></div>
+		    				</div>
+		    			      */ ?>
 	    				</div>
     				</div>
+    				<img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
 				</div>
 				<div class="ui eight wide column">
-					<img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
-					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['24h']">Игроков за сутки</div>
-					<img data-bind="visible: renderedServer().Status.graphs['24h'], attr: {src: renderedServer().Status.graphs['24h']}" />
-					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['7d']">Игроков за неделю</div>
-					<img data-bind="visible: renderedServer().Status.graphs['7d'], attr: {src: renderedServer().Status.graphs['7d']}" />
-					<br/>
+					<div class="ui top attached tabular menu" >
+					    <a class="active item" data-tab="24h" id="playersStat24h">Сутки</a>
+					    <a class="item" data-tab="7d" id="playersStat7d">Неделя</a>
+					</div>
+					<div class="ui bottom attached active tab segment" data-tab="24h" data-bind="visible: renderedServer().Status.graphs['24h']">
+						<img data-bind="visible: renderedServer().Status.graphs['24h'], attr: {src: renderedServer().Status.graphs['24h']}" />
+					</div>
+					<div class="ui bottom attached tab segment" data-tab="7d" data-bind="visible: renderedServer().Status.graphs['7d']">
+						<img data-bind="visible: renderedServer().Status.graphs['7d'], attr: {src: renderedServer().Status.graphs['7d']}" />
+					</div>
 					<small data-bind="visible: renderedServer().Status.graphs['24h'] || renderedServer().Status.graphs['7d']">Графики обновляются каждые 15 минут </small>
+
+					<div class="ui small top attached block header" data-bind="visible: renderedServer().Server.status == 'exec_success'">Игроки</div>
+    				<div class="ui bottom attached basic segment" data-bind="visible: renderedServer().Status.numberOfPlayers == 0">
+    					На сервере нет игроков
+    				</div>
+    				<div class="ui bottom attached basic segment" data-bind="visible: renderedServer().Status.numberOfPlayers > 0">
+    					<table class="ui very basic small table">
+    						<thead>
+    							<tr>
+    								<th>#</th>
+    								<th>Игрок</th>
+    								<th>Счёт</th>
+    								<th>Время</th>
+    							</tr>
+    						</thead>
+							<tbody data-bind="template: {name: 'render-players-valve', foreach: renderedServer().Status.players, as: 'player' }"></tbody>
+    					</table>
+    				</div>
 				</div>
 
 			</div>
@@ -386,8 +418,9 @@
 
 <script type="text/html" id="render-players-valve">
 	<tr>
-		<td data-bind="text: '#' + player.id"></td>
+		<td data-bind="text: player.id"></td>
 		<td data-bind="text: player.name"></td>
+		<td data-bind="text: player.score"></td>
 		<td data-bind="text: player.connectTime"></td>
 	</tr>
 </script>
@@ -542,6 +575,8 @@
 
 			this.setShowType = function(type){
 				this.showType(type);
+				self.showRconConsole(false);
+				$('#rconConsole').empty();
 			}.bind(this);
 
 			this.showSlots = function(serverSlots, players, data) {
@@ -637,12 +672,16 @@
 					}
 
 					self.renderedServer(newData);
-
 					return true;
 				}
 
 		        return false;
 		    }, this);
+
+		    this.barInit = function(){
+		    	//$('#paymentBar').progress();
+		    	return true;
+		    }
 
 			this.showModal = function(size, title, bodyUrl, data){
 				var self = this;
@@ -704,6 +743,8 @@
 									     position: 'right center',
 									     delay: {show: 300, hide: 10},
 									     hoverable: true});*/
+
+
 								}
 
 								self.loadingModal(false);
@@ -712,7 +753,11 @@
 			    	 	answer = "HTTP Error: " + statusText;
 			    	 	self.errors.push(answer);
 			    	 	self.loadingModal(false);
-			    	 });
+			    	 })
+			    	 .always(function() {
+					    $('#playersStat24h').tab();
+			    	 	$('#playersStat7d').tab();
+					});
 		    	}
 
 			}.bind(this);

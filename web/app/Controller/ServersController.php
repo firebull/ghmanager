@@ -3041,6 +3041,8 @@ class ServersController extends AppController {
 	            $status['Type'] = $server['Type'][0];
 	            $status['GameTemplate'] = $server['GameTemplate'][0];
 
+	            // Рассчет графика окончания аренды
+            	$status['Server']['scaleTime'] = $this->scaleDate($server['Server']['payedTill']);
 	            $status['Server']['name'] = strip_tags($status['Server']['name']); //XSS
 
 	            if (!empty($server['Location']))
