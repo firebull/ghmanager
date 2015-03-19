@@ -11,6 +11,7 @@
 namespace SteamCondenser\Servers\Sockets;
 
 use \SteamCondenser\Exceptions\RCONBanException;
+use \SteamCondenser\Exceptions\SocketException;
 use \SteamCondenser\Servers\Packets\SteamPacketFactory;
 
 /**
@@ -157,6 +158,11 @@ class GoldSrcSocket extends SteamSocket {
      */
     public function rconGetChallenge() {
         $this->rconSend('challenge rcon');
+
+        if (!method_exists($this->getReply(), 'getResponse')){
+            throw new SocketException('No getResponse method');
+        }
+
         $response = trim($this->getReply()->getResponse());
 
         if($response == 'You have been banned from this server.') {

@@ -642,8 +642,8 @@ class ServersController extends AppController {
 	    	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
 	    	                                            'initialised, action, status, statusDescription, statusTime,'.
 	    	                                            'hltvStatus, hltvStatusDescription, hltvStatusTime,'.
-	    	                                            'crashReboot, crashCount, crashTime, controlByToken,'.
-	    	                                            'rconPassword']);
+	    	                                            'crashReboot, crashCount, crashTime, controlByToken'
+	    	                                            ]);
 
 
         // Обнулить переменные, на всякий случай
@@ -3058,7 +3058,7 @@ class ServersController extends AppController {
                 		$status['Status']['error'] = 'Невозможно соединиться с сервером';
                 		$status['Status']['errorType'] = 'timeout';
                 	} catch (Exception $e) {
-                		$status['Status']['error'] = $e->getFile();
+                		$status['Status']['error'] = $e->getMessage();
                 		$status['Status']['errorType'] = 'other';
                 	}
 
@@ -3086,7 +3086,13 @@ class ServersController extends AppController {
                 	{
                 		if (!empty($rconPassword))
                 		{
-                			$players = $handle->getPlayers($rconPassword);
+                			// Иногда возникает исключение при попытке получить данные через RCON
+                			// В этом случае сделаю попытку получить данные обычным способом
+                			try {
+                				$players = $handle->getPlayers($rconPassword);
+                			} catch (Exception $e) {
+                				$players = $handle->getPlayers();
+                			}
                 		}
                 		else
                 		{
@@ -4255,13 +4261,14 @@ class ServersController extends AppController {
 	                $response = chop($this->TeamServer->webGet($serverIp, 0, $request, "GET"));
 
 	                $action = 'start';
+	                $this->Server->id = $id;
 
 	                if ($this->Server->saveField('debug', 1)) {
 	                    $messages['info'][] = 'Сервер запущен в режиме отладки и будет отключен автоматически через 30 минут. Результаты читайте в соответсвующих логах.';
 	                } else {
 	                    $messages['error'][] = 'Не удалось запустить сервер в режиме отладки. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
 	                }
-	            } elseif ($server['Server']['debug'] === '1') {
+	            } elseif ($server['Server']['debug'] == '1') {
 	                if (!$this->Server->saveField('debug', 0)) {
 	                    $messages['error'][] = 'Не удалось отключить режим отладки. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
 	                }

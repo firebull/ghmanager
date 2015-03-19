@@ -42,7 +42,7 @@ input.login_submit{border-width:1px;border-radius:3px;-moz-border-radius:3px;bor
 .power_button{background-image:"../../img/icons/power/power_buttons.png";}
 .running{background:url("../../img/icons/power/power_buttons.png") 0 0 no-repeat;width:26px;height:25px;margin-left:4px;}
 .stoped{background:url("../../img/icons/power/power_buttons.png") -26px 0 no-repeat;width:26px;height:25px;margin-left:4px;}
-.updating,.warning{background:url("../../img/icons/power/power_buttons.png") -52px 0 no-repeat;width:26px;height:25px;margin-left:4px;}
+.status > .updating,.status > .warning{background:url("../../img/icons/power/power_buttons.png") -52px 0 no-repeat;width:26px;height:25px;margin-left:4px;}
 .error{background:url("../../img/icons/power/power_buttons.png") -78px 0 no-repeat;width:26px;height:25px;margin-left:4px;}
 .processing{background:url("../../img/icons/power/power_buttons.png") -104px 0 no-repeat;width:26px;height:25px;margin-left:4px;}
 .tbl_out{background-color:#fff;color:black;}

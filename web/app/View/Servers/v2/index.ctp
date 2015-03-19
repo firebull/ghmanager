@@ -138,6 +138,12 @@
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'large', 'Установка карт', '/servers/mapInstall/' + renderedServer().Server.id)}, visible: jQuery.inArray(renderedServer().GameTemplate['name'], ['css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old']) != -1">
 			<i class="bomb icon"></i>Карты
 		</a>
+		<a class="item" data-bind="event: {click: setShowType.bind($data, 'server')}, visible: $root.showType() == 'hltv'">
+			<i class="game icon"></i> Сервер
+		</a>
+		<a class="item" data-bind="event: {click: setShowType.bind($data, 'hltv')}, visible: $root.showType() == 'server'">
+			<i class="film icon"></i> HLTV
+		</a>
 	</div>
 	<div class="ui bottom attached segment">
 		<div class="ui grid">
@@ -211,12 +217,15 @@
 					</div>
 					<!-- Конец предупреждений и ошибок -->
 					<!-- Меню действий -->
-					<div class="ui labeled icon fluid small pointing  menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed'">
+					<div class="ui labeled icon fluid small pointing  menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed' && $root.showType() == 'server'">
 						<a class="item" data-bind="event: {click: actionLogEnable.bind($data)}, visible: actionLog().length > 0, css: {'active': actionLogShow}">
 							<i class="info circle orange icon"></i> Журнал
 						</a>
-						<a class="item" data-bind="visible: renderedServer().Server.status != 'exec_success', event: {click: $root.serverAction.bind($element, 'start')}"  id="serverStop">
+						<a class="item" data-bind="visible: renderedServer().Server.status != 'exec_success', event: {click: $root.serverAction.bind($element, 'start')}"  id="serverStart">
 							<i class="green play icon"></i> Включить
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.status != 'exec_success', event: {click: $root.serverAction.bind($element, 'startDebug')}"  id="serverStartDebug">
+							<i class="video play outline icon"></i> Отладка
 						</a>
 						<a class="item" data-bind="visible: renderedServer().Server.status != 'update_started' && renderedServer().Server.status != 'stopped', event: {click: $root.serverAction.bind($element, 'stop')}"  id="serverStop">
 							<i class="orange stop icon"></i> Выключить
@@ -228,13 +237,23 @@
 							<i class="terminal icon"></i> RCON
 						</a>
 						<a class="item"><i class="download icon"></i> Обновление</a>
-						<div class="ui labeled icon right menu" style="box-shadow: none !important;" data-bind="visible: renderedServer().Type.name == 'hlds'">
-							<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success'"><i class="stop icon"></i> Выключить HLTV</a>
-							<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success'"><i class="repeat icon"></i> Рестарт HLTV</a>
-							<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success', event: {click: $root.showRcon.bind($data, true)}, css: {'red active' : $root.showRconConsole() == 'hltv'}">
-								<i class="terminal icon"></i> HLTV RCON
-							</a>
-						</div>
+					</div>
+					<div class="ui labeled icon fluid small pointing  menu" data-bind="visible: renderedServer().Server.initialised && $root.daysLeft(renderedServer().Server.payedTill) == 'payed' && renderedServer().Type.name == 'hlds' && $root.showType() == 'hltv'">
+						<a class="item" data-bind="event: {click: actionLogEnable.bind($data)}, visible: actionLog().length > 0, css: {'active': actionLogShow}">
+							<i class="info circle orange icon"></i> Журнал
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.hltvStatus != 'exec_success', event: {click: $root.serverAction.bind($element, 'startHltv')}"  id="serverStartHltv">
+							<i class="green play icon"></i> Включить HLTV
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success', event: {click: $root.serverAction.bind($element, 'stopHltv')}">
+							<i class="orange stop icon"></i> Выключить HLTV
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success'">
+							<i class="orange repeat icon"></i> Рестарт HLTV
+						</a>
+						<a class="item" data-bind="visible: renderedServer().Server.hltvStatus == 'exec_success', event: {click: $root.showRcon.bind($data, true)}, css: {'red active' : $root.showRconConsole() == 'hltv'}">
+							<i class="terminal icon"></i> HLTV RCON
+						</a>
 					</div>
 				</div>
 			</div>
@@ -256,7 +275,7 @@
 			<div class="ui row" data-bind="visible: $root.showRconConsole">
 				<div class="ui column" id="rconConsole" style="background-color: #272822; color: white;"></div>
 			</div>
-			<div class="ui equal height stretched row" data-bind="if: renderedServer().Server.initialised">
+			<div class="ui equal height stretched row" data-bind="if: renderedServer().Server.initialised && $root.showType() == 'server'">
 				<div class="ui eight wide column">
 					<div class="ui top attached small block header">
 						Статус сервера
@@ -300,8 +319,21 @@
 	    					</table>
 	    				</div>
     				</div>
+				</div>
+				<div class="ui eight wide column">
+					<img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
+					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['24h']">Игроков за сутки</div>
+					<img data-bind="visible: renderedServer().Status.graphs['24h'], attr: {src: renderedServer().Status.graphs['24h']}" />
+					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['7d']">Игроков за неделю</div>
+					<img data-bind="visible: renderedServer().Status.graphs['7d'], attr: {src: renderedServer().Status.graphs['7d']}" />
+					<br/>
+					<small data-bind="visible: renderedServer().Status.graphs['24h'] || renderedServer().Status.graphs['7d']">Графики обновляются каждые 15 минут </small>
+				</div>
 
-					<!-- HLTV -->
+			</div>
+			<!-- HLTV -->
+			<div class="ui row" data-bind="visible: renderedServer().Type.name == 'hlds' && $root.showType() == 'hltv'">
+				<div class="ui eight wide column">
 					<div class="ui top attached small block header">
 						Статус HLTV
 					</div>
@@ -337,15 +369,8 @@
 					</div>
 				</div>
 				<div class="ui eight wide column">
-					<img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
-					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['24h']">Игроков за сутки</div>
-					<img data-bind="visible: renderedServer().Status.graphs['24h'], attr: {src: renderedServer().Status.graphs['24h']}" />
-					<div class="ui small fluid label" data-bind="visible: renderedServer().Status.graphs['7d']">Игроков за неделю</div>
-					<img data-bind="visible: renderedServer().Status.graphs['7d'], attr: {src: renderedServer().Status.graphs['7d']}" />
-					<br/>
-					<small data-bind="visible: renderedServer().Status.graphs['24h'] || renderedServer().Status.graphs['7d']">Графики обновляются каждые 15 минут </small>
-				</div>
 
+				</div>
 			</div>
 		</div>
 	</div>
@@ -380,6 +405,7 @@
 
 			this.eacServers = ko.observableArray(<?php echo @json_encode($serversGrouped['Eac']); ?>);
 
+			this.showType       = ko.observable('server');
 			this.selectedServer = ko.observable(false);
 			this.selectedType   = ko.observable(false);
 			this.renderedServer = ko.observableArray();
@@ -512,6 +538,10 @@
 
 				self.updateServerInfo();
 
+			}.bind(this);
+
+			this.setShowType = function(type){
+				this.showType(type);
 			}.bind(this);
 
 			this.showSlots = function(serverSlots, players, data) {
