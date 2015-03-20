@@ -1905,6 +1905,14 @@ class ServersController extends AppController {
      * сервера определенного типа
      */
     public function viewServer($id = null, $output = 'html') {
+
+    	if ($output == 'json' and !$this->DarkAuth->isAllowed()){
+        	$this->layout = 'ajax';
+        	$this->Session->setFlash('Необходимо перезайти в панель', 'flash_login_error');
+        	$this->set('result', ['error' => 'needAuth']);
+        	return $this->render('result_json');
+        }
+
         $this->DarkAuth->requiresAuth();
         $this->loadModel('GameTemplate');
         $this->Server->id = $id;
@@ -2062,7 +2070,7 @@ class ServersController extends AppController {
      * Данная функция переадресует на просмотр параметров
      * сервера определенного типа
      */
-    public function viewLog($id = null, $param = null) {
+    public function viewLog($id = null, $type = null, $ver = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('GameTemplate');
         $this->Server->id = $id;
@@ -2088,10 +2096,10 @@ class ServersController extends AppController {
 
         }
 
-        return $this->redirect(array('action' => $redirTo, $id, $param));
+        return $this->redirect(array('action' => $redirTo, $id, $type, $ver));
 
     }
-    public function viewLogSrcds($id = null, $type = null) {
+    public function viewLogSrcds($id = null, $type = 'run') {
         /* Тут мы получаем список логов для определённого сервера SRCDS
          * $id - ID сервера
          * $type - тип логов:
@@ -2109,11 +2117,8 @@ class ServersController extends AppController {
             $userId = $server['User'][0]['id'];
             $serverTemplate = $server['GameTemplate'][0]['name'];
             $serverDebugLogPath = $server['GameTemplate'][0]['rootPath'];
-            if ($type == null) {
-                $type = 'run';
-            }
 
-            if ($type === 'debug') {
+            if ($type == 'debug') {
                 $data = "action=list" .
                 "&id=" . $id .
                 "&pattern=screenlog.[0-9]" .
@@ -2157,7 +2162,7 @@ class ServersController extends AppController {
 
     }
 
-    public function viewLogHlds($id = null, $type = null) {
+    public function viewLogHlds($id = null, $type = 'run', $ver = null) {
         /* Тут мы получаем список логов для определённого сервера SRCDS
          * $id - ID сервера
          * $type - тип логов:
@@ -2166,6 +2171,14 @@ class ServersController extends AppController {
          *         update - логи обновления сервера
          */
         $this->DarkAuth->requiresAuth();
+
+        // Выбор шаблона для V2
+        if (!is_null($ver)){
+        	$path = 'v'.$ver.'/';
+        } else {
+        	$path = '';
+        }
+
         //Проверка прав на сервер
         if ($this->checkRights($id)) {
             $this->Server->id = $id;
@@ -2220,11 +2233,13 @@ class ServersController extends AppController {
             } else {
 
                 $this->Session->setFlash('Не удалось получить список логов. Сервер недоступен. Попробуйте позже.<br/>' .
-                    'Если ошибка не исчезнет, обратитесь в службу поддержки.', 'flash_error');
+                    'Если ошибка не исчезнет, обратитесь в службу поддержки.', $path.'flash_error');
 
             }
 
         }
+
+        $this->render(sprintf('%s%s', $path, 'view_log_hlds'));
 
     }
 
@@ -7627,15 +7642,21 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      * Смена имени сервера.
      * TODO: Сделать смену не только в базе, но и в конфигах.
      */
-    public function changeName($id = null) {
+    public function changeName($id = null, $ver = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerClean');
+
+        if (!is_null($ver)){
+        	$path = 'v'.$ver.'/';
+        } else {
+        	$path = '';
+        }
 
         if ($id === null && !empty($this->request->data['Server']['id'])) {
             $id = $this->request->data['Server']['id'];
         } elseif ($id === null && empty($this->request->data['Server']['id'])) {
-            $this->Session->setFlash('Не указан ID сервера', 'flash_error');
-            return $this->redirect(array('action' => 'index'));
+            $this->Session->setFlash('Не указан ID сервера', $path.'flash_error');
+            return $this->redirect($this->referer());
             return false;
         }
 
@@ -7691,14 +7712,17 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                         $this->request->data['Server']['paramValue'] = $this->request->data['Server']['nameInGame'];
 
                         if ($this->setConfigParam($id, 'return')) {
-                            $this->Session->setFlash('Новое имя сохранено в конфиге и базе. Перегрузите сервер или смените карту, чтобы новое имя стало отображаться.', 'flash_success');
+                            $this->Session->setFlash('Новое имя сохранено. Перегрузите сервер или смените карту.', $path.'flash_success');
                         }
 
                     } else {
-                        $this->Session->setFlash('Возникла ошибка.' . mysql_error(), 'flash_error');
+                        $this->Session->setFlash('Возникла ошибка.' . mysql_error(), $path.'flash_error');
                     }
 
-                    return $this->redirect(array('action' => 'index'));
+                    // Редирект для панели v1
+                    if (is_null($ver)){
+                    	return $this->redirect($this->referer());
+                    }
 
                 }
             } else {
@@ -7794,6 +7818,8 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
             }/* Прочесть данные сервера */
 
         }/* Проверка прав на сервер */
+
+    	$this->render(sprintf('%s%s', $path, 'change_name'));
     }
 
     /*

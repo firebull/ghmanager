@@ -78,7 +78,6 @@
 	</div>
 	<div class="actions">
 		<div class="ui button">Отмена</div>
-		<div class="ui green button">OK</div>
 	</div>
 </div>
 
@@ -129,7 +128,7 @@
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Изменить настройки сервера', '/servers/editParams/' + renderedServer().Server.id)}">
 			<i class="file text icon"></i>Настройки
 		</a>
-		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Просмотр логов сервера', '/servers/viewLog/' + renderedServer().Server.id)}">
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Просмотр логов сервера', '/servers/viewLog/' + renderedServer().Server.id + '/run')}">
 			<i class="file text outline icon"></i>Логи
 		</a>
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Установка модов и плагинов', '/servers/pluginInstall/' + renderedServer().Server.id)}">
@@ -691,7 +690,7 @@
 
 				self.loadingModal(true);
 
-				$.get( bodyUrl )
+				$.get( bodyUrl + '/2')
 		    	 .done(
 			    	 	function(data){
 
@@ -727,7 +726,11 @@
 								}
 								else
 								if (answer.error != 'ok'){
-									self.errors.push(answer.error);
+									if (answer.error == 'needAuth'){
+										window.location.href = "/users/login";
+									} else {
+										self.errors.push(answer.error);
+									}
 								}
 								else
 								if (answer.error == 'ok')

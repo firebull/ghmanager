@@ -49,6 +49,13 @@ class UsersController extends AppController {
 						        )
 						    );
 
+	public function login() {
+		if (empty($this->DarkAuth->current_user))
+		{
+			return $this->redirect('/');
+		}
+	}
+
 	public function logout() {
 		if (!empty($this->DarkAuth->current_user))
 		{

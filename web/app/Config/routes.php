@@ -29,8 +29,9 @@
 /**
  * ...and connect the rest of 'Pages' controller's urls.
  */
-	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
+//	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
 	Router::connect('/list', array('controller' => 'servers', 'action' => 'index'));
+	Router::connect('/login', array('controller'=>'users','action'=>'login'));
 	Router::connect('/logout', array('controller'=>'users','action'=>'logout'));
 
 CakePlugin::routes();
