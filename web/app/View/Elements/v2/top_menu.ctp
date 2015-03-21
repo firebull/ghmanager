@@ -24,7 +24,9 @@ else
     <div class="ui fixed main menu menu-shadow" style="margin-bottom: 40px; !important;">
         <div class="container">
             <a class="item menu-home-image" href="/">
-                <img src="/img/icons/personage01_32px.png">
+                <?php
+                echo $this->Html->image(Configure::read('Panel.vendor.logo'));
+                ?>
             </a>
             <?php
                 echo $this->Html->link('<i class="game icon"></i> Серверы',

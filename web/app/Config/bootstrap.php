@@ -44,7 +44,7 @@
  * Inflector::rules('plural', array('rules' => array(), 'irregular' => array(), 'uninflected' => array()));
  *
  */
-setlocale(LC_TIME,"ru_RU.UTF-8");
+setlocale(LC_TIME, "ru_RU.UTF-8");
 
 /**
  * Configures default file logging options
@@ -63,25 +63,32 @@ CakeLog::config('error', array(
 ));
 
 CakeLog::config('notify', array(
-  'engine' => 'File',
-  'types' => array('notice', 'info', 'debug', 'warning', 'error', 'critical', 'alert', 'emergency'),
-  'scopes' => array('notify'),
-  'file' => 'notify',
+	'engine' => 'File',
+	'types' => array('notice', 'info', 'debug', 'warning', 'error', 'critical', 'alert', 'emergency'),
+	'scopes' => array('notify'),
+	'file' => 'notify',
 ));
 
 CakeLog::config('security', array(
-  'engine' => 'File',
-  'types' => array('notice', 'info', 'debug', 'warning', 'error', 'critical', 'alert', 'emergency'),
-  'scopes' => array('security'),
-  'file' => 'security',
+	'engine' => 'File',
+	'types' => array('notice', 'info', 'debug', 'warning', 'error', 'critical', 'alert', 'emergency'),
+	'scopes' => array('security'),
+	'file' => 'security',
 ));
 
 spl_autoload_register(function ($class) {
-    foreach (App::path('Vendor') as $base) {
-        $path = $base . str_replace('\\', DS, $class) . '.php';
-        if (file_exists($path)) {
-            include $path;
-            return;
-        }
-    }
+	foreach (App::path('Vendor') as $base) {
+		$path = $base . str_replace('\\', DS, $class) . '.php';
+		if (file_exists($path)) {
+			include $path;
+			return;
+		}
+	}
 });
+
+// Common params for vendoring
+App::uses('IniReader', 'Configure');
+
+Configure::config('ini', new IniReader());
+Configure::configured('ini');
+Configure::load('ghmanager.ini.php', 'ini');

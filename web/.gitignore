@@ -3,6 +3,7 @@ app/Config/database.php
 app/Config/email.php
 app/config
 app/tmp
+app/Config/ghmanager.ini.php
 app/Config/payment_params.ini.php
 app/Config/external.ini.php
 app/Config/core.php

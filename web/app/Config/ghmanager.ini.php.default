@@ -1,0 +1,10 @@
+;<?php die()?>
+[Panel]
+vendor.name = GHManager
+vendor.logo = icons/personage01_32px.png
+vendor.meta = Game Hosting Manager - control panel for full control of Game hosting provider.
+
+[Redis]
+address  =
+password =
+db       =

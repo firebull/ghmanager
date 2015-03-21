@@ -1,6 +1,3 @@
-<?php
-$cakeDescription = __('GH Manager');
-?>
 <!DOCTYPE html>
 <head>
 	<?php echo $this->Html->charset(); ?>
@@ -10,7 +7,7 @@ $cakeDescription = __('GH Manager');
 							 		 'content' => 'ru_RU'));
 	?>
 
-	<title><?php echo $cakeDescription.': '.$title_for_layout; ?></title>
+	<title><?php echo Configure::read('Panel.vendor.name').': '.$title_for_layout; ?></title>
 
 	<?php
 		echo $this->Html->meta('icon');
@@ -26,11 +23,15 @@ $cakeDescription = __('GH Manager');
 
 	<?php
 		echo $this->Html->meta(array('property' => 'og:site_name',
-							 		 'content' => "GH Manager"));
+							 		 'content'  => Configure::read('Panel.vendor.name')));
 
 		$this->startIfEmpty('meta');
+
+		echo $this->Html->meta(array('property' => 'og:description',
+							 		 'content'  => Configure::read('Panel.vendor.meta')));
+
 		echo $this->Html->meta(array('property' => 'og:title',
-							 		 'content' => $cakeDescription));
+							 		 'content'  => Configure::read('Panel.vendor.name')));
 		/*
 		echo $this->Html->meta(array('property' => 'og:url',
 							 		 'content' => "http://ghmanager.com"));
@@ -38,11 +39,7 @@ $cakeDescription = __('GH Manager');
 		echo $this->Html->meta(array('property' => 'og:image',
 							 		 'content' => "http://ghmanager.com/img/personage01.png"));
 		*/
-	?>
 
-	<meta content='Game Hosting Manager - control panel for full control of Game hosting provider.' property='og:description'>
-	<meta content='Game Hosting Manager - control panel for full control of Game hosting provider.' name='description'>
-	<?php
 		$this->end();
 
 		echo $this->fetch('meta');
