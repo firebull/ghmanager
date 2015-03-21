@@ -339,6 +339,8 @@ class ServersController extends AppController {
     }
     /*
      * Функция для проверки ввода запрещенных параметров сервера
+     */
+    /**
      * @param $param
      */
     public function checkForBlockedParam($param = null) {
@@ -365,6 +367,8 @@ class ServersController extends AppController {
     /*
      * Парсинг отклика сервера, преобразованного в xml array
      * на ошибки и лог и вывод в виде строк
+     */
+    /**
      * @param $xmlAsArray
      * @return mixed
      */
@@ -447,6 +451,9 @@ class ServersController extends AppController {
     /*
      * $period = all - запросить все генерируемы графики
      * $period = 24h - запросить график за 24 часа
+     */
+
+    /**
      * @param $id
      * @param null $period
      * @return mixed
@@ -2245,7 +2252,7 @@ class ServersController extends AppController {
         $this->DarkAuth->requiresAuth();
 
         // Выбор шаблона для V2
-        if (!null === $ver) {
+        if (!null == $ver) {
             $path = 'v' . $ver . '/';
         } else {
             $path = '';
@@ -3786,7 +3793,7 @@ class ServersController extends AppController {
                 'hasAndBelongsToMany' => array(
                     'GameTemplate' => array('fields' => 'name, longname',
                         // ВРЕМЕННО исключаю серверы, которых нет в аренде
-                        'conditions' => array('NOT' => array('name' => array('hlmp',
+                         'conditions' => array('NOT' => array('name' => array('hlmp',
                             'hl1',
                             'dmc',
                             'hl2mp',
@@ -4290,7 +4297,7 @@ class ServersController extends AppController {
      */
     public function script($id = null, $action = null, $token = null, $result = 'html') {
 
-        if (!null === $token and (bool) $token !== false) {
+        if (!null == $token and (bool)$token !== false) {
             $this->loadmodel('ServerClean');
             $this->layout = 'simple';
             $server = $this->ServerClean->find('first', [
@@ -4473,14 +4480,12 @@ class ServersController extends AppController {
                     if ($result == 'html') {
                         if (!empty($messages['error'])) {
                             $this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
-                        } else
-                        if (!empty($messages['info'])) {
+                        } elseif (!empty($messages['info'])) {
                             $this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
                         }
 
                         $this->set('result', chop(@$response));
-                    } else
-                    if ($result == 'json') {
+                    } elseif ($result == 'json') {
                         $messages['result'] = chop(@$response);
                         $this->set('result', $messages);
                         $this->layout = 'ajax';
@@ -4493,14 +4498,12 @@ class ServersController extends AppController {
                     if ($result == 'html') {
                         if (!empty($messages['error'])) {
                             $this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
-                        } else
-                        if (!empty($messages['info'])) {
+                        } elseif (!empty($messages['info'])) {
                             $this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
                         }
 
                         $this->set('result', '<strong>Возникла ошибка при совершении запроса.</strong>');
-                    } else
-                    if ($result == 'json') {
+                    } elseif ($result == 'json') {
                         $messages['error'] = array_merge($messages['error'], $this->request->data['Webget']['error']);
                         $messages['result'] = 'Возникла ошибка при совершении запроса.';
                         $this->set('result', $messages);
@@ -4513,8 +4516,7 @@ class ServersController extends AppController {
             else {
                 if ($result == 'html') {
                     $this->Session->setFlash('Невозможно совершить запрос: сервер не оплачен.', 'flash_error');
-                } else
-                if ($result == 'json') {
+                } elseif ($result == 'json') {
                     $this->set('result', ['result' => '', 'error' => 'Невозможно совершить запрос: сервер не оплачен.']);
                     $this->layout = 'ajax';
                     $this->render('result_json');
@@ -4687,8 +4689,7 @@ class ServersController extends AppController {
                                 }
                             }
                         }
-                    } else
-                    if (!empty($xmlAsArray['response']['list']['file'])
+                    } elseif (!empty($xmlAsArray['response']['list']['file'])
                         and count($xmlAsArray['response']['list']['file']) == 1) {
                         if (preg_match('@^(\S{1,})(?:\.' . $mapExt . ')@i', $xmlAsArray['response']['list']['file'], $match)) {
                             $mapsList[$match[1]] = $match[1];
@@ -5339,8 +5340,7 @@ class ServersController extends AppController {
                         $responseMessages = $this->parseXmlResponse($xmlAsArray);
                         $error .= $responseMessages['error'];
                         $log = array_merge($log, $responseMessages['log']);
-                    } else
-                    if ($server['Type'][0]['name'] == 'hlds'
+                    } elseif ($server['Type'][0]['name'] == 'hlds'
                         and $paramName == 'rcon_password') {
                         $data = 'id=' . $id .
                         '&p=adminpassword' .
@@ -6143,8 +6143,8 @@ class ServersController extends AppController {
                         foreach ($server['Server']['maps'] as $map) {
                             $server['Server']['maps'][$map] = array('name' => $map,
                                 'installed' => true,     // карта на сервере установлена
-                                'canDelete' => false,     // по-умолчанию, мы не можем её удалить
-                                'on' => true,     // по-усолчанию, считаем, что карта включена
+                                 'canDelete' => false,     // по-умолчанию, мы не можем её удалить
+                                 'on' => true,     // по-усолчанию, считаем, что карта включена
                             );
                             // Проверить включена ли карта
                             if ($mapsTurnedOn !== false) {
@@ -6206,7 +6206,7 @@ class ServersController extends AppController {
                                     $mapList[$map['name']]['id'] = $map['id'];
                                     $mapList[$map['name']]['longname'] = $map['longname'];
                                     $mapList[$map['name']]['desc'] = $map['desc'];
-                                    $mapList[$map['name']]['official'] = ((bool) $map['official']);
+                                    $mapList[$map['name']]['official'] = ((bool)$map['official']);
 
                                     if (array_key_exists($map['name'], $server['Server']['maps'])) {
                                         $mapList[$map['name']]['installed'] = true;
@@ -6244,7 +6244,7 @@ class ServersController extends AppController {
                                     $server['Server']['maps'][$gameTemplateMap['name']]['id'] = $gameTemplateMap['id'];
                                     $server['Server']['maps'][$gameTemplateMap['name']]['longname'] = $gameTemplateMap['longname'];
                                     $server['Server']['maps'][$gameTemplateMap['name']]['desc'] = $gameTemplateMap['desc'];
-                                    $server['Server']['maps'][$gameTemplateMap['name']]['official'] = ((bool) $gameTemplateMap['official']);
+                                    $server['Server']['maps'][$gameTemplateMap['name']]['official'] = ((bool)$gameTemplateMap['official']);
 
                                     // Т.к. карта нам известна, мы можем её удалить
                                     $server['Server']['maps'][$gameTemplateMap['name']]['canDelete'] = true;
@@ -7860,7 +7860,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerClean');
 
-        if (!null === $ver) {
+        if (!null == $ver) {
             $path = 'v' . $ver . '/';
         } else {
             $path = '';
