@@ -55,6 +55,9 @@ class ServersController extends AppController {
         ),
     );
 
+    /**
+     * @param $serverId
+     */
     public function checkRights($serverId = null) {
         if (intval($serverId) > 0) {
             // Server ID должен быть цифрой и больше нуля
@@ -113,6 +116,10 @@ class ServersController extends AppController {
     }
 
     // Проверка параметров хостинга - пока заглушка
+    /**
+     * @param $param
+     * @param null $type
+     */
     public function checkWebHosting($param = null, $type = 'user') {
 
         if ($param !== null) {
@@ -208,6 +215,12 @@ class ServersController extends AppController {
     }
 
     /* SOURCE ENGINE QUERY FUNCTION, requires the server ip:port */
+    /**
+     * @param $HL2_address
+     * @param $HL2_port
+     * @param $timeout
+     * @return mixed
+     */
     public function sourceQuery($HL2_address, $HL2_port = 27015, $timeout = 1) {
 
         $HL2_command = "\377\377\377\377TSource Engine Query\0";
@@ -284,6 +297,10 @@ class ServersController extends AppController {
         return $info;
     }
 
+    /**
+     * @param $text
+     * @return mixed
+     */
     public function codColorText($text = null) {
         /*
         The color codes are:
@@ -322,6 +339,7 @@ class ServersController extends AppController {
     }
     /*
      * Функция для проверки ввода запрещенных параметров сервера
+     * @param $param
      */
     public function checkForBlockedParam($param = null) {
         $blockedParam = array('set net_ip',
@@ -347,6 +365,8 @@ class ServersController extends AppController {
     /*
      * Парсинг отклика сервера, преобразованного в xml array
      * на ошибки и лог и вывод в виде строк
+     * @param $xmlAsArray
+     * @return mixed
      */
     public function parseXmlResponse($xmlAsArray = null) {
         $output = array('error' => '', 'log' => '');
@@ -376,6 +396,10 @@ class ServersController extends AppController {
     }
 
     /* Парсинг XML-ответов от ISP Manager*/
+    /**
+     * @param $response
+     * @return mixed
+     */
     public function parceXmlFromIsp($response = null) {
 
         if ($response !== null) {
@@ -399,6 +423,10 @@ class ServersController extends AppController {
 
     // Функция рассчитывает значение для рисования графической
     // линейки до окончания определнной даты
+    /**
+     * @param $date
+     * @return mixed
+     */
     public function scaleDate($date) {
 
         $unixTo = strtotime($date);
@@ -419,8 +447,10 @@ class ServersController extends AppController {
     /*
      * $period = all - запросить все генерируемы графики
      * $period = 24h - запросить график за 24 часа
+     * @param $id
+     * @param null $period
+     * @return mixed
      */
-
     public function getStatGraph($id = null, $period = 'all') {
         $this->DarkAuth->requiresAuth();
 
@@ -453,7 +483,7 @@ class ServersController extends AppController {
                 $fullGraphUrl = 'http://' . $server['ServerClean']['address'] . '/gamestats/' . $graphFileName;
 
                 $http = new HttpSocket();
-				$response = $http->get($fullGraphUrl);
+                $response = $http->get($fullGraphUrl);
 
                 if ($response->code === '200') {
                     $graphs[$period] = $fullGraphUrl;
@@ -468,7 +498,12 @@ class ServersController extends AppController {
         }
     }
 
-    protected function mapDesc($gameTemplateId = null, $map = null) {
+    /**
+     * @param $gameTemplateId
+     * @param null $mapName
+     * @return mixed
+     */
+    protected function mapDesc($gameTemplateId = null, $mapName = null) {
         // Описание карты
         // Нефиг запрашивать лишнюю информацию из базы
         $this->Server->GameTemplate->unbindModel(array('hasAndBelongsToMany' => array(
@@ -481,59 +516,53 @@ class ServersController extends AppController {
         $this->Server->GameTemplate->bindModel(array('hasAndBelongsToMany' => array(
             'Map' => array(
                 'fields' => 'id, name, longname, desc, official, map_type_id',
-                'conditions' => array('name' => $map),
+                'conditions' => array('name' => $mapName),
             ),
         )));
 
         $this->Server->GameTemplate->id = $gameTemplateId;
         $gameTemplate = $this->Server->GameTemplate->read();
 
-
         ///////
         // Сгенерировать массив из всех карт по шаблонам и закэшировать его навсегда
-        if (($mapsByTemplate = Cache::read('mapsByTemplate')) === false)
-        {
-        	$this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' =>
-        										['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
+        if (($mapsByTemplate = Cache::read('mapsByTemplate')) === false) {
+            $this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' =>
+                ['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
 
-        	$this->Server->GameTemplate->bindModel(['hasAndBelongsToMany' => ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
+            $this->Server->GameTemplate->bindModel(['hasAndBelongsToMany' => ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
 
-        	$gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
+            $gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
 
-        	if (!empty($gameTemplateMaps))
-        	{
-        		$mapsByTemplate = array();
-        		foreach ($gameTemplateMaps as $gameTemplateMap)
-        		{
-        			if (!empty($gameTemplateMap['Map']))
-        			{
-        				foreach ($gameTemplateMap['Map'] as $map) {
+            if (!empty($gameTemplateMaps)) {
+                $mapsByTemplate = array();
+                foreach ($gameTemplateMaps as $gameTemplateMap) {
+                    if (!empty($gameTemplateMap['Map'])) {
+                        foreach ($gameTemplateMap['Map'] as $map) {
 
-        					$mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']] =
-        						$map;
+                            $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']] =
+                            $map;
 
-        					// Проверить на наличие изображения карты
+                            // Проверить на наличие изображения карты
                             if (file_exists(WWW_ROOT . 'img/gameMaps/' . $map['id'] . '.jpg')) {
                                 $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = '/img/gameMaps/' . $map['id'] . '.jpg';
                             } else {
                                 $mapsByTemplate[$gameTemplateMap['GameTemplate']['id']][$map['name']]['image'] = NULL;
                             }
-        				}
-        			}
-        		}
+                        }
+                    }
+                }
 
-        		if (!empty($mapsByTemplate))
-        		{
-		    		Cache::write('mapsByTemplate', $mapsByTemplate);
-		    	}
-		    }
-		}
+                if (!empty($mapsByTemplate)) {
+                    Cache::write('mapsByTemplate', $mapsByTemplate);
+                }
+            }
+        }
 
         //////
         //pr($gameTemplate);
         if (!empty($mapsByTemplate)
-        		and isset($mapsByTemplate[$gameTemplateId][$map])) {
-            return $mapsByTemplate[$gameTemplateId][$map];
+            and isset($mapsByTemplate[intval($gameTemplateId)][$mapName])) {
+            return $mapsByTemplate[$gameTemplateId][$mapName];
         } else {
             return false;
         }
@@ -616,7 +645,7 @@ class ServersController extends AppController {
         // Нефиг запрашивать лишнюю информацию из базы
         $this->Server->unbindModel([
             'hasAndBelongsToMany' => [
-            	'Mod',
+                'Mod',
                 'Plugin',
                 'RootServer',
                 'Service',
@@ -628,23 +657,22 @@ class ServersController extends AppController {
 
         $this->Server->bindModel([
             'hasAndBelongsToMany' => [
-            	'Type'         => ['fields' => 'id, name, longname'],
-            	'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
-            	'Location'     => ['fields' => 'id, name, collocation']
+                'Type' => ['fields' => 'id, name, longname'],
+                'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
+                'Location' => ['fields' => 'id, name, collocation'],
             ],
             'hasMany' => [
-            	'Eac' => ['fields' => 'Eac.id, Eac.active']]
-            ]);
+                'Eac' => ['fields' => 'Eac.id, Eac.active']],
+        ]);
 
         $userServers = $this->Server->find('all',
-        	                               ['conditions' => ['Server.id' => $serversIdsList],
-        	                                'fields' => 'id, name, slots, address, port, slots, map, mapGroup,'.
-	    	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
-	    	                                            'initialised, action, status, statusDescription, statusTime,'.
-	    	                                            'hltvStatus, hltvStatusDescription, hltvStatusTime,'.
-	    	                                            'crashReboot, crashCount, crashTime, controlByToken'
-	    	                                            ]);
-
+            ['conditions' => ['Server.id' => $serversIdsList],
+                'fields' => 'id, name, slots, address, port, slots, map, mapGroup,' .
+                'autoUpdate, privateType, privateStatus, payedTill,' .
+                'initialised, action, status, statusDescription, statusTime,' .
+                'hltvStatus, hltvStatusDescription, hltvStatusTime,' .
+                'crashReboot, crashCount, crashTime, controlByToken',
+            ]);
 
         // Обнулить переменные, на всякий случай
         $servers = array();
@@ -654,28 +682,26 @@ class ServersController extends AppController {
         $eacStatus = array();
         $serverIps = array();
         foreach ($userServers as $server):
-        	$tmp = ['Server' => [],
-        			'Location' => [],
-                    'Type'   => [],
-                    'GameTemplate' => [],
-                    'Eac' => [],
-                    'Status' => ['graphs'  => ['24h', '7d'],
-                                 'players' => [],
-                                 'hltv' => []]];
+            $tmp = ['Server' => [],
+                'Location' => [],
+                'Type' => [],
+                'GameTemplate' => [],
+                'Eac' => [],
+                'Status' => ['graphs' => ['24h', '7d'],
+                    'players' => [],
+                    'hltv' => []]];
 
             $serverIps[] = $server['Server']['address'] . ':' . $server['Server']['port'];
             $tmp['Server'] = $server['Server'];
             $tmp['Type'] = $server['Type'][0];
             $tmp['GameTemplate'] = $server['GameTemplate'][0];
 
-            if (!empty($server['Location']))
-            {
-            	$tmp['Location'] = $server['Location'][0];
+            if (!empty($server['Location'])) {
+                $tmp['Location'] = $server['Location'][0];
             }
 
-            if (!empty($server['Eac']))
-            {
-            	$tmp['Eac'] = $server['Eac'][0];
+            if (!empty($server['Eac'])) {
+                $tmp['Eac'] = $server['Eac'][0];
             }
 
             if (time() < strtotime($server['Server']['payedTill'])
@@ -694,61 +720,51 @@ class ServersController extends AppController {
             // Теперь создадим массивы, из типов серверов
             switch (@$server['Type'][0]['name']) {
                 case 'srcds':
-                	$servers['Game'][] = $tmp;
+                    $servers['Game'][] = $tmp;
                     break;
                 case 'hlds':
-                	if ($tmp['Server']['initialised'] and $tmp['Server']['status'] == 'exec_success')
-                	{
-	                	try {
-	                		$handle = new SteamCondenser\Servers\GoldSrcServer($tmp['Server']['address'], $tmp['Server']['port']);
-	                		$handle->initialize();
-	                		$tmp['Status'] = $handle->getServerInfo();
-	                	} catch (SteamCondenser\Exceptions\TimeoutException $e) {
-	                		$tmp['Status']['error'] = 'Невозможно соединиться с сервером';
-	                		$tmp['Status']['errorType'] = 'timeout';
-	                	} catch (Exception $e) {
-	                		$tmp['Status']['error'] = $e->getFile();
-	                		$tmp['Status']['errorType'] = 'other';
-	                	}
+                    if ($tmp['Server']['initialised'] and $tmp['Server']['status'] == 'exec_success') {
+                        try {
+                            $handle = new SteamCondenser\Servers\GoldSrcServer($tmp['Server']['address'], $tmp['Server']['port']);
+                            $handle->initialize();
+                            $tmp['Status'] = $handle->getServerInfo();
+                        } catch (SteamCondenser\Exceptions\TimeoutException $e) {
+                            $tmp['Status']['error'] = 'Невозможно соединиться с сервером';
+                            $tmp['Status']['errorType'] = 'timeout';
+                        } catch (Exception $e) {
+                            $tmp['Status']['error'] = $e->getFile();
+                            $tmp['Status']['errorType'] = 'other';
+                        }
 
-	                	if (!empty($tmp['Status']['mapName']))
-	                	{
-	                		$map = $this->mapDesc($server['GameTemplate'][0]['id'], $tmp['Status']['mapName']);
+                        if (!empty($tmp['Status']['mapName'])) {
+                            $map = $this->mapDesc($server['GameTemplate'][0]['id'], $tmp['Status']['mapName']);
 
-	                		if ($map)
-	                		{
-	                			$tmp['Status']['image'] = $map['image'];
-	                		}
-	                		else
-	                		{
-	                			$tmp['Status']['image'] = NULL;
-	                		}
-	                	}
-	                	else
-	                	{
-	                		$tmp['Status']['image'] = NULL;
-	                	}
+                            if ($map) {
+                                $tmp['Status']['image'] = $map['image'];
+                            } else {
+                                $tmp['Status']['image'] = NULL;
+                            }
+                        } else {
+                            $tmp['Status']['image'] = NULL;
+                        }
 
-	                	// Подрезать версию
-	                	if (!empty($tmp['Status']['gameVersion']))
-	                	{
-	                		$v = preg_split('/\//', $tmp['Status']['gameVersion']);
-	                		if (count($v) > 1)
-	                		{
-	                			$tmp['Status']['gameVersion'] = $v[0];
-	                		}
-	                	}
-	                }
+                        // Подрезать версию
+                        if (!empty($tmp['Status']['gameVersion'])) {
+                            $v = preg_split('/\//', $tmp['Status']['gameVersion']);
+                            if (count($v) > 1) {
+                                $tmp['Status']['gameVersion'] = $v[0];
+                            }
+                        }
+                    }
 
-	                if ($tmp['Server']['initialised'])
-	                {
-	                	$tmp['Status']['graphs'] = $this->getStatGraph($tmp['Server']['id']);
-	                }
+                    if ($tmp['Server']['initialised']) {
+                        $tmp['Status']['graphs'] = $this->getStatGraph($tmp['Server']['id']);
+                    }
 
-                	$servers['Game'][] = $tmp;
+                    $servers['Game'][] = $tmp;
                     break;
                 case 'cod':
-                	//$tmp['Mod'] = $server['Mod'];
+                //$tmp['Mod'] = $server['Mod'];
                 case 'ueds':
                 case 'game':
                     $servers['Game'][] = $tmp;
@@ -849,6 +865,10 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $game
+     * @return mixed
+     */
     public function orderFromSite($game) {
         $flash = "Перед оформлением заказа требуется пройти очень короткую регистрацию.";
         $order = array(
@@ -861,6 +881,9 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @return mixed
+     */
     public function add() {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('Type');
@@ -996,11 +1019,11 @@ class ServersController extends AppController {
                     $script .= "\n else ";
                 }
                 $script .= "if (selectedGame === '" . $gameTemplate['GameTemplate']['id'] . "') {
-																																														//" . $gameTemplate['GameTemplate']['name'] . "
-																																														v = " . $gameTemplate['GameTemplate']['slots_value'] . ";
-																																														mi = " . $gameTemplate['GameTemplate']['slots_min'] . ";
-																																														ma = " . $gameTemplate['GameTemplate']['slots_max'] . ";
-																																													}\n";
+																																															//" . $gameTemplate['GameTemplate']['name'] . "
+																																															v = " . $gameTemplate['GameTemplate']['slots_value'] . ";
+																																															mi = " . $gameTemplate['GameTemplate']['slots_min'] . ";
+																																															ma = " . $gameTemplate['GameTemplate']['slots_max'] . ";
+																																														}\n";
                 $i++;
             endforeach;
             $script .= "else {
@@ -1013,6 +1036,11 @@ class ServersController extends AppController {
         }
     }
 
+    /**
+     * @param $id
+     * @param null $action
+     * @return mixed
+     */
     public function edit($id = null, $action = null) {
         $this->DarkAuth->requiresAuth(array('Admin', 'GameAdmin'));
         $this->loadModel('Type');
@@ -1120,11 +1148,11 @@ class ServersController extends AppController {
                     $script .= "\n else ";
                 }
                 $script .= "if (selectedGame === '" . $gameTemplate['GameTemplate']['id'] . "') {
-																																														//" . $gameTemplate['GameTemplate']['name'] . "
-																																														v = " . $this->request->data['Server']['slots'] . ";
-																																														mi = " . $gameTemplate['GameTemplate']['slots_min'] . ";
-																																														ma = " . $gameTemplate['GameTemplate']['slots_max'] . ";
-																																													}\n";
+																																															//" . $gameTemplate['GameTemplate']['name'] . "
+																																															v = " . $this->request->data['Server']['slots'] . ";
+																																															mi = " . $gameTemplate['GameTemplate']['slots_min'] . ";
+																																															ma = " . $gameTemplate['GameTemplate']['slots_max'] . ";
+																																														}\n";
                 $i++;
             endforeach;
             $script .= "else {
@@ -1222,6 +1250,10 @@ class ServersController extends AppController {
         }
     }
     // Смена шаблона сервера пользователем
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function changeGame($id = null) {
         /* Ох, забавный будет алгоритм
          * 1) Проверить, подключена ли услуга "Смена игры сервера" у клиента
@@ -1710,6 +1742,10 @@ class ServersController extends AppController {
         $this->set('openTickets', $openTickets[0][0]['COUNT(*)']);
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function delete($id) {
         $this->DarkAuth->requiresAuth(array('Admin'));
         $this->loadModel('RootServer');
@@ -1775,6 +1811,10 @@ class ServersController extends AppController {
      *  - Снять ключ инициализации в базе
      *  - Снять все связи с модами и плагинами
      */
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function reInit($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerModPlugin');
@@ -1810,6 +1850,12 @@ class ServersController extends AppController {
     /* Функция для переключения параметров - 0/1
      * Чтобы нельзя было прописать в любое поле таблицы
      * левые значения, жестко прописываю тут вероятные поля.
+     */
+    /**
+     * @param $param
+     * @param null $case
+     * @param null $id
+     * @return mixed
      */
     public function switchParam($param = null, $case = null, $id = null) {
         $this->DarkAuth->requiresAuth();
@@ -1865,6 +1911,9 @@ class ServersController extends AppController {
     }
 
     // Включение-отключение привязки к EAC
+    /**
+     * @param $id
+     */
     public function switchEac($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -1904,13 +1953,18 @@ class ServersController extends AppController {
      * Данная функция переадресует на просмотр параметров
      * сервера определенного типа
      */
+    /**
+     * @param $id
+     * @param null $output
+     * @return mixed
+     */
     public function viewServer($id = null, $output = 'html') {
 
-    	if ($output == 'json' and !$this->DarkAuth->isAllowed()){
-        	$this->layout = 'ajax';
-        	$this->Session->setFlash('Необходимо перезайти в панель', 'flash_login_error');
-        	$this->set('result', ['error' => 'needAuth']);
-        	return $this->render('result_json');
+        if ($output == 'json' and !$this->DarkAuth->isAllowed()) {
+            $this->layout = 'ajax';
+            $this->Session->setFlash('Необходимо перезайти в панель', 'flash_login_error');
+            $this->set('result', ['error' => 'needAuth']);
+            return $this->render('result_json');
         }
 
         $this->DarkAuth->requiresAuth();
@@ -1940,18 +1994,18 @@ class ServersController extends AppController {
 
         }
 
-        if ($output == 'json')
-        {
-        	$redirTo .= 'Json';
-        	return $this->redirect(array('action' => $redirTo, $id));
-        }
-        else
-        {
-        	return $this->redirect(array('action' => $redirTo, $id));
+        if ($output == 'json') {
+            $redirTo .= 'Json';
+            return $this->redirect(array('action' => $redirTo, $id));
+        } else {
+            return $this->redirect(array('action' => $redirTo, $id));
         }
 
     }
 
+    /**
+     * @param $id
+     */
     public function viewVoiceMumble($id = null) {
         $this->DarkAuth->requiresAuth();
         //Проверка прав на сервер
@@ -2018,6 +2072,9 @@ class ServersController extends AppController {
         }
     }
 
+    /**
+     * @param $id
+     */
     public function viewRadioShoutcast($id = null) {
         $this->DarkAuth->requiresAuth();
         if ($this->checkRights($id)) {
@@ -2070,6 +2127,12 @@ class ServersController extends AppController {
      * Данная функция переадресует на просмотр параметров
      * сервера определенного типа
      */
+    /**
+     * @param $id
+     * @param null $type
+     * @param null $ver
+     * @return mixed
+     */
     public function viewLog($id = null, $type = null, $ver = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('GameTemplate');
@@ -2099,6 +2162,10 @@ class ServersController extends AppController {
         return $this->redirect(array('action' => $redirTo, $id, $type, $ver));
 
     }
+    /**
+     * @param $id
+     * @param null $type
+     */
     public function viewLogSrcds($id = null, $type = 'run') {
         /* Тут мы получаем список логов для определённого сервера SRCDS
          * $id - ID сервера
@@ -2162,6 +2229,11 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $type
+     * @param $ver
+     */
     public function viewLogHlds($id = null, $type = 'run', $ver = null) {
         /* Тут мы получаем список логов для определённого сервера SRCDS
          * $id - ID сервера
@@ -2173,10 +2245,10 @@ class ServersController extends AppController {
         $this->DarkAuth->requiresAuth();
 
         // Выбор шаблона для V2
-        if (!is_null($ver)){
-        	$path = 'v'.$ver.'/';
+        if (!null === $ver) {
+            $path = 'v' . $ver . '/';
         } else {
-        	$path = '';
+            $path = '';
         }
 
         //Проверка прав на сервер
@@ -2233,7 +2305,7 @@ class ServersController extends AppController {
             } else {
 
                 $this->Session->setFlash('Не удалось получить список логов. Сервер недоступен. Попробуйте позже.<br/>' .
-                    'Если ошибка не исчезнет, обратитесь в службу поддержки.', $path.'flash_error');
+                    'Если ошибка не исчезнет, обратитесь в службу поддержки.', $path . 'flash_error');
 
             }
 
@@ -2243,6 +2315,10 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $type
+     */
     public function viewLogCod($id = null, $type = null) {
         /* Тут мы получаем список логов для определённого сервера COD
          * $id - ID сервера
@@ -2358,6 +2434,10 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $type
+     */
     public function viewLogUeds($id = null, $type = null) {
         /* Тут мы получаем список логов для определённого сервера COD
          * $id - ID сервера
@@ -2458,6 +2538,11 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $logName
+     * @param null $type
+     */
     public function printLogSrcds($id = null, $logName = null, $type = null) {
         // Тут читаем лог для определённого сервера SRCDS
         $this->DarkAuth->requiresAuth();
@@ -2516,6 +2601,11 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $logName
+     * @param null $type
+     */
     public function printLogHlds($id = null, $logName = null, $type = null) {
         // Тут читаем лог для определённого сервера SRCDS
         $this->DarkAuth->requiresAuth();
@@ -2583,6 +2673,12 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $logName
+     * @param null $logPath
+     * @param null $type
+     */
     public function printLogCod($id = null, $logName = null, $logPath = null, $type = null) {
         // Тут читаем лог для определённого сервера COD
         $this->DarkAuth->requiresAuth();
@@ -2676,6 +2772,11 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $logName
+     * @param null $type
+     */
     public function printLogUeds($id = null, $logName = null, $type = null) {
         // Тут читаем лог для определённого сервера Ueds
         $this->DarkAuth->requiresAuth();
@@ -2753,6 +2854,9 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     */
     public function viewLogVoiceMumble($id = null) {
         $this->DarkAuth->requiresAuth();
         //Проверка прав на сервер
@@ -2799,6 +2903,9 @@ class ServersController extends AppController {
         $this->render("print_log");
     }
 
+    /**
+     * @param $id
+     */
     public function viewLogRadioShoutcast($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->set('id', $id);
@@ -2809,6 +2916,10 @@ class ServersController extends AppController {
      * $log - файл лога:
      *             main - shoutcast_$id.log
      *             w3c  - shotcast_w3c_$id.log
+     */
+    /**
+     * @param $id
+     * @param null $logName
      */
     public function printLogRadioShoutcast($id = null, $logName = null) {
         $this->DarkAuth->requiresAuth();
@@ -2866,6 +2977,10 @@ class ServersController extends AppController {
         $this->render("print_log");
     }
 
+    /**
+     * @param $id
+     * @param null $output
+     */
     public function viewSrcds($id = null, $output = 'html') {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerTemplate');
@@ -2919,6 +3034,9 @@ class ServersController extends AppController {
     /* Вывод состояния HLDS серверов, атакже HLTV
      * Информацию о сервере собирать библиотечкой steam-condenser,
      * а о HLTV - gameQ */
+    /**
+     * @param $id
+     */
     public function viewHlds($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerTemplate');
@@ -2996,6 +3114,9 @@ class ServersController extends AppController {
     /* Вывод состояния HLDS серверов, атакже HLTV
      * Информацию о сервере собирать библиотечкой steam-condenser,
      * а о HLTV - gameQ */
+    /**
+     * @param $id
+     */
     public function viewHldsJson($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerTemplate');
@@ -3003,217 +3124,193 @@ class ServersController extends AppController {
 
         //Проверка прав на сервер
         if ($this->checkRights($id)) {
-	        $status = [ 'Server' => [],
-	                    'Location' => [],
-	                    'Type'   => [],
-	                	'GameTemplate' => [],
-	                	'Eac' => [],
-	                	'Status' => ['graphs'  => ['24h', '7d'],
-	                                 'players' => [],
-	                                 'hltv' => [] ],
-	                    'error'  => 'ok'];
+            $status = ['Server' => [],
+                'Location' => [],
+                'Type' => [],
+                'GameTemplate' => [],
+                'Eac' => [],
+                'Status' => ['graphs' => ['24h', '7d'],
+                    'players' => [],
+                    'hltv' => []],
+                'error' => 'ok'];
 
+            // Переходим к серверам
+            // Нефиг запрашивать лишнюю информацию из базы
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
+                    'Mod',
+                    'Plugin',
+                    'RootServer',
+                    'Service',
+                    'Order',
+                    'User',
+                    'VoiceMumbleParam',
+                    'RadioShoutcastParam',
+                ]]);
 
-	        // Переходим к серверам
-	        // Нефиг запрашивать лишнюю информацию из базы
-	        $this->Server->unbindModel([
-	            'hasAndBelongsToMany' => [
-	            	'Mod',
-	                'Plugin',
-	                'RootServer',
-	                'Service',
-	                'Order',
-	                'User',
-	                'VoiceMumbleParam',
-	                'RadioShoutcastParam',
-	            ]]);
+            $this->Server->bindModel([
+                'hasAndBelongsToMany' => [
+                    'Type' => ['fields' => 'id, name, longname'],
+                    'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
+                    'Location' => ['fields' => 'id, name, collocation'],
+                ],
+                'hasMany' => [
+                    'Eac' => ['fields' => 'Eac.id, Eac.active']],
+            ]);
 
-	        $this->Server->bindModel([
-	            'hasAndBelongsToMany' => [
-	            	'Type'         => ['fields' => 'id, name, longname'],
-	            	'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
-	            	'Location'     => ['fields' => 'id, name, collocation']
-	            ],
-	            'hasMany' => [
-	            	'Eac' => ['fields' => 'Eac.id, Eac.active']]
-	            ]);
+            $server = $this->Server->find('first',
+                ['conditions' => ['Server.id' => $id],
+                    'fields' => 'id, name, slots, address, port, slots, map, mapGroup,' .
+                    'autoUpdate, privateType, privateStatus, payedTill,' .
+                    'initialised, action, status, statusDescription, statusTime,' .
+                    'hltvStatus, hltvStatusDescription, hltvStatusTime,' .
+                    'crashReboot, crashCount, crashTime, controlByToken,' .
+                    'rconPassword']);
 
-	        $server = $this->Server->find('first',
-	    	                               ['conditions' => ['Server.id' => $id],
-	    	                                'fields' => 'id, name, slots, address, port, slots, map, mapGroup,'.
-	    	                                            'autoUpdate, privateType, privateStatus, payedTill,'.
-	    	                                            'initialised, action, status, statusDescription, statusTime,'.
-	    	                                            'hltvStatus, hltvStatusDescription, hltvStatusTime,'.
-	    	                                            'crashReboot, crashCount, crashTime, controlByToken,'.
-	    	                                            'rconPassword']);
+            if ($server) {
+                $rconPassword = $server['Server']['rconPassword'];
+                unset($server['Server']['rconPassword']);
 
-	        if ($server)
-	        {
-	        	$rconPassword = $server['Server']['rconPassword'];
-	        	unset($server['Server']['rconPassword']);
+                $status['Server'] = $server['Server'];
+                $status['Type'] = $server['Type'][0];
+                $status['GameTemplate'] = $server['GameTemplate'][0];
 
-	        	$status['Server'] = $server['Server'];
-	            $status['Type'] = $server['Type'][0];
-	            $status['GameTemplate'] = $server['GameTemplate'][0];
+                // Рассчет графика окончания аренды
+                $status['Server']['scaleTime'] = $this->scaleDate($server['Server']['payedTill']);
+                $status['Server']['name'] = strip_tags($status['Server']['name']); //XSS
 
-	            // Рассчет графика окончания аренды
-            	$status['Server']['scaleTime'] = $this->scaleDate($server['Server']['payedTill']);
-	            $status['Server']['name'] = strip_tags($status['Server']['name']); //XSS
-
-	            if (!empty($server['Location']))
-	            {
-	            	$status['Location'] = $server['Location'][0];
-	            }
-
-	            if ($status['Server']['initialised'] and $status['Server']['status'] == 'exec_success')
-            	{
-                	try{
-            			$handle = new SteamCondenser\Servers\GoldSrcServer($status['Server']['address'], $status['Server']['port']);
-                		$handle->initialize();
-                		$status['Status'] = $handle->getServerInfo();
-                	} catch (SteamCondenser\Exceptions\TimeoutException $e) {
-                		$status['Status']['error'] = 'Невозможно соединиться с сервером';
-                		$status['Status']['errorType'] = 'timeout';
-                	} catch (Exception $e) {
-                		$status['Status']['error'] = $e->getMessage();
-                		$status['Status']['errorType'] = 'other';
-                	}
-
-                	if (!empty($status['Status']['mapName']))
-                	{
-                		$map = $this->mapDesc($server['GameTemplate'][0]['id'], $status['Status']['mapName']);
-
-                		if ($map)
-                		{
-                			$status['Status']['image'] = $map['image'];
-                		}
-                		else
-                		{
-                			$status['Status']['image'] = NULL;
-                		}
-                	}
-                	else
-                	{
-                		$status['Status']['image'] = NULL;
-                	}
-
-                	// Запрос игроков
-                	if (isset($status['Status']['numberOfPlayers'])
-                			and intval($status['Status']['numberOfPlayers']) > 0)
-                	{
-                		if (!empty($rconPassword))
-                		{
-                			// Иногда возникает исключение при попытке получить данные через RCON
-                			// В этом случае сделаю попытку получить данные обычным способом
-                			try {
-                				$players = $handle->getPlayers($rconPassword);
-                			} catch (Exception $e) {
-                				$players = $handle->getPlayers();
-                			}
-                		}
-                		else
-                		{
-                			$players = $handle->getPlayers();
-                		}
-
-                		$playersToArray = array();
-
-                		foreach ($players as $playerName => $playerData) {
-
-                			$secondsFull = intval($playerData->getconnectTime());
-							$minutesFull = intval($secondsFull/60);
-							$seconds = $secondsFull - $minutesFull*60;
-							$hours = intval($minutesFull/60);
-							$minutes = $minutesFull - $hours*60;
-
-
-                			$playersToArray[] = ['id' => $playerData->getId(),
-                			                     'name' => $playerData->getName(),
-                			                     'connectTime' => sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds),
-                			                     'ipAddress' => $playerData->getIpAddress(),
-                			                     'loss' => $playerData->getLoss(),
-                			                     'ping' => $playerData->getPing(),
-                			                     'rate' => $playerData->getRate(),
-                			                     'realId' => $playerData->getRealId(),
-                			                     'score' => $playerData->getScore(),
-                			                     'state' => $playerData->getState(),
-                			                     'steamId' => $playerData->getSteamId(),
-
-                			                     ];
-                		}
-
-                		$status['Status']['players'] = $playersToArray;
-                	}
-
-                	// Подрезать версию
-                	if (!empty($status['Status']['gameVersion']))
-                	{
-                		$v = preg_split('/\//', $status['Status']['gameVersion']);
-                		if (count($v) > 1)
-                		{
-                			$status['Status']['gameVersion'] = $v[0];
-                		}
-                	}
+                if (!empty($server['Location'])) {
+                    $status['Location'] = $server['Location'][0];
                 }
 
-                if ($status['Server']['initialised'])
-                {
-                	$status['Status']['graphs'] = $this->getStatGraph($status['Server']['id']);
+                if ($status['Server']['initialised'] and $status['Server']['status'] == 'exec_success') {
+                    try {
+                        $handle = new SteamCondenser\Servers\GoldSrcServer($status['Server']['address'], $status['Server']['port']);
+                        $handle->initialize();
+                        $status['Status'] = $handle->getServerInfo();
+                    } catch (SteamCondenser\Exceptions\TimeoutException $e) {
+                        $status['Status']['error'] = 'Невозможно соединиться с сервером';
+                        $status['Status']['errorType'] = 'timeout';
+                    } catch (Exception $e) {
+                        $status['Status']['error'] = $e->getMessage();
+                        $status['Status']['errorType'] = 'other';
+                    }
+
+                    if (!empty($status['Status']['mapName'])) {
+                        $map = $this->mapDesc($server['GameTemplate'][0]['id'], $status['Status']['mapName']);
+
+                        if ($map) {
+                            $status['Status']['image'] = $map['image'];
+                        } else {
+                            $status['Status']['image'] = NULL;
+                        }
+                    } else {
+                        $status['Status']['image'] = NULL;
+                    }
+
+                    // Запрос игроков
+                    if (isset($status['Status']['numberOfPlayers'])
+                        and intval($status['Status']['numberOfPlayers']) > 0) {
+                        if (!empty($rconPassword)) {
+                            // Иногда возникает исключение при попытке получить данные через RCON
+                            // В этом случае сделаю попытку получить данные обычным способом
+                            try {
+                                $players = $handle->getPlayers($rconPassword);
+                            } catch (Exception $e) {
+                                $players = $handle->getPlayers();
+                            }
+                        } else {
+                            $players = $handle->getPlayers();
+                        }
+
+                        $playersToArray = array();
+
+                        foreach ($players as $playerName => $playerData) {
+
+                            $secondsFull = intval($playerData->getconnectTime());
+                            $minutesFull = intval($secondsFull / 60);
+                            $seconds = $secondsFull - $minutesFull * 60;
+                            $hours = intval($minutesFull / 60);
+                            $minutes = $minutesFull - $hours * 60;
+
+                            $playersToArray[] = ['id' => $playerData->getId(),
+                                'name' => $playerData->getName(),
+                                'connectTime' => sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds),
+                                'ipAddress' => $playerData->getIpAddress(),
+                                'loss' => $playerData->getLoss(),
+                                'ping' => $playerData->getPing(),
+                                'rate' => $playerData->getRate(),
+                                'realId' => $playerData->getRealId(),
+                                'score' => $playerData->getScore(),
+                                'state' => $playerData->getState(),
+                                'steamId' => $playerData->getSteamId(),
+
+                            ];
+                        }
+
+                        $status['Status']['players'] = $playersToArray;
+                    }
+
+                    // Подрезать версию
+                    if (!empty($status['Status']['gameVersion'])) {
+                        $v = preg_split('/\//', $status['Status']['gameVersion']);
+                        if (count($v) > 1) {
+                            $status['Status']['gameVersion'] = $v[0];
+                        }
+                    }
+                }
+
+                if ($status['Server']['initialised']) {
+                    $status['Status']['graphs'] = $this->getStatGraph($status['Server']['id']);
                 }
 
                 // Пройтись по HLTV
-                if ($server['Server']['hltvStatus'] == 'exec_success')
-                {
-                	App::import('Vendor', 'GameQ', array('file' => 'game_q.php'));
-		            $handleTv = new GameQ();
+                if ($server['Server']['hltvStatus'] == 'exec_success') {
+                    App::import('Vendor', 'GameQ', array('file' => 'game_q.php'));
+                    $handleTv = new GameQ();
 
-		            if ($server['GameTemplate'][0]['name'] === 'cs16-old') {
-		                $server['GameTemplate'][0]['name'] = 'cs16';
-		            }
+                    if ($server['GameTemplate'][0]['name'] === 'cs16-old') {
+                        $server['GameTemplate'][0]['name'] = 'cs16';
+                    }
 
-		            $handleTv->addServer(0, array($server['GameTemplate'][0]['name'],
-		            	                                        $status['Server']['address'],
-		            	                                        $status['Server']['port'] + 1015));
-		            $handleTv->setOption('timeout', 1000);
-		            $infoTv = $handleTv->requestData();
+                    $handleTv->addServer(0, array($server['GameTemplate'][0]['name'],
+                        $status['Server']['address'],
+                        $status['Server']['port'] + 1015));
+                    $handleTv->setOption('timeout', 1000);
+                    $infoTv = $handleTv->requestData();
 
-		            if (isset($infoTv[0]['gq_online'])) {
+                    if (isset($infoTv[0]['gq_online'])) {
 
-		                $status['Status']['hltv'] = ['hostname' => $infoTv[0]['hostname'],
-		                							 'numberOfPlayers' => $infoTv[0]['num_players'],
-		                							 'maxPlayers' => $infoTv[0]['max_players'],
-		                							 'password' => $infoTv[0]['password'],
-		                							 'secure' => $infoTv[0]['secure'],
-		                							];
+                        $status['Status']['hltv'] = ['hostname' => $infoTv[0]['hostname'],
+                            'numberOfPlayers' => $infoTv[0]['num_players'],
+                            'maxPlayers' => $infoTv[0]['max_players'],
+                            'password' => $infoTv[0]['password'],
+                            'secure' => $infoTv[0]['secure'],
+                        ];
 
-		                if (isset($infoTv[0]['HLTVDelay']))
-		                {
-		                	$status['Status']['hltv']['HLTVDelay'] = intval($infoTv[0]['HLTVDelay']);
-		                }
-		                else
-		                {
-		                	$status['Status']['hltv']['HLTVDelay'] = null;
-		                }
-		            }
+                        if (isset($infoTv[0]['HLTVDelay'])) {
+                            $status['Status']['hltv']['HLTVDelay'] = intval($infoTv[0]['HLTVDelay']);
+                        } else {
+                            $status['Status']['hltv']['HLTVDelay'] = null;
+                        }
+                    }
                 }
 
-
-	        	$this->set('result', $status);
-	        }
-	        else
-	        {
-	        	$this->set('result', ['error' => 'Сервера не существует.']);
-	        }
-	    }
-	    else
-	    {
-	    	$this->set('result', ['error' => 'Сервера не существует или у вас нет прав на просмотр данных этого сервера.']);
-	    }
+                $this->set('result', $status);
+            } else {
+                $this->set('result', ['error' => 'Сервера не существует.']);
+            }
+        } else {
+            $this->set('result', ['error' => 'Сервера не существует или у вас нет прав на просмотр данных этого сервера.']);
+        }
 
         $this->render('result_json');
     }
 
     // Просмотр состояния серверов COD
+    /**
+     * @param $id
+     */
     public function viewCod($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerTemplate');
@@ -3314,6 +3411,9 @@ class ServersController extends AppController {
         $this->set('graphs', $this->getStatGraph($id));
     }
 
+    /**
+     * @param $id
+     */
     public function viewUeds($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerTemplate');
@@ -3412,20 +3512,20 @@ class ServersController extends AppController {
             }
 
             if (!empty($queryList)) {
-                $this->Server->unbindModel(['hasAndBelongsToMany' => [  'Mod',
-													                    'Plugin',
-													                    'Type',
-													                    'RootServer',
-													                    'Service',
-													                    'Order',
-													                    'User',
-													                    'VoiceMumbleParam',
-													                    'RadioShoutcastParam']]);
+                $this->Server->unbindModel(['hasAndBelongsToMany' => ['Mod',
+                    'Plugin',
+                    'Type',
+                    'RootServer',
+                    'Service',
+                    'Order',
+                    'User',
+                    'VoiceMumbleParam',
+                    'RadioShoutcastParam']]);
 
                 $this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' => ['Mod', 'Plugin', 'Config', 'Service']]);
 
                 $servers = $this->Server->find('all',
-                    [   'recursive' => '2',
+                    ['recursive' => '2',
                         'conditions' => ['Server.id' => $queryList],
                     ]);
 
@@ -3507,6 +3607,11 @@ class ServersController extends AppController {
 
     /* Тут будем выводить список тестовых серверов
      * По умолчанию выводить один случайный из публичных серверов
+     */
+    /**
+     * @param $size
+     * @param $game
+     * @param $output
      */
     public function getInfoStatus($size = 'rand', $game = 'all', $output = 'json') {
         $this->layout = 'ajax';
@@ -3910,6 +4015,9 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @return mixed
+     */
     public function webHosting() {
         $this->DarkAuth->requiresAuth(array('Admin', 'BetaTesters'));
 
@@ -4143,6 +4251,10 @@ class ServersController extends AppController {
         }
     }
 
+    /**
+     * @param $domain
+     * @return mixed
+     */
     public function webHostingCheckDomain($domain = null) {
         $this->layout = 'ajax';
         $this->DarkAuth->requiresAuth();
@@ -4170,16 +4282,22 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $action
+     * @param null $token
+     * @param null $result
+     */
     public function script($id = null, $action = null, $token = null, $result = 'html') {
 
-        if (!is_null($token) and (bool)$token !== false) {
+        if (!null === $token and (bool) $token !== false) {
             $this->loadmodel('ServerClean');
             $this->layout = 'simple';
             $server = $this->ServerClean->find('first', [
-									                'conditions' => [
-									                    'controlToken' => $token,
-									                                ],
-									                    ]);
+                'conditions' => [
+                    'controlToken' => $token,
+                ],
+            ]);
             if ($server) {
                 $byToken = true;
                 $id = $server['ServerClean']['id'];
@@ -4194,7 +4312,7 @@ class ServersController extends AppController {
 
         if (@$byToken or $this->checkRights($id)) {
 
-        	$messages = ['info' => [], 'error' => []];
+            $messages = ['info' => [], 'error' => []];
 
             // Нефиг запрашивать лишнюю информацию из базы
             $this->Server->unbindModel(array(
@@ -4219,213 +4337,194 @@ class ServersController extends AppController {
             $this->set('serverId', $serverId);
 
             if ($server and
-            		CakeTime::fromString('now') <= CakeTime::fromString($server['Server']['payedTill']))
-            {
-	            $this->Server->GameTemplate->unbindModel(array(
-	                'hasAndBelongsToMany' => array(
-	                    'Mod',
-	                    'Plugin',
-	                    'Config',
-	                    'Service',
-	                    'Protocol',
-	                )));
+                CakeTime::fromString('now') <= CakeTime::fromString($server['Server']['payedTill'])) {
+                $this->Server->GameTemplate->unbindModel(array(
+                    'hasAndBelongsToMany' => array(
+                        'Mod',
+                        'Plugin',
+                        'Config',
+                        'Service',
+                        'Protocol',
+                    )));
 
-	            $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
-	            $gameTemplate = $this->Server->GameTemplate->read();
+                $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
+                $gameTemplate = $this->Server->GameTemplate->read();
 
-	            // Составить список сообщений для лога
-	            $logMessages = array('start' => 'запущен',
-	                'startDebug' => 'запущен в режиме отладки',
-	                'startWithManu' => 'запущен вместе с ManuAdminMod',
-	                'startHltv' => 'запущен HLTV',
-	                'stop' => 'выключен',
-	                'stopHltv' => 'выключен HLTV',
-	                'restart' => 'перезапущен',
-	                'restartHltv' => 'перезапущен HLTV',
-	                'restartWithManu' => 'перезапущен вместе с ManuAdminMod',
-	                'update' => ': запущено обновление',
-	                'setServerPass' => 'запущен в режиме установки пароля',
-	            );
+                // Составить список сообщений для лога
+                $logMessages = array('start' => 'запущен',
+                    'startDebug' => 'запущен в режиме отладки',
+                    'startWithManu' => 'запущен вместе с ManuAdminMod',
+                    'startHltv' => 'запущен HLTV',
+                    'stop' => 'выключен',
+                    'stopHltv' => 'выключен HLTV',
+                    'restart' => 'перезапущен',
+                    'restartHltv' => 'перезапущен HLTV',
+                    'restartWithManu' => 'перезапущен вместе с ManuAdminMod',
+                    'update' => ': запущено обновление',
+                    'setServerPass' => 'запущен в режиме установки пароля',
+                );
 
-	            $logErrorMessages = array('start' => 'запуска',
-	                'startDebug' => 'запуска в режиме отладки',
-	                'startWithManu' => 'запуска вместе с ManuAdminMod',
-	                'startHltv' => 'запуска HLTV',
-	                'stop' => 'выключения',
-	                'stopHltv' => 'выключения HLTV',
-	                'restart' => 'перезапуска',
-	                'restartHltv' => 'перезапуска HLTV',
-	                'restartWithManu' => 'перезапуска вместе с ManuAdminMod',
-	                'update' => ': запуска обновления',
-	                'setServerPass' => 'запуска в режиме установки пароля',
-	            );
+                $logErrorMessages = array('start' => 'запуска',
+                    'startDebug' => 'запуска в режиме отладки',
+                    'startWithManu' => 'запуска вместе с ManuAdminMod',
+                    'startHltv' => 'запуска HLTV',
+                    'stop' => 'выключения',
+                    'stopHltv' => 'выключения HLTV',
+                    'restart' => 'перезапуска',
+                    'restartHltv' => 'перезапуска HLTV',
+                    'restartWithManu' => 'перезапуска вместе с ManuAdminMod',
+                    'update' => ': запуска обновления',
+                    'setServerPass' => 'запуска в режиме установки пароля',
+                );
 
-	            if (!empty($logMessages[$action])) {
-	                $currentLogMessage = $logMessages[$action];
-	                $currentErrorLogMessage = $logErrorMessages[$action];
-	            } else {
-	                $currentLogMessage = ': действие -> ' . $action;
-	                $currentErrorLogMessage = 'совершения действия: ' . $action;
-	            }
-
-	            $response = '';
-
-	            // Если сервер запускается в debug-режиме - Остановить его сначала, потом поставить ключ
-	            // Иначе проверить его наличие и снять его
-	            if ($action === 'startDebug') {
-
-	                $request = "~configurator/scripts/subscript_start_stop.py?s=" . $serverId . '&a=stop';
-	                $response = chop($this->TeamServer->webGet($serverIp, 0, $request, "GET"));
-
-	                $action = 'start';
-	                $this->Server->id = $id;
-
-	                if ($this->Server->saveField('debug', 1)) {
-	                    $messages['info'][] = 'Сервер запущен в режиме отладки и будет отключен автоматически через 30 минут. Результаты читайте в соответсвующих логах.';
-	                } else {
-	                    $messages['error'][] = 'Не удалось запустить сервер в режиме отладки. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
-	                }
-	            } elseif ($server['Server']['debug'] == '1') {
-	                if (!$this->Server->saveField('debug', 0)) {
-	                    $messages['error'][] = 'Не удалось отключить режим отладки. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
-	                }
-	            }
-
-	            // Режим установки пароля для KillingFloor
-	            if ($action === 'setServerPass') {
-	                $action = 'start';
-
-	                if ($this->Server->saveField('setAdmPass', 1)) {
-	                    $messages['info'][] = 'Сервер запущен в режиме установки пароля.<br/>' .
-	                        'Для доступа к настройкам сервера используйте:<br/>' .
-	                        ' - логин: admin<br/>' .
-	                        ' - пароль: ' . $serverId . '<br/>' .
-	                        'После установки новых данных, перезагрузите сервер в обычном режиме!<br/>' .
-	                        'Результаты запуска и работы сервера читайте в соответсвующих логах.';
-	                } else {
-	                    $messages['error'][] = 'Не удалось запустить сервер в режиме установки пароля. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
-	                }
-	            } elseif ($server['Server']['setAdmPass'] === '1') {
-	                if (!$this->Server->saveField('setAdmPass', 0)) {
-	                    $messages['error'][] = 'Не удалось отключить режим установки пароля. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
-	                }
-	            }
-
-	            // Создание одноразового токена
-	            if ($action === 'update' and $server['Server']['status'] !== 'update_started') {
-	                if (!$this->Server->saveField('action_token', md5(rand(26858, 8000064000) . time()))) {
-	                    $messages['error'][] = 'Не удалось создать токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
-	                    $this->render();
-	                    return false;
-	                }
-	            } elseif ($action !== 'update' and $server['Server']['status'] !== 'update_started') {
-	                if (!$this->Server->saveField('action_token', NULL)) {
-	                    $messages['error'][] = 'Не удалось очистить токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
-	                }
-	            }
-
-	            // Совершаем запрос и форматируем вывод
-	            $data = "s=" . $serverId .
-	            "&a=" . $action;
-
-	            switch ($gameTemplate['Type'][0]['name']) {
-	                case 'srcds':
-	                case 'hlds':
-	                case 'cod':
-	                case 'ueds':
-	                    $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
-	                    break;
-
-	                case 'voice':
-	                    if ($gameTemplate['GameTemplate']['name'] === 'mumble') {
-	                        $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
-	                    }
-	                    break;
-
-	                default:
-	                    $request = "~client" . $userId . "/.server_" . $action . "_" . $serverId . ".sh";
-	                    break;
-	            }
-
-	            $response .= $this->TeamServer->webGet($serverIp, 0, $request, "GET");
-
-	            if (empty($this->request->data['Webget']['error'])) {
-	            	//Лог успешного запуска
-	                $this->TeamServer->logAction('Сервер ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId . ' ' . $currentLogMessage, 'ok', $userId);
-
-	            	if ($result == 'html')
-	            	{
-	                	if (!empty($messages['error']))
-	                	{
-	                		$this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
-	                	}
-	                	else
-	                	if (!empty($messages['info']))
-	                	{
-	                		$this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
-	                	}
-
-	                	$this->set('result', chop(@$response));
-	                }
-	                else
-	                if ($result == 'json')
-	                {
-	                	$messages['result'] = chop(@$response);
-	                	$this->set('result', $messages);
-	                	$this->layout = 'ajax';
-	                	$this->render('result_json');
-	                }
-
-	            } else {
-	                $this->TeamServer->logAction('Ошибка при попытке ' . $currentErrorLogMessage . ' сервера ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId, 'error', $userId);
-
-	                if ($result == 'html')
-	            	{
-	                	if (!empty($messages['error']))
-	                	{
-	                		$this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
-	                	}
-	                	else
-	                	if (!empty($messages['info']))
-	                	{
-	                		$this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
-	                	}
-
-	                	$this->set('result', '<strong>Возникла ошибка при совершении запроса.</strong>');
-	                }
-	                else
-	                if ($result == 'json')
-	                {
-	                	$messages['error'] = array_merge($messages['error'], $this->request->data['Webget']['error']);
-	                	$messages['result'] = 'Возникла ошибка при совершении запроса.';
-	                	$this->set('result', $messages);
-	                	$this->layout = 'ajax';
-	                	$this->render('result_json');
-	                }
-	            }
-	        }
-	        // Если сервер не оплачен
-	        else
-	        {
-	        	if ($result == 'html'){
-	        		$this->Session->setFlash('Невозможно совершить запрос: сервер не оплачен.', 'flash_error');
-	        	}
-	        	else
-                if ($result == 'json')
-                {
-                	$this->set('result', ['result' => '', 'error' => 'Невозможно совершить запрос: сервер не оплачен.']);
-                	$this->layout = 'ajax';
-                	$this->render('result_json');
+                if (!empty($logMessages[$action])) {
+                    $currentLogMessage = $logMessages[$action];
+                    $currentErrorLogMessage = $logErrorMessages[$action];
+                } else {
+                    $currentLogMessage = ': действие -> ' . $action;
+                    $currentErrorLogMessage = 'совершения действия: ' . $action;
                 }
-	        }
 
+                $response = '';
 
+                // Если сервер запускается в debug-режиме - Остановить его сначала, потом поставить ключ
+                // Иначе проверить его наличие и снять его
+                if ($action === 'startDebug') {
+
+                    $request = "~configurator/scripts/subscript_start_stop.py?s=" . $serverId . '&a=stop';
+                    $response = chop($this->TeamServer->webGet($serverIp, 0, $request, "GET"));
+
+                    $action = 'start';
+                    $this->Server->id = $id;
+
+                    if ($this->Server->saveField('debug', 1)) {
+                        $messages['info'][] = 'Сервер запущен в режиме отладки и будет отключен автоматически через 30 минут. Результаты читайте в соответсвующих логах.';
+                    } else {
+                        $messages['error'][] = 'Не удалось запустить сервер в режиме отладки. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
+                    }
+                } elseif ($server['Server']['debug'] == '1') {
+                    if (!$this->Server->saveField('debug', 0)) {
+                        $messages['error'][] = 'Не удалось отключить режим отладки. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+                    }
+                }
+
+                // Режим установки пароля для KillingFloor
+                if ($action === 'setServerPass') {
+                    $action = 'start';
+
+                    if ($this->Server->saveField('setAdmPass', 1)) {
+                        $messages['info'][] = 'Сервер запущен в режиме установки пароля.<br/>' .
+                        'Для доступа к настройкам сервера используйте:<br/>' .
+                        ' - логин: admin<br/>' .
+                        ' - пароль: ' . $serverId . '<br/>' .
+                        'После установки новых данных, перезагрузите сервер в обычном режиме!<br/>' .
+                        'Результаты запуска и работы сервера читайте в соответсвующих логах.';
+                    } else {
+                        $messages['error'][] = 'Не удалось запустить сервер в режиме установки пароля. Обратитесь в техподдержку. Осуществляю попытку запуска в обычном режиме.';
+                    }
+                } elseif ($server['Server']['setAdmPass'] === '1') {
+                    if (!$this->Server->saveField('setAdmPass', 0)) {
+                        $messages['error'][] = 'Не удалось отключить режим установки пароля. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+                    }
+                }
+
+                // Создание одноразового токена
+                if ($action === 'update' and $server['Server']['status'] !== 'update_started') {
+                    if (!$this->Server->saveField('action_token', md5(rand(26858, 8000064000) . time()))) {
+                        $messages['error'][] = 'Не удалось создать токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+                        $this->render();
+                        return false;
+                    }
+                } elseif ($action !== 'update' and $server['Server']['status'] !== 'update_started') {
+                    if (!$this->Server->saveField('action_token', NULL)) {
+                        $messages['error'][] = 'Не удалось очистить токен обновления. Обратитесь в техподдержку. Ошибка: ' . mysql_error();
+                    }
+                }
+
+                // Совершаем запрос и форматируем вывод
+                $data = "s=" . $serverId .
+                "&a=" . $action;
+
+                switch ($gameTemplate['Type'][0]['name']) {
+                    case 'srcds':
+                    case 'hlds':
+                    case 'cod':
+                    case 'ueds':
+                        $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
+                        break;
+
+                    case 'voice':
+                        if ($gameTemplate['GameTemplate']['name'] === 'mumble') {
+                            $request = "~configurator/scripts/subscript_start_stop.py?" . $data;
+                        }
+                        break;
+
+                    default:
+                        $request = "~client" . $userId . "/.server_" . $action . "_" . $serverId . ".sh";
+                        break;
+                }
+
+                $response .= $this->TeamServer->webGet($serverIp, 0, $request, "GET");
+
+                if (empty($this->request->data['Webget']['error'])) {
+                    //Лог успешного запуска
+                    $this->TeamServer->logAction('Сервер ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId . ' ' . $currentLogMessage, 'ok', $userId);
+
+                    if ($result == 'html') {
+                        if (!empty($messages['error'])) {
+                            $this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
+                        } else
+                        if (!empty($messages['info'])) {
+                            $this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
+                        }
+
+                        $this->set('result', chop(@$response));
+                    } else
+                    if ($result == 'json') {
+                        $messages['result'] = chop(@$response);
+                        $this->set('result', $messages);
+                        $this->layout = 'ajax';
+                        $this->render('result_json');
+                    }
+
+                } else {
+                    $this->TeamServer->logAction('Ошибка при попытке ' . $currentErrorLogMessage . ' сервера ' . strtoupper(@$gameTemplate['GameTemplate']['name']) . ' #' . $serverId, 'error', $userId);
+
+                    if ($result == 'html') {
+                        if (!empty($messages['error'])) {
+                            $this->Session->setFlash(implode('<br/>', array_merge($messages['info'], $messages['error'])), 'flash_error');
+                        } else
+                        if (!empty($messages['info'])) {
+                            $this->Session->setFlash(implode('<br/>', $messages['info']), 'flash_success');
+                        }
+
+                        $this->set('result', '<strong>Возникла ошибка при совершении запроса.</strong>');
+                    } else
+                    if ($result == 'json') {
+                        $messages['error'] = array_merge($messages['error'], $this->request->data['Webget']['error']);
+                        $messages['result'] = 'Возникла ошибка при совершении запроса.';
+                        $this->set('result', $messages);
+                        $this->layout = 'ajax';
+                        $this->render('result_json');
+                    }
+                }
+            }
+            // Если сервер не оплачен
+            else {
+                if ($result == 'html') {
+                    $this->Session->setFlash('Невозможно совершить запрос: сервер не оплачен.', 'flash_error');
+                } else
+                if ($result == 'json') {
+                    $this->set('result', ['result' => '', 'error' => 'Невозможно совершить запрос: сервер не оплачен.']);
+                    $this->layout = 'ajax';
+                    $this->render('result_json');
+                }
+            }
 
             if (@$byToken) {
                 $this->set('token', $token);
                 $this->render('result_for_token');
             }
-
 
             return true;
         }
@@ -4438,6 +4537,14 @@ class ServersController extends AppController {
      *   @status: ok или error - нормальный статус или ошибка
      *   @statusDesc - готовность в процентах или описание ошибки
      *   @errorNum - номер ошибки
+     */
+    /**
+     * @param $action
+     * @param null $serverAction
+     * @param null $token
+     * @param null $status
+     * @param null $statusDesc
+     * @param null $errorNum
      */
     public function actionStatus($action = null,
         $serverAction = null,
@@ -4507,6 +4614,11 @@ class ServersController extends AppController {
         }
     }
 
+    /**
+     * @param $id
+     * @param null $map
+     * @return mixed
+     */
     public function setMap($id = null, $map = null) {
         $this->DarkAuth->requiresAuth();
         if (!empty($this->request->data)) {
@@ -4726,6 +4838,10 @@ class ServersController extends AppController {
     }
 
     // Установка набора карт для CS:GO
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function setMapGroup($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -4756,6 +4872,10 @@ class ServersController extends AppController {
     }
 
     // Установка режима игры для CS:GO
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function setGameMode($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -4786,6 +4906,10 @@ class ServersController extends AppController {
     }
 
     // Установка authkey для CS:GO
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function setHostMap($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -4816,6 +4940,10 @@ class ServersController extends AppController {
     }
 
     // Установка Host Map для CS:GO
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function setHostCollection($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -4852,6 +4980,10 @@ class ServersController extends AppController {
     }
 
     // Установка запускаемого мода COD
+    /**
+     * @param $id
+     * @param null $mod
+     */
     public function codSetMod($id = null, $mod = null) {
         $this->DarkAuth->requiresAuth();
         if (!empty($this->request->data)) {
@@ -4878,6 +5010,11 @@ class ServersController extends AppController {
         }
     }
 
+    /**
+     * @param $id
+     * @param null $action
+     * @return mixed
+     */
     public function setRconPassword($id = null, $action = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -4936,6 +5073,9 @@ class ServersController extends AppController {
     }
 
     // Создание администратора сервера
+    /**
+     * @param $id
+     */
     public function setModAdmin($id = null) {
         if ($id === null) {
             $id = $this->request->data['Server']['id'];
@@ -5033,6 +5173,12 @@ class ServersController extends AppController {
      * @id - ID сервера
      * @back - redir (переадресация), return (вернуть значения)
      * @redir - куда делать переадресациию
+     */
+    /**
+     * @param $id
+     * @param null $back
+     * @param $redir
+     * @return mixed
      */
     public function setConfigParam($id = null, $back = 'redir', $redir = 'editStartParams') {
 
@@ -5193,8 +5339,7 @@ class ServersController extends AppController {
                         $responseMessages = $this->parseXmlResponse($xmlAsArray);
                         $error .= $responseMessages['error'];
                         $log = array_merge($log, $responseMessages['log']);
-                    }
-                    else
+                    } else
                     if ($server['Type'][0]['name'] == 'hlds'
                         and $paramName == 'rcon_password') {
                         $data = 'id=' . $id .
@@ -5253,6 +5398,9 @@ class ServersController extends AppController {
     }
 
     // Самостоятельная установка FPS
+    /**
+     * @param $id
+     */
     public function setFps($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -5297,6 +5445,11 @@ class ServersController extends AppController {
     }
 
     /* Самостоятельная установка tickrate*/
+    /**
+     * @param $id
+     * @param null $tickrate
+     * @return mixed
+     */
     public function setTickrate($id = null, $tickrate = null) {
 
         $this->DarkAuth->requiresAuth();
@@ -5335,6 +5488,10 @@ class ServersController extends AppController {
 
     /* Самостоятельная смена количества слотов клиентом
      * При смене слотов, пропорционально меняется срок аренды
+     */
+    /**
+     * @param $id
+     * @param null $return
      */
     public function setSlots($id = null, $return = false) {
         $this->DarkAuth->requiresAuth();
@@ -5431,6 +5588,13 @@ class ServersController extends AppController {
         $this->redirect($this->referer());
     }
 
+    /**
+     * @param $id
+     * @param null $addon
+     * @param null $type
+     * @param null $installBy
+     * @return mixed
+     */
     public function pluginInstall($id = null, $addon = null, $type = null, $installBy = null) {
         /**
          * @$id - server ID
@@ -5719,6 +5883,10 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function pluginResync($id = null) {
 
         if ($this->checkRights($id)) {
@@ -5836,6 +6004,11 @@ class ServersController extends AppController {
         return $this->redirect(array('action' => 'pluginInstall', $id));
     }
 
+    /**
+     * @param $id
+     * @param null $pluginId
+     * @return mixed
+     */
     public function pluginDelete($id = null, $pluginId = null) {
 
         if ($this->checkRights($id)) {
@@ -5896,6 +6069,15 @@ class ServersController extends AppController {
      * - Получить список доступных карт
      * - Совместить список
      *
+     */
+    /**
+     * @param $id
+     * @param null $mapId
+     * @param null $mapType
+     * @param $action
+     * @param $out
+     * @param $output
+     * @return mixed
      */
     public function mapInstall($id = null, $mapId = null, $mapType = 'installed', $action = 'install', $out = 'html', $output = null) {
         $this->DarkAuth->requiresAuth();
@@ -6190,6 +6372,10 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function editParams($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -6239,6 +6425,11 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @param null $addonType
+     * @param null $addonId
+     */
     public function editParamsSrcds($id = null, $addonType = null, $addonId = null) {
 
         $this->DarkAuth->requiresAuth();
@@ -6395,6 +6586,10 @@ class ServersController extends AppController {
 
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function editParamsVoiceMumble($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -6565,6 +6760,9 @@ Ice.MessageSizeMax=65536
 
     }
 
+    /**
+     * @param $id
+     */
     public function editParamsRadioShoutcast($id = null) {
         $this->DarkAuth->requiresAuth();
         if (@$id == null) {
@@ -6800,6 +6998,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
     }
 
     /* Основное предназначение функции - редактор параметров запуска */
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function editStartParams($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -6850,6 +7052,9 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     }
 
+    /**
+     * @param $id
+     */
     public function editStartParamsSrcds($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -7302,6 +7507,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function editStartParamsEac($id = null) {
         $this->DarkAuth->requiresAuth();
 
@@ -7642,20 +7851,25 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      * Смена имени сервера.
      * TODO: Сделать смену не только в базе, но и в конфигах.
      */
+    /**
+     * @param $id
+     * @param null $ver
+     * @return mixed
+     */
     public function changeName($id = null, $ver = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerClean');
 
-        if (!is_null($ver)){
-        	$path = 'v'.$ver.'/';
+        if (!null === $ver) {
+            $path = 'v' . $ver . '/';
         } else {
-        	$path = '';
+            $path = '';
         }
 
         if ($id === null && !empty($this->request->data['Server']['id'])) {
             $id = $this->request->data['Server']['id'];
         } elseif ($id === null && empty($this->request->data['Server']['id'])) {
-            $this->Session->setFlash('Не указан ID сервера', $path.'flash_error');
+            $this->Session->setFlash('Не указан ID сервера', $path . 'flash_error');
             return $this->redirect($this->referer());
             return false;
         }
@@ -7712,16 +7926,16 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                         $this->request->data['Server']['paramValue'] = $this->request->data['Server']['nameInGame'];
 
                         if ($this->setConfigParam($id, 'return')) {
-                            $this->Session->setFlash('Новое имя сохранено. Перегрузите сервер или смените карту.', $path.'flash_success');
+                            $this->Session->setFlash('Новое имя сохранено. Перегрузите сервер или смените карту.', $path . 'flash_success');
                         }
 
                     } else {
-                        $this->Session->setFlash('Возникла ошибка.' . mysql_error(), $path.'flash_error');
+                        $this->Session->setFlash('Возникла ошибка.' . mysql_error(), $path . 'flash_error');
                     }
 
                     // Редирект для панели v1
-                    if (is_null($ver)){
-                    	return $this->redirect($this->referer());
+                    if (null === $ver) {
+                        return $this->redirect($this->referer());
                     }
 
                 }
@@ -7819,7 +8033,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
         }/* Проверка прав на сервер */
 
-    	$this->render(sprintf('%s%s', $path, 'change_name'));
+        $this->render(sprintf('%s%s', $path, 'change_name'));
     }
 
     /*
@@ -7829,6 +8043,11 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      *       и выдает его обратно сюда.
      * 2) Запись статуса с паролем в flash
      *       и редирект на result, чтобы вывести новый пароль пользователю.
+     */
+    /**
+     * @param $id
+     * @param null $action
+     * @return mixed
      */
     public function changeMumbleRootPass($id = null, $action = null) {
         $this->DarkAuth->requiresAuth();
@@ -7914,6 +8133,11 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      *       чтобы считать повторно пароль из конфига. Почему так? Чтобы убедиться,
      *    что новый пароль прописан в конфиг корректно.
      */
+    /**
+     * @param $id
+     * @param null $action
+     * @return mixed
+     */
     public function changeShoutcastPass($id = null, $action = 'view') {
         $this->DarkAuth->requiresAuth();
         // Возможные действия, для безопасности
@@ -7967,6 +8191,13 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
         }
     }
 
+    /**
+     * @param $serverId
+     * @param null $configId
+     * @param null $action
+     * @param null $editor
+     * @return mixed
+     */
     public function editConfigCommon($serverId = null, $configId = null, $action = null, $editor = null) {
 
         $this->DarkAuth->requiresAuth();
@@ -8153,6 +8384,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     }
 
+    /**
+     * @param $id
+     * @param null $isHltv
+     */
     public function rcon($id = null, $isHltv = false) {
         $this->DarkAuth->requiresAuth();
         $this->Server->id = $id;
@@ -8184,9 +8419,16 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      * но это принадлежит пользователю.
      * Ради безопасности не хранить пароль в открытом виде в общей базе.
      */
+    /**
+     * @param $id
+     * @param null $command
+     * @param null $isHltv
+     * @param false $return
+     * @return mixed
+     */
     public function rconResult($id = null, $command = null, $isHltv = false, $return = 'parsed') {
 
-        if (is_null($id) && @count($this->params['url']) >= 2) {
+        if (null === $id && @count($this->params['url']) >= 2) {
             $id = $this->request->query('id');
             $command = @$this->request->query('command');
             $isHltv = @$this->request->query('isHltv');
@@ -8502,6 +8744,9 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
     /*
      * Автодополнение команды в строке rcon
      */
+    /**
+     * @param $type
+     */
     public function rconAutoComplete($type = 'srcds') {
         $this->layout = 'ajax';
 
@@ -8583,6 +8828,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
     }
 
     // Исполнение автоматических команд через RCON
+    /**
+     * @param $id
+     * @param null $command
+     */
     public function setMapRcon($id = null, $command = null) {
         $this->DarkAuth->requiresAuth();
         if ($this->checkRights($id)) {
@@ -8652,6 +8901,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
     }
 
     // Включение/отключение контроля сервера без пароля
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function setControlToken($id = null) {
         $this->DarkAuth->requiresAuth();
         if ($this->checkRights($id)) {
@@ -8694,6 +8947,9 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     }
     // Управление сервером без пароля
+    /**
+     * @param $token
+     */
     public function controlByToken($token = null) {
         $this->layout = 'simple';
         if ($token != null) {
@@ -8812,6 +9068,9 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     }
 
+    /**
+     * @param $id
+     */
     public function accessInfo($id = null) {
         /* Вывод всех видов доступа к серверу
          */
