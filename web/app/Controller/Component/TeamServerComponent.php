@@ -105,13 +105,28 @@ class TeamServerComponent extends Component {
 	}
 
 	function redisConnect($db = 0) {
-		$redis = new Redis();
-		$params = Configure::read('Redis');
-		$redis->connect($params['address'], 6379, 2);
-		$redis->auth($params['password']);
-		$redis->select($db);
 
-		return $redis;
+		try
+		{
+			$redis = new Redis();
+			$params = Configure::read('Redis');
+			if (!empty($params['address'])
+					and !empty($params['password']))
+			{
+				if ($redis->connect($params['address'], 6379, 2))
+				{
+					if ($redis->auth($params['password']))
+					{
+						$redis->select($db);
+						return $redis;
+					}
+				}
+			}
+			return false;
+
+		} catch (Exception $e) {
+			return false;
+		}
 	}
 
 	/*

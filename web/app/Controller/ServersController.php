@@ -822,47 +822,56 @@ class ServersController extends AppController {
 
         if (($logs = Cache::read('iptablesLogsForUser' . $user['User']['id'])) === false) {
 
-            $redis = $this->TeamServer->redisConnect(10);
-            $redis->multi();
+            $logs = array();
+            if ($redis = $this->TeamServer->redisConnect(10))
+            {
+	            $redis->multi();
 
-            // Запрос по 10 логов с каждого IP
-            foreach ($serverIps as $serverIp) {
-                $redis->lRange('dst:' . $serverIp, -10, -1);
+	            // Запрос по 10 логов с каждого IP
+	            foreach ($serverIps as $serverIp) {
+	                $redis->lRange('dst:' . $serverIp, -10, -1);
+	            }
+
+	            $logRanges = $redis->exec();
+
+	            $logIds = array();
+	            // Суммируем все ID логоа
+	            foreach ($logRanges as $logRange) {
+	                if (!empty($logRange)) {
+	                    $logIds = array_unique(array_merge($logIds, $logRange));
+	                }
+	            }
+
+	            // Обратная сортировка по ID лога
+	            rsort($logIds);
+
+	            $redis->multi();
+
+	            // Запрос логов
+	            foreach ($logIds as $logId) {
+	                $redis->lRange('log:' . $logId, -5, -1);
+	            }
+
+	            $logs = $redis->exec();
+
+	            // Очистка пустых значений
+	            foreach ($logs as $key => $log) {
+	                if (empty($log)) {
+	                    unset($logs[$key]);
+	                }
+	            }
+
+	            // Обрезка до 25
+	            $logs = array_slice($logs, 0, 25);
+
+	            Cache::set(array('duration' => '+20 minutes'));
+            }
+            else
+            {
+            	$this->Session->setFlash('Не настроен сервер Redis. Проверьте параметры в Config/ghmanager.ini.php', 'flash_error');
+            	Cache::set(array('duration' => '+2 minutes'));
             }
 
-            $logRanges = $redis->exec();
-
-            $logIds = array();
-            // Суммируем все ID логоа
-            foreach ($logRanges as $logRange) {
-                if (!empty($logRange)) {
-                    $logIds = array_unique(array_merge($logIds, $logRange));
-                }
-            }
-
-            // Обратная сортировка по ID лога
-            rsort($logIds);
-
-            $redis->multi();
-
-            // Запрос логов
-            foreach ($logIds as $logId) {
-                $redis->lRange('log:' . $logId, -5, -1);
-            }
-
-            $logs = $redis->exec();
-
-            // Очистка пустых значений
-            foreach ($logs as $key => $log) {
-                if (empty($log)) {
-                    unset($logs[$key]);
-                }
-            }
-
-            // Обрезка до 25
-            $logs = array_slice($logs, 0, 25);
-
-            Cache::set(array('duration' => '+20 minutes'));
             Cache::write('iptablesLogsForUser' . $user['User']['id'], $logs);
         }
 
@@ -6376,7 +6385,7 @@ class ServersController extends AppController {
      * @param $id
      * @return mixed
      */
-    public function editParams($id = null) {
+    public function editParams($id = null, $ver = null) {
         $this->DarkAuth->requiresAuth();
 
         if (@$id == null) {
@@ -6398,7 +6407,7 @@ class ServersController extends AppController {
                 case 'cod':
                     // Эти типы во многом схожи, в частности в редактировании параметров
                     $redirTo = 'editParamsSrcds';
-
+                    return $this->redirect(array('action' => $redirTo, $id, 'none', 'none', $ver));
                     break;
 
                 case 'radio':
@@ -6417,7 +6426,7 @@ class ServersController extends AppController {
 
             }
 
-            return $this->redirect(array('action' => $redirTo, $id));
+            return $this->redirect(array('action' => $redirTo, $id, $ver));
         } else {
             $this->Session->setFlash('Некорректный Server ID.', 'flash_error');
             return $this->redirect(array('action' => 'result'));
@@ -6430,9 +6439,27 @@ class ServersController extends AppController {
      * @param null $addonType
      * @param null $addonId
      */
-    public function editParamsSrcds($id = null, $addonType = null, $addonId = null) {
+    public function editParamsSrcds($id = null, $addonType = null, $addonId = null, $ver = null) {
 
         $this->DarkAuth->requiresAuth();
+
+        if ($addonType == 'none')
+        {
+
+        	$addonType = null;
+        }
+
+        if ($addonId == 'none')
+        {
+        	$addonType = null;
+        }
+
+        // Выбор шаблона для V2
+        if (!null == $ver) {
+            $path = 'v' . $ver . '/';
+        } else {
+            $path = '';
+        }
 
         if ($this->checkRights($id)) {
 
@@ -6457,46 +6484,80 @@ class ServersController extends AppController {
             $this->Server->GameTemplate->id = $this->request->data['GameTemplate'][0]['id'];
             $template = $this->Server->GameTemplate->read();
 
-            $this->ServerModPlugin->bindModel(array(
-                'hasAndBelongsToMany' => array(
-                    'Service' => array(),
-                )));
+            $this->ServerModPlugin
+                 ->unbindModel(['hasAndBelongsToMany' => ['Mod', 'Plugin']]);
+
+            $this->ServerModPlugin
+                 ->bindModel(['hasAndBelongsToMany' => [
+                    'Service' => [],
+                    'Mod'    => ['fields' => 'id, name, longname, version, shortDescription'],
+                    'Plugin' => ['fields' => 'id, name, longname, version, shortDescription']
+                ]]);
+
+            $this->ServerModPlugin
+                 ->Plugin
+                 ->unbindModel(['hasAndBelongsToMany' => ['Config']]);
+
+            $this->ServerModPlugin
+                 ->Mod
+                 ->unbindModel(['hasAndBelongsToMany' => ['Config', 'Plugin']]);
+
+            $this->ServerModPlugin
+                 ->Plugin
+                 ->bindModel(['hasAndBelongsToMany'
+                 				=> ['Config' => ['fields' => 'id, name, shortDescription']]]);
+
+            $this->ServerModPlugin
+                 ->Mod
+                 ->bindModel(['hasAndBelongsToMany'
+                 				=> ['Config' => ['fields' => 'id, name, shortDescription']]]);
+
             $server = $this->ServerModPlugin->find('first',
-                array(
-                    'recursive' => '2',
-                    'conditions' => array(
-                        'id' => $id,
-                    ),
-                ));
+                [
+                    'recursive'  => '2',
+                    'conditions' => ['id' => $id],
+                    'fields'     => 'id, name, slots, address, port, slots, map, mapGroup,' .
+				                    'autoUpdate, privateType, privateStatus, payedTill,' .
+				                    'initialised, action, status, statusDescription, statusTime,' .
+				                    'hltvStatus, hltvStatusDescription, hltvStatusTime,' .
+				                    'crashReboot, crashCount, crashTime, controlByToken'
+                ]);
 
             /* Составить список конфигов
              * - сервера
              * - модов
              * - плагинов
              */
+            $result = array();
+            $errors = array();
+
             if (!empty($template['Config'])
                 and
                 (
                     !$addonType
                     or
-                    $addonType === 'server'
+                    $addonType == 'server'
                 )) {
 
-                $this->set('configsOwner', 'server');
+            	$this->set('configsOwner', 'server');
+
                 foreach ($template['Config'] as $config) {
                     $config['type'] = 'server';
                     $configs[] = $config;
                 }
+
             } elseif (empty($template['Config']) && !$addonType) {
                 $this->set('configsOwner', 'server');
             }
 
             if ($addonType and $addonId) {
 
-                if ($addonType === 'mod') {
+                if ($addonType == 'mod') {
                     $this->Server->Mod->id = $addonId;
                     $mod = $this->Server->Mod->read();
+
                     $this->set('configsOwner', $mod['Mod']['name']);
+
                     foreach ($mod['Config'] as $config) {
                         $config['type'] = $mod['Mod']['name'];
                         $configs[] = $config;
@@ -6506,13 +6567,15 @@ class ServersController extends AppController {
                 // Тут составить список конфигов для мода,
                 // установленного самим клиентом, но в соотв
                 // с нашими правилами
-                elseif ($addonType === 'userMod') {
+                elseif ($addonType == 'userMod') {
                     if (@$template['Type'][0]['name'] === 'cod') {
                         // Конфиг мода расположен в директории
                         // самого мода и имеет имя modserver.cfg
                         // Переменной addonId передаётся имя мода
                         $addonId = trim($addonId, '.,/\\');
+
                         $this->set('configsOwner', $addonId);
+
                         $config['id'] = $addonId;
                         $config['name'] = 'modserver.cfg';
                         $config['path'] = 'mods/' . $addonId;
@@ -6520,10 +6583,12 @@ class ServersController extends AppController {
                         $configs[] = $config;
                     }
 
-                } elseif ($addonType === 'plugin') {
+                } elseif ($addonType == 'plugin') {
                     $this->Server->Plugin->id = $addonId;
                     $plugin = $this->Server->Plugin->read();
+
                     $this->set('configsOwner', $plugin['Plugin']['name']);
+
                     foreach ($plugin['Config'] as $config) {
                         $config['type'] = @$template['Type'][0]['name'];
                         $configs[] = $config;
@@ -6532,8 +6597,56 @@ class ServersController extends AppController {
                 }
             }
 
-            $this->set('configs', @$configs);
-            $this->set('server', $server);
+            if (!null == $ver){
+
+
+        		// Will return parsed data for generating JSON data
+        		// Server configs
+ 				$serverConfigs = array();
+        		if (!empty($template['Config']))
+        		{
+        			foreach ($template['Config'] as $config) {
+	                    $serverConfigs[] = $config;
+	                }
+        		}
+
+        		$this->set('serverConfigs', $serverConfigs);
+
+        		// Mods list with configs
+        		$modsList = array();
+        		if (!empty($server['Mod']))
+        		{
+        			foreach ($server['Mod'] as $mod) {
+        				// Save only mods with configs
+        				if (!empty($mod['Config']))
+        				{
+        					$modsList[] = $mod;
+        				}
+        			}
+        		}
+
+            	$this->set('modsList', $modsList);
+
+            	// Plugins list with configs
+        		$pluginsList = array();
+        		if (!empty($server['Plugin']))
+        		{
+        			foreach ($server['Plugin'] as $plugin) {
+        				// Save only mods with configs
+        				if (!empty($plugin['Config']))
+        				{
+        					$pluginsList[] = $plugin;
+        				}
+        			}
+        		}
+
+            	$this->set('pluginsList', $pluginsList);
+
+        	} else {
+            	$this->set('configs', @$configs);
+            	$this->set('server', $server);
+        	}
+
 
             /* Т.к. различия в редакторе конфигурации лишь косметические,
              * не буду плодить функций, а ниже определю, как вид рендерить.
@@ -6553,7 +6666,7 @@ class ServersController extends AppController {
 
                 // Прасинг лога и ошибок
                 $responseMessages = $this->parseXmlResponse($xmlAsArray);
-                $error = $responseMessages['error'];
+                $errors[] = $responseMessages['error'];
 
                 // Парсинг списка модов
                 $modsList = array();
@@ -6565,23 +6678,26 @@ class ServersController extends AppController {
                     $modsList[0] = $xmlAsArray['response']['list']['dir'];
                 } else {
                     if (!empty($server['ServerModPlugin']['mod'])) {
-                        $error .= 'Не обнаружен мод сервера, хотя в строке запуска он установлен! Переинициализируйте сервер, либо загрузите нужный мод и установите его модом по умолчанию!';
+                        $errors[] = 'Не обнаружен мод сервера, хотя в строке запуска он установлен! Переинициализируйте сервер, либо загрузите нужный мод и установите его модом по умолчанию!';
                     } else {
-                        $error .= 'Не обнаружен мод сервера!';
+                        $errors[] = 'Не обнаружен мод сервера!';
                     }
 
                 }
 
                 // Вывод ошибки
-                if (@$error !== '') {
-                    $this->Session->setFlash('Возникла ошибка при получении списка установленных модов: ' . $error, 'flash_error');
+                if (!empty($errors)) {
+                	$this->Session->setFlash('Возникла ошибка при получении списка установленных модов: ' . implode('<br/>', $errors), $path . 'flash_error');
                 }
-                $this->set('mods', $modsList);
-                $this->render('edit_params_cod');
-            } else {
-                $this->render('edit_params');
-            }
 
+                $this->set('mods', $modsList);
+                $this->render($path . 'edit_params_cod');
+
+            } else {
+
+            $this->render($path . 'edit_params');
+
+            }
         }
 
     }

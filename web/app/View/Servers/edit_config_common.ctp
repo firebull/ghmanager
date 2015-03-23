@@ -5,66 +5,53 @@
  * Made for project TeamServer(Git)
  * by bulaev
  */
- //pr($result);
 
- include('loading_params.php');
-?>
-<script type="text/javascript">
-	//$('#textarea').empty();
-</script>
-<?php echo $this->Form->create('Server', array('action' => 'editConfigCommon')); ?>
+include('loading_params.php');
+
+echo $this->Form->create('Server', ['action' => 'editConfigCommon',
+                                          'class' => 'ui form']); ?>
 <table>
 	<tr>
 		<td colspan="3">
+		<?php
+			  echo $this->Form->input('configText',
+			  						array('type' => 'textarea',
+			  						      'wrap' => 'off',
+			  							  'style'=> 'width: 650px;
+			  							  			 height: 550px;
+			  							  			 background-color: #4C5843;
+										  			 color: #D6DBCE;
+										  			 padding-left: 15px;
+										  			 overflow-y: auto;',
+										  'id'     => 'textEditor',
+										  'class'  => 'field',
+										  'escape' => false,
+										  'div'    => false,
+										  'label'  => false,
+										  'value'  => @$result));
+			  /*echo $this->Html->tag('div', @$result, array('id' => 'textarea', 'style' => 'position: relative; width: 700px; height: 520px; margin: 0px; padding: 0px;'));*/
+			  echo $this->Form->input('id', array('type'=>'hidden'));
+			  echo $this->Form->input('configId', array('type'=>'hidden'));
+			  echo $this->Form->input('action', array('type'=>'hidden', 'value'=>'write'));
 
-
-<?php
-	  echo $this->Form->input('configText',
-	  						array('type'=>'textarea',
-	  						      'wrap'=>'off',
-	  							  'style'=> 'width: 650px;
-	  							  			 height: 550px;
-	  							  			 background-color: #4C5843;
-								  			 color: #D6DBCE;
-								  			 padding-left: 15px;
-								  			 overflow-y: auto;
-
-
-
-											  ',
-								  'id' => 'textEditor',
-								  'escape'=>false,
-								  'div' => false,
-								  'label' => false,
-								  'value'=>@$result));
-	  /*echo $this->Html->tag('div', @$result, array('id' => 'textarea', 'style' => 'position: relative; width: 700px; height: 520px; margin: 0px; padding: 0px;'));*/
-	  echo $this->Form->input('id', array('type'=>'hidden'));
-	  echo $this->Form->input('configId', array('type'=>'hidden'));
-	  echo $this->Form->input('action', array('type'=>'hidden', 'value'=>'write'));
-
-?>
+		?>
+		<br/>
 		</td>
-</tr>
-<tr>
+	</tr>
+	<tr>
 		<td style="width: 130px;">
 			<?php
-
-
 			echo $this->Js->submit('Сохранить',
-				array(
-					'url'=> array(
-									'controller'=>'Servers',
-									'action'=>'editConfigCommon'
-					 ),
-					'id' => 'configSaveButton',
-					'update' => '#configEditor',
-					'class' => 'btn btn-primary',
-					'before' => $loadingShow,
-					'complete'=>$loadingHide,
-					'buffer' => false));
+								   ['url'=> ['controller' => 'Servers',
+											 'action'     => 'editConfigCommon'],
+									'id' => 'configSaveButton',
+									'update'  => '#configEditor',
+									'div'     => false,
+									'class'   => 'btn btn-primary ui submit red button',
+									'before'  => $loadingShow.';$("#configSaveButton").addClass("disabled");',
+									'complete'=> $loadingHide,
+									'buffer'  => false]);
 			?>
-
-
 		</td>
 		<td colspan="2">
 
@@ -77,12 +64,12 @@
 		  */
 			if (@$this->data['Server']['configType'] == 'server') {
 			//Кнопка для создания конфига из шаблона
-			echo $this->Html->link('<i class="icon-repeat"></i> Создать из шаблона', '#',
+			echo $this->Html->link('<i class="icon-repeat icon recycle"></i> Создать из шаблона', '#',
 								array ('id'=>'create_config_button',
 									   'escape' => false,
 									   'div' => false,
 									   'label' => false,
-									   'class' => 'btn'));
+									   'class' => 'btn ui button'));
 
 			$event  = $this->Js->request(array('controller'=>'Servers',
 										 'action'=>'editConfigCommon',
@@ -90,7 +77,7 @@
 										 $this->data['Server']['configId'],
 										 'create'),
 								   array('update' => '#configEditor',
-										 'before'=>$loadingShow,
+										 'before' => $loadingShow.';$("#create_config_button").addClass("loading");',
 										 'complete'=>$loadingHide,
 										 'buffer'=>false));
 
@@ -101,10 +88,10 @@
 		<?php
 			//Кнопка для переключения редактора
 			if ($editorType === null or $editorType == 'extended') {
-				$editorTypeButtonText = '<i class="icon-file"></i> Включить обычный редактор';
+				$editorTypeButtonText = '<i class="icon-file file icon"></i> Включить обычный редактор';
 				$editorTypeSwitch = 'simple';
 			} else {
-				$editorTypeButtonText = '<i class="icon-list-alt"></i> Включить расширенный редактор';
+				$editorTypeButtonText = '<i class="icon-list-alt file text icon"></i> Включить расширенный редактор';
 				$editorTypeSwitch = 'extended';
 			}
 
@@ -114,7 +101,7 @@
 									   'escape' => false,
 									   'div' => false,
 									   'label' => false,
-									   'class' => 'btn'));
+									   'class' => 'btn ui button'));
 
 			$event  = $this->Js->request(array('controller'=>'Servers',
 										 'action'=>'editConfigCommon',
@@ -122,7 +109,7 @@
 										 $this->data['Server']['configId'],
 										 'read', $editorTypeSwitch),
 								   array('update' => '#configEditor',
-										 'before'=>$loadingShow,
+										 'before' => $loadingShow.';$("#editor_type_switch").addClass("loading");',
 										 'complete'=>$loadingHide,
 										 'buffer'=>false));
 
@@ -131,7 +118,7 @@
 		</td>
 	</tr>
 </table>
-		<?php echo $this->Form->end();?>
+<?php echo $this->Form->end();?>
 
 <script type="text/javascript">
 	$(function() {

@@ -41,6 +41,7 @@
   padding: 0; margin: 0;
   white-space: pre;
   word-wrap: normal;
+  overflow: inherit !important;
 }
 
 .CodeMirror-wrap pre {
