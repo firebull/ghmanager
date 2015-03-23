@@ -70,4 +70,6 @@ body {
 	right:5px;
     top:5px;
     margin-bottom:10px;
+    position: inherit !important;
+    height: inherit !important;
 }
