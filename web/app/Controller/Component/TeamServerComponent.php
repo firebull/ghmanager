@@ -40,6 +40,22 @@ class TeamServerComponent extends Component {
 		}
 	}
 
+    // Show flash messages in JSON layout.
+    // if $toJson is true, than output it in JSON as Flash array
+    // Then delete it in Session
+    function flashToJson($toJson = true) {
+        if ($this->controller->params['ext'] == 'json'
+                and $this->controller->Session->read('Message.flash'))
+        {
+            if ($toJson){
+                $this->controller->set('flash', $this->controller->Session->read('Message.flash'));
+            }
+
+            return $this->controller->Session->delete('Message.flash');
+
+        }
+    }
+
 	function logAction($text = null, $status = null, $ownerUserId = null, $creator = null) {
 		$this->controller->loadModel('Action');
 		$this->controller->loadModel('UserGroup');

@@ -249,6 +249,12 @@ class DarkAuthComponent extends Component {
             if ($flash) {
                 $this->Session->setFlash($flash, 'flash_login_error');
             }
+
+            // Throw exception for JSON requests
+            if($this->controller->params['ext'] == 'json'){
+                throw new UnauthorizedException("Unauthorized", '401');
+            }
+
             exit($this->controller->render($this->login_view));
         } else {
             if ($this->from_post) {
@@ -265,6 +271,10 @@ class DarkAuthComponent extends Component {
             }
             if ($deny) {
                 // Current User Doesn't Have Access! DENY
+                // Throw exception for JSON requests
+                if($this->controller->params['ext'] == 'json'){
+                    throw new ForbiddenException("Forbidden", '403');
+                }
 
                 if ($deny_redirect) {
                     $this->controller->redirect($deny_redirect);
