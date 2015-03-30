@@ -4,13 +4,14 @@
 </div>
 <?php
 
-$class = [ 'run'    => 'item',
-		   'update' => 'item',
-		   'debug'  => 'item' ];
+$class = [ 'run'     => 'item',
+		   'startup' => 'item',
+		   'update'  => 'item',
+		   'debug'   => 'item' ];
 
 $class[strtolower($type)]='red active item';
 
-function cutString($string, $length = 35) {
+function cutString($string, $length = 30) {
 	//Обрезка длинной строки до вида xxxxxx...xxxxx
 	$string = rtrim($string, '.log');
 
@@ -29,6 +30,24 @@ function cutString($string, $length = 35) {
 ?>
 <div class="ui pointing menu">
 <?php
+	if (!in_array($gameType, ['hlds', 'ueds']))
+	{
+		echo $this->Html->link('Логи запуска сервера', '#',
+							  array ('id'=>'server_startlog_'.$id,
+								  	 'escape' => false,
+								  	 'class' => $class['startup'])
+							  );
+
+		$event  = $this->Js->request(array('controller'=>'servers',
+									 'action'   => 'viewLog', $id, "startup", 2),
+							   array('update'   => '#server_log_view',
+									 'before'   => "$('#logsLoading').show();",
+								     'complete' => "$('#logsLoading').hide();"
+									 ));
+
+		$this->Js->get('#server_startlog_'.$id)
+				 ->event('click', $event);
+	}
 
 	echo $this->Html->link('Логи работы сервера', '#',
 					  array ('id' => 'server_runlog_'.$id,
@@ -83,8 +102,8 @@ function cutString($string, $length = 35) {
 <small>Последние <?php echo count($logList); ?> файлов логов:</small>
 <div class="ui padded grid">
 	<div class="ui row">
-		<div class="four wide column">
-			<div class="ui vertical pointing menu">
+		<div class="four wide column" style="width: 24,9% !important;">
+			<div class="ui fluid vertical pointing menu">
 				<a class="item" data-bind="click: showHelpAction, css: {'red active' : showHelp}">Помощь</a>
 			<?php
 				foreach ( $logList as $key => $log )
@@ -105,7 +124,7 @@ function cutString($string, $length = 35) {
 			?>
 			</div>
 		</div>
-		<div class="eleven wide column">
+		<div class="twelve wide column">
 			<div id="logHelp" data-bind="visible: showHelp">
 				Щелкните по логу, который хотели бы просмотреть.
 				Вы также можете скачать логи по FTP, которые находятся
@@ -119,6 +138,7 @@ function cutString($string, $length = 35) {
 				    </div>
 				</div>
 			</div>
+			<b id="logTitle" data-bind="visible: showLog"></b>
 			<div id="logView" data-bind="visible: showLog"></div>
 		</div>
 	</div>
@@ -129,6 +149,7 @@ function cutString($string, $length = 35) {
 
 	var logsViewModel = function(){
 		this.serverId       = ko.observable(<?php echo $id;?>);
+		this.serverType     = ko.observable('<?php echo $gameType;?>');
 		this.logsType       = ko.observable('<?php echo $type;?>');
 		this.showHelp       = ko.observable(true);
 		this.showLog		= ko.observable(false);
@@ -139,16 +160,26 @@ function cutString($string, $length = 35) {
 
 		this.printLog = function(id, log){
 			var self = this;
+			if (self.serverType() == 'hlds'){
+				var link = '/servers/printLogHlds/';
+			} else if (self.serverType() == 'hlds'){
+				var link = '/servers/printLogCod/';
+			} else if (self.serverType() == 'ueds'){
+				var link = '/servers/printLogUeds/';
+			} else {
+				var link = '/servers/printLogSrcds/';
+			}
 
 			self.loading(true);
 
-			$.get( '/servers/printLogHlds/'
+			$.get( link
 						+ self.serverId() + '/'
 						+ log + '/'
 						+ self.logsType())
 	    	 .done(
 		    	 	function(data){
 
+		    	 		$('#logTitle').text(log);
 		    	 		$('#logView').html(data);
 
 		    	 		self.logShowNumber(id);

@@ -5,7 +5,6 @@
  * File created for project GHManager
  * by Nikita Bulaev
  */
- $id = $this->data['Server']['id'];
 ?>
 <div id="server_params">
 	<div id="flash"><?php echo $this->Session->flash(); ?></div>
@@ -15,8 +14,8 @@
             <div class="ui sub header" data-bind="css: {'red': configsOwner() == 'server'}">Основные настройки сервера</div>
         </a>
         <div class="ui padded grid" data-bind="if: $root.configsOwner() == 'server'">
-            <div class="ui four wide column" data-bind="template: {name: 'render-config-menu', data: serverConfigs, as: 'configs'}"></div>
-            <div class="ui eleven wide column" id="editor_server">
+            <div class="ui four wide column" data-bind="template: {name: 'render-config-menu', data: serverConfigs, as: 'configs'}" style="width: 24,9% !important;"></div>
+            <div class="ui twelve wide column" id="editor_server">
                 <div class="ui active inverted dimmer" data-bind="visible: loading">
                     <div class="ui text loader">Загружаю</div>
                 </div>
@@ -50,8 +49,8 @@
             <div class="sub header" data-bind="text: renderData.shortDescription, css: {'red': $root.configsOwner() == renderData.name}"></div>
         </a>
         <div class="ui padded grid" data-bind="if: $root.configsOwner() == renderData.name">
-            <div class="ui four wide column" data-bind="template: {name: 'render-config-menu', data: renderData.Config, as: 'configs'}"></div>
-            <div class="ui eleven wide column" data-bind="attr: {'id': 'editor_' + renderData.name}">
+            <div class="ui four wide column" data-bind="template: {name: 'render-config-menu', data: renderData.Config, as: 'configs'}" style="width: 24,9% !important;"></div>
+            <div class="ui twelve wide column" data-bind="attr: {'id': 'editor_' + renderData.name}">
                 <div class="ui active inverted dimmer" data-bind="visible: $root.loading">
                     <div class="ui text loader">Загружаю</div>
                 </div>
@@ -68,7 +67,7 @@
     </div>
 </script>
 <script type="text/html" id="render-config-menu">
-    <div class="ui vertical small pointing menu" data-bind="foreach: {data: configs, as: 'config'}">
+    <div class="ui fluid vertical small pointing menu" data-bind="foreach: {data: configs, as: 'config'}">
         <a class="item" data-bind="event: {click: $root.editConfig.bind($data, config.id)}, css: {'red active': $root.currentConfig() == config.id}">
             <b data-bind="text: config.name"></b><br/>
             <small data-bind="text: config.shortDescription"></small>

@@ -59,7 +59,7 @@
 		</div>
 		<div class="ten wide left aligned white column" id="indexRightColumn">
 			<div data-bind="visible: renderSelected,
-			                template: {if: selectedType(),
+			                template: {if: selectedType() && renderedServer(),
 			                           name: 'render-template-' + selectedType()
 									   }">
 
@@ -72,10 +72,7 @@
 <div class="ui small modal" id="indexModal">
 	<i class="close icon"></i>
 	<div class="header"></div>
-	<div class="content">
-		<div class="image" style="display: none;"></div>
-		<div class="description"></div>
-	</div>
+	<div class="content"><div class="description"></div></div>
 	<div class="actions">
 		<div class="ui button">Отмена</div>
 	</div>
@@ -122,7 +119,7 @@
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Изменить имя сервера', '/servers/changeName/' + renderedServer().Server.id)}">
 			<i class="edit icon"></i>Имя сервера
 		</a>
-		<a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Изменить параметры запуска сервера', '/servers/editStartParams/' + renderedServer().Server.id)}">
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Изменить параметры запуска сервера', '/servers/editStartParams/' + renderedServer().Server.id)}">
 			<i class="setting icon"></i>Параметры
 		</a>
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Изменить настройки сервера', '/servers/editParams/' + renderedServer().Server.id)}">
@@ -137,14 +134,16 @@
 		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'large', 'Установка карт', '/servers/mapInstall/' + renderedServer().Server.id)}, visible: jQuery.inArray(renderedServer().GameTemplate['name'], ['css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old']) != -1">
 			<i class="bomb icon"></i>Карты
 		</a>
+		<!-- ko if: renderedServer().Type['name'] == 'hlds' -->
 		<a class="item" data-bind="event: {click: setShowType.bind($data, 'server')}, visible: $root.showType() == 'hltv'">
 			<i class="game icon"></i> Сервер
 		</a>
 		<a class="item" data-bind="event: {click: setShowType.bind($data, 'hltv')}, visible: $root.showType() == 'server'">
 			<i class="film icon"></i> HLTV
 		</a>
+		<!-- /ko -->
 	</div>
-	<div class="ui bottom attached segment">
+	<div class="ui bottom attached segment" data-bind="visible: renderedServer().Server.initialised, if: renderedServer().Server.initialised">
 		<div class="ui grid">
 			<div class="ui row">
 				<div class="ui column">
@@ -458,10 +457,15 @@
 			console.log(this.eacServers());
 
 			this.serverIcon = function(game){
+
 				if (game == 'cs16' || game == 'cs16-old'){
 					return 'cs16.png';
 				} else if (game == 'css' || game == 'cssv34') {
 					return 'css.png';
+				} else if (game == 'csgo' || game == 'csgo-t128') {
+					return 'csgo.png';
+				} else if (game == 'l4d2' || game == 'l4d2-t100') {
+					return 'l4d2.png';
 				} else {
 					return '';
 				}
@@ -657,20 +661,24 @@
 			this.renderSelected = ko.computed(function() {
 				var self = this;
 				var newData = [];
+				var type = self.selectedType();
+				var selected = self.selectedServer();
 
-				if (self.selectedServer() !== false)
+				if ( selected !== false && type !== false)
 				{
-					type = self.selectedType();
-
 					if (type == 'eac'){
-						newData = self.eacServers()[self.selectedServer()];
+						newData = self.eacServers()[selected];
 					} else if (type == 'game') {
-						newData = self.gameServers()[self.selectedServer()];
+						newData = self.gameServers()[selected];
 					} else if (type == 'voice') {
-						newData = self.voiceServers()[self.selectedServer()];
+						newData = self.voiceServers()[selected];
 					}
 
+					self.errors([]);
+					self.infos([]);
+					self.actionLog([]);
 					self.renderedServer(newData);
+
 					return true;
 				}
 
@@ -711,26 +719,23 @@
 				var self = this;
 
 				if ($(self.renderedServer()).size() > 0
-						&& self.renderedServer().Server.initialised == 1)
+						&& self.renderedServer().Server.initialised == 1
+						&& self.selectedType() != 'eac')
 				{
 					var id = self.renderedServer().Server.id;
 
 					self.loadingModal(true);
 
-					$.post( "/servers/viewServer/" + id + "/json")
+					$.post( "/servers/viewServer/" + id + ".json")
 			    	 .done(
 				    	 	function(data){
-								answer = JSON.parse(data);
+								answer = data.result;
 								if (answer.error === undefined){
 									self.errors.push('Неизвестная ошибка');
 								}
 								else
 								if (answer.error != 'ok'){
-									if (answer.error == 'needAuth'){
-										window.location.href = "/users/login";
-									} else {
-										self.errors.push(answer.error);
-									}
+									self.errors.push(answer.error);
 								}
 								else
 								if (answer.error == 'ok')
@@ -753,9 +758,15 @@
 								self.loadingModal(false);
 							})
 			    	 .fail( function(data, status, statusText) {
-			    	 	answer = "HTTP Error: " + statusText;
-			    	 	self.errors.push(answer);
-			    	 	self.loadingModal(false);
+			    	 	if (data.status == 401){
+			    	 		window.location.href = "/users/login";
+			    	 	}
+			    	 	else
+			    	 	{
+			    	 		answer = "HTTP Error: " + statusText;
+			    	 		self.errors.push(answer);
+			    	 		self.loadingModal(false);
+			    	 	}
 			    	 })
 			    	 .always(function() {
 					    $('#playersStat24h').tab();
@@ -804,9 +815,13 @@
 								self.executing(false);
 							})
 			    	 .fail( function(data, status, statusText) {
-			    	 	answer = "HTTP Error: " + statusText;
-			    	 	self.errors.push(answer);
-			    	 	self.executing(false);
+			    	 	if (data.status == 401){
+			    	 		window.location.href = "/users/login";
+			    	 	} else {
+				    	 	answer = "HTTP Error: " + statusText;
+				    	 	self.errors.push(answer);
+				    	 	self.executing(false);
+				    	}
 			    	 });
 				}
 

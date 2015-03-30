@@ -7,7 +7,9 @@
  */
  $this->layout = 'ajax';
  $vac = array ('1'=>'<span style="color: #668237;">Активен</span>', '0' => 'Отключен');
- //pr($socket);
+//pr($result);
+ $serverId = $result['Server']['id'];
+
  include('loading_params.php');
 
  function styleMapName( $map = null) {
@@ -81,14 +83,14 @@
 	<tr>
 		<td style="width: 200px; text-align: left; padding-left: 15px; padding-top: 5px;" valign="top">
 			<?php
-				if (!empty($info['Server']['info'])) {
+				if (!empty($result['Status']['serverName'])) {
 
 					echo $this->Html->tag('strong',
-							@$info['Server']['info']['serverName'],
+							@$result['Status']['serverName'],
 							array( 'class' => 'highlight3'));
 
-					if (!empty($info['Server']['info']['mapName'])) {
-						echo '<br/>'.$info['Server']['info']['mapName'];
+					if (!empty($result['Status']['mapName'])) {
+						echo '<br/>'.$result['Status']['mapName'];
 					}
 
 					?>
@@ -105,36 +107,36 @@
 									Версия:<br/>
 								</td>
 								<td style="text-align: left;"><?php
-									if (!empty($info['Server']['info'])) {
+									if (!empty($result['Status']['maxPlayers'])) {
 
-										$div = $this->Common->getLoadIndicator($info['Server']['info']['numberOfPlayers'], $info['Server']['info']['maxPlayers']);
+										$div = $this->Common->getLoadIndicator($result['Status']['numberOfPlayers'], $result['Status']['maxPlayers']);
 
 										echo $this->Html->tag('div','', array('class' => 'players_load '.$div,
 																		'style' => 'float: left; margin-top: 3px; margin-right: 5px;'));
 
 										echo "<div style='position: relative; float: left;'>";
-										echo @$info['Server']['info']['numberOfPlayers']."/".
-										     @$info['Server']['info']['maxPlayers'];
+										echo $result['Status']['numberOfPlayers']."/".
+										     $result['Status']['maxPlayers'];
 
-									    if (@$info['Server']['info']['botNumber'] > 0) {
-									     	echo " (".@$info['Server']['info']['botNumber'].")";
+									    if ($result['Status']['botNumber'] > 0) {
+									     	echo " (".$result['Status']['botNumber'].")";
 									    }
 
 									    echo "</div>";
 									}
 
 									echo "<br/>";
-									if (!empty($info['Server']['info']['passwordProtected'])) {
+									if (!empty($result['Status']['passwordProtected'])) {
 										echo "Установлен";
 									} else {
 										echo "Нет";
 									}
 
 									echo "<br/>";
-								    echo @$vac[ @$info['Server']['info']['secureServer'] ];
+								    echo @$vac[ $result['Status']['secureServer'] ];
 
 								    echo "<br/>";
-								    echo $this->Common->versionStatus(@$currentVersion, @$info['Server']['info']['gameVersion'], 'hl1');
+								    echo $this->Common->versionStatus(@$currentVersion, $result['Status']['gameVersion'], 'hl1');
 									?>
 								</td>
 							</tr>
@@ -375,10 +377,10 @@
 
 			/* HLTV Начало */
 			// у HL1 HLTV не работает
-			if ($status['GameTemplate']['name'] != 'hl1') {
-				if (@$info['Server']['Hltv']['gq_online'] == 1) {
+			if ($result['GameTemplate']['name'] != 'hl1') {
+				if (!empty($result['Status']['hltv'])) {
 					echo $this->Html->tag('strong',
-							        'HLTV: '.@$info['Server']['Hltv']['hostname'],
+							        'HLTV: '.@$result['Status']['hltv']['hostname'],
 									array( 'class' => 'highlight3'));
 			?>
 					<div id="clear"></div>
@@ -392,29 +394,29 @@
 									Задержка:<br/>
 								</td>
 								<td style="text-align: left;"><?php
-									if (!empty($info['Server']['info'])) {
+									if (!empty($result['Status']['hltv'])) {
 
-										$div = $this->Common->getLoadIndicator(@$info['Server']['Hltv']['num_players'], @$info['Server']['Hltv']['max_players']);
+										$div = $this->Common->getLoadIndicator($result['Status']['hltv']['numberOfPlayers'], $result['Status']['hltv']['maxPlayers']);
 
 										echo $this->Html->tag('div','', array('class' => 'players_load '.$div,
 																		'style' => 'float: left; margin-top: 3px; margin-right: 5px;'));
 
 										echo "<div style='position: relative; float: left;'>";
-										echo @$info['Server']['Hltv']['num_players']."/".
-										     @$info['Server']['Hltv']['max_players'];
+										echo $result['Status']['hltv']['numberOfPlayers']."/".
+										     $result['Status']['hltv']['maxPlayers'];
 
 									    echo "</div>";
 									}
 
 									echo "<br/>";
-									if (@$info['Server']['Hltv']['password'] || @$info['Server']['Hltv']['sv_password']) {
+									if ($result['Status']['hltv']['password']) {
 										echo "Установлен";
 									} else {
 										echo "Нет";
 									}
 
 									echo "<br/>";
-								    echo intval(@$info['Server']['Hltv']['HLTVDelay'])." сек.";
+								    echo intval($result['Status']['hltv']['HLTVDelay'])." сек.";
 									?>
 								</td>
 							</tr>
@@ -557,12 +559,12 @@
 			// Текущее состояние сервера, если включён
 
 			// Список игроков
-			if (!empty($info['Server']['info'])) {
+			if (!empty($result['Status']['mapName'])) {
 			?>
 					<div style="position: relative; float: left; vertical-align:bottom; margin-top: 5px; margin-right: 5px;">
 						<?php
-							if (!empty($mapDesc['image'])) {
-								echo $this->Html->image($mapDesc['image'], array('title'  => @$mapDesc['longname'],
+							if (!empty($result['Status']['image'])) {
+								echo $this->Html->image($result['Status']['image'], array('title'  => $result['Status']['imageName'],
 																									'width'  => 320,
 																									'height' => 240));
 							}
@@ -572,17 +574,17 @@
 					</div>
 
 			<?php
-					if (!empty($info['Server']['info']['numberOfPlayers'])) {
+					if (!empty($result['Status']['numberOfPlayers'])) {
 
 						$i=1;
 						$playerForList = '';
-						foreach ( $info['Server']['players'] as $player ) {
+						foreach ( $result['Status']['players'] as $player ) {
 
 			       			$playerForList .= "<tr>";
 			       			$playerForList .= "<td>".$i++."</td>";
 			       			$playerForList .= '<td style="text-align: left;">';
 			       			$playerForList .= $this->Text->truncate(
-																    htmlspecialchars($player->getname()),
+																    htmlspecialchars($player['name']),
 																    25,
 																    array(
 																        'ending' => '*',
@@ -592,16 +594,16 @@
 							$playerForList .= "</td>";
 							$playerForList .= '<td align="center">';
 
-							if ($player->getscore() > 100000) {
+							if ($player['score'] > 100000) {
 			       						$playerForList .= '0';
 			       					} else {
-			       						$playerForList .= $player->getscore();
+			       						$playerForList .= $player['score'];
 			       					}
 			       			$playerForList .= "</td>";
 
 							$playerForList .= '<td align="center">';
 
-							$secondsFull = intval($player->getconnectTime());
+							$secondsFull = intval($player['connectTime']);
 											$minutesFull = intval($secondsFull/60);
 											$hours = intval($minutesFull/60);
 											$minutes = $minutesFull - $hours*60;
@@ -644,10 +646,10 @@
 
 				} else {
 			// Текущее состояние сервера, если выключен
-			if (!empty($status['status'])) {
+			if (!empty($result['Server']['status'])) {
 				echo '<span style="text-align: left;">';
 
-				switch ( $status['status'] ) {
+				switch ( $result['Server']['status'] ) {
 						case "exec_error":
 							echo '<div class="ui-state-error ui-corner-all" style="padding: 8px; margin: 5px;">' .
 								 '<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> ';
@@ -655,15 +657,15 @@
 								 "Попробуйте перезапустить сервер. <br/>" .
 								 "Если не поможет - обратитесь в техподдержку.";
 
-							if (@$status['statusDescription']) {
-								echo "<br/>Причина: ".$status['statusDescription'];
+							if ($result['Server']['statusDescription']) {
+								echo "<br/>Причина: ".$result['Server']['statusDescription'];
 							}
-						    echo "<br/> <small>Время статуса: ".$this->Common->niceDate($status['statusTime'])."</small>";
+						    echo "<br/> <small>Время статуса: ".$this->Common->niceDate($result['Server']['statusTime'])."</small>";
 						    echo "</div>";
 							break;
 
 						case "exec_success":
-							if ($this->Time->wasWithinLast('5 minutes', $status['statusTime'])) {
+							if ($this->Time->wasWithinLast('5 minutes', $result['Server']['statusTime'])) {
 								echo '<div class="ui-state-highlight ui-helper-clearfix ui-corner-all" style="padding: 8px; margin: 5px;">'."\n";
 								echo '<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>'."\n";
 								echo "Сервер запущен менее 5 минут назад. <br/>" .
@@ -683,7 +685,7 @@
 									 "Если в логе нет данных, либо есть ошибки, " .
 									 "попробуйте перезапустить сервер. <br/>" .
 									 "Если не поможет - обратитесь в техподдержку.";
-								echo "<br/> <small>Время статуса: ".$this->Common->niceDate($status['statusTime'])."</small>";
+								echo "<br/> <small>Время статуса: ".$this->Common->niceDate($result['Server']['statusTime'])."</small>";
 								echo "</div>";
 							}
 
@@ -695,7 +697,7 @@
 							echo "Ошибка обновления сервера. <br/>" .
 								 "Попробуйте повторить обновление. <br/>" .
 								 "Если не поможет - обратитесь в техподдержку.";
-							echo "<br/> <small>Время статуса: ".$this->Common->niceDate($status['statusTime'])."</small>";
+							echo "<br/> <small>Время статуса: ".$this->Common->niceDate($result['Server']['statusTime'])."</small>";
 							echo "</div>";
 							break;
 
@@ -707,7 +709,7 @@
 								 "О состоянии обновления вы можете прочитать в соответсвующем логе.<br/>" .
 								 "После завершения обновления вам необходимо запустить сервер вручную и " .
 								 "это сообщение исчезнет.";
-							echo "<br/> <small>Время статуса: ".$this->Common->niceDate($status['statusTime'])."</small>";
+							echo "<br/> <small>Время статуса: ".$this->Common->niceDate($result['Server']['statusTime'])."</small>";
 							echo "</div>";
 
 							echo $this->Html->scriptStart();
@@ -719,9 +721,9 @@
 						case "stopped":
 							echo '<div class="ui-state-highlight ui-helper-clearfix ui-corner-all" style="padding: 8px; margin: 5px;">'."\n";
 							echo '<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>'."\n";
-							echo "Сервер выключен ".$this->Common->niceDate($status['statusTime']).". ";
-							if (@$status['statusDescription']) {
-								echo "Причина: ".$status['statusDescription'];
+							echo "Сервер выключен ".$this->Common->niceDate($result['Server']['statusTime']).". ";
+							if ($result['Server']['statusDescription']) {
+								echo "Причина: ".$result['Server']['statusDescription'];
 							}
 							echo "</div>";
 							break;
@@ -758,10 +760,10 @@
 			}
 
 			/* HLTV Начало */
-			if (@$info['Server']['Hltv']['gq_online'] != 1) {
-				if (!empty($status['hltvStatus'])) {
+			if (empty($result['Status']['hltv'])) {
+				if (isset($result['Server']['hltvStatus'])) {
 
-					if (!empty($info['Server']['info'])) {
+					if (!empty($result['Status']['hltv'])) {
 						$hltvStatusWidth = 'max-width: 305px; min-width: 276px';
 					} else {
 						$hltvStatusWidth = '';
@@ -770,19 +772,19 @@
 				echo '<div id="clear"></div>';
 				echo '<span style="text-align: left;">';
 
-				switch ( $status['hltvStatus'] ) {
+				switch ( $result['Server']['hltvStatus'] ) {
 					case "exec_error":
 						echo '<div class="ui-state-error ui-corner-all" style="padding: 8px; margin: 5px; '.$hltvStatusWidth.'">' .
 							 '<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> ';
 						echo "Ошибка запуска HLTV. <br/>" .
 							 "Попробуйте перезапустить HLTV. <br/>" .
 							 "Если не поможет - обратитесь в техподдержку.";
-					    echo "<br/> <small>Время статуса: ".$this->Common->niceDate($status['hltvStatusTime'])."</small>";
+					    echo "<br/> <small>Время статуса: ".$this->Common->niceDate($result['Server']['hltvStatusTime'])."</small>";
 					    echo "</div>";
 						break;
 
 					case "exec_success":
-						if ($this->Time->wasWithinLast('5 minutes', $status['hltvStatusTime'])) {
+						if ($this->Time->wasWithinLast('5 minutes', $result['Server']['hltvStatusTime'])) {
 							echo '<div class="ui-state-highlight ui-helper-clearfix ui-corner-all" style="padding: 8px; margin: 5px; '.$hltvStatusWidth.'">'."\n";
 							echo '<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>'."\n";
 							echo "Сервер HLTV запущен менее 5 минут назад. <br/>" .
@@ -796,7 +798,7 @@
 								 "Если в логе нет данных, либо есть ошибки, " .
 								 "попробуйте перезапустить сервер. <br/>" .
 								 "Если не поможет - обратитесь в техподдержку.";
-							echo "<br/> <small>Время статуса: ".$this->Common->niceDate($status['hltvStatusTime'])."</small>";
+							echo "<br/> <small>Время статуса: ".$this->Common->niceDate($result['Server']['hltvStatusTime'])."</small>";
 							echo "</div>";
 						}
 
@@ -806,7 +808,7 @@
 					case "stopped":
 						echo '<div class="ui-state-highlight ui-helper-clearfix ui-corner-all" style="padding: 8px; margin: 5px; '.$hltvStatusWidth.'">'."\n";
 						echo '<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>'."\n";
-						echo "Сервер HLTV выключен ".$this->Common->niceDate($status['hltvStatusTime']);
+						echo "Сервер HLTV выключен ".$this->Common->niceDate($result['Server']['hltvStatusTime']);
 						echo "</div>";
 						break;
 
@@ -836,7 +838,7 @@
 		       			</tr>
 				<?php
 					$i=1;
-					foreach ( $info['Server']['Hltv']['players'] as $player ) {
+					foreach ( $result['Status']['hltv']['players'] as $player ) {
 		       			?>
 		       			<tr>
 		       				<td><?php echo $i++; ?></td>
@@ -884,7 +886,7 @@
 		</td>
 		<td valign="top" style="width: 266px;">
 
-			<?php echo $this->element('graphs', array( 'graphs'=>$graphs )); ?>
+			<?php echo $this->element('graphs', array( 'graphs' => $result['Status']['graphs'] )); ?>
 
 		</td>
 	</tr>

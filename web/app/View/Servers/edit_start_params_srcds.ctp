@@ -849,11 +849,11 @@
 
 				        	if (empty($this->data['Server']['tickrate'])) {
 				        		if ($this->data['GameTemplate'][0]['name'] == 'cssv34') {
-									$this->data['Server']['tickrate'] = '66';
+									$this->request->data['Server']['tickrate'] = '66';
 								} elseif ($this->data['GameTemplate'][0]['name'] == 'csgo-t128') {
-									$this->data['Server']['tickrate'] = '64';
+									$this->request->data['Server']['tickrate'] = '64';
 								} else {
-				        			$this->data['Server']['tickrate'] = '30';
+				        			$this->request->data['Server']['tickrate'] = '30';
 				        		}
 				        	}
 
@@ -970,9 +970,7 @@
 			<h3>Изменить игру на</h3>
 			<?php
 
-			echo $this->Form->input('id', array( 'type' => 'hidden',
-											'div' => false,
-											'label' => false));
+			echo $this->Form->input('id', ['type' => 'hidden']);
 
 
 			$serviceDesc = '<span>

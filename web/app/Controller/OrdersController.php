@@ -439,12 +439,12 @@ class OrdersController extends AppController {
 			if (!empty($this->data['Location'])) {
 				$locationId = $this->data['Location']['id'];
 			} else {
-				$locationId = '2';
+				$locationId = '1';
 			}
 
 			// Расчет стоимости услуг
 			$serviceSum = 0;
-			if (!empty($this->data['Service'])) {
+			if (!empty($this->request->data['Service'])) {
 				// Сначала проверить доступность услуг
 				$serviceAvaliable = $this->requestAction(array('controller' => 'Services',
 																'action'=>'getServices'),
@@ -514,7 +514,7 @@ class OrdersController extends AppController {
 				$order['Order']['month'] = $this->data['Order']['month'];
 
 				// Теперь установим привязку заказа к пользователю
-				$order['User']['id'] = $this->DarkAuth->getUserID();
+				$order['Order']['user_id'] = $this->DarkAuth->getUserID();
 
 				/****************************************************************/
 				// Лицевой счет
@@ -568,10 +568,10 @@ class OrdersController extends AppController {
 				/****************************************************************/
 
 				// Синхронизируем данные с Server
-				$server['ServerType']['id'] = $this->data['Type']['id'];
-				$server['ServerComp']['slots'] = $this->data['Order']['slots'];
-				$server['ServerGameTemplate'] = $this->data['GameTemplate'];
-				$server['ServerMod'] = $this->data['Mod'];
+				$server['ServerType']['id'] = $this->request->data['Type']['id'];
+				$server['ServerComp']['slots'] = $this->request->data['Order']['slots'];
+				$server['ServerGameTemplate'] = $this->request->data['GameTemplate'];
+				//$server['ServerMod'] = $this->request->data['Mod'];
 
 				// Сразу прописать публичную статистику для сайта,
 				// если сервер публичный

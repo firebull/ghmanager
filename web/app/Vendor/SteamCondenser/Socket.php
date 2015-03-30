@@ -116,7 +116,7 @@ abstract class Socket {
      */
     public function recv($length = 128) {
         if($this->socketsEnabled) {
-            $data = socket_read($this->socket, $length);
+            $data = @socket_read($this->socket, $length);
 
             if ($data === false) {
                 $errorCode = socket_last_error($this->socket);
@@ -127,7 +127,7 @@ abstract class Socket {
                 throw new SocketException($errorCode);
             }
         } else {
-            $data = fread($this->socket, $length);
+            $data = @fread($this->socket, $length);
 
             if ($data === false) {
                 throw new SocketException('Could not read from socket.');

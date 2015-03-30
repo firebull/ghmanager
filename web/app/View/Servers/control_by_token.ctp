@@ -159,7 +159,7 @@
 		<td align="right">Игроков:</td>
 		<td>
 		<?php
-			echo $status['playerNumber']."/".$status['maxPlayers']." (".$status['botNumber']." ботов)";
+			echo $status['numberOfPlayers']."/".$status['maxPlayers']." (".$status['botNumber']." ботов)";
 		?>
 		</td>
 	</tr>

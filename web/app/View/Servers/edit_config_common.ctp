@@ -9,12 +9,19 @@
 include('loading_params.php');
 
 echo $this->Form->create('Server', ['action' => 'editConfigCommon',
-                                          'class' => 'ui form']); ?>
+                                    'class' => 'ui form']); ?>
 <table>
 	<tr>
 		<td colspan="3">
 		<?php
-			  echo $this->Form->input('configText',
+			// Config path and name
+			if (!empty($config))
+			{
+				echo $this->Html->tag('b',
+					                  sprintf('%s/%s', $config['path'], $config['name']));
+			}
+
+			echo $this->Form->input('configText',
 			  						array('type' => 'textarea',
 			  						      'wrap' => 'off',
 			  							  'style'=> 'width: 650px;
@@ -29,10 +36,10 @@ echo $this->Form->create('Server', ['action' => 'editConfigCommon',
 										  'div'    => false,
 										  'label'  => false,
 										  'value'  => @$result));
-			  /*echo $this->Html->tag('div', @$result, array('id' => 'textarea', 'style' => 'position: relative; width: 700px; height: 520px; margin: 0px; padding: 0px;'));*/
-			  echo $this->Form->input('id', array('type'=>'hidden'));
-			  echo $this->Form->input('configId', array('type'=>'hidden'));
-			  echo $this->Form->input('action', array('type'=>'hidden', 'value'=>'write'));
+			/*echo $this->Html->tag('div', @$result, array('id' => 'textarea', 'style' => 'position: relative; width: 700px; height: 520px; margin: 0px; padding: 0px;'));*/
+			echo $this->Form->input('id', array('type'=>'hidden'));
+			echo $this->Form->input('configId', array('type'=>'hidden'));
+			echo $this->Form->input('action', array('type'=>'hidden', 'value'=>'write'));
 
 		?>
 		<br/>
@@ -56,65 +63,63 @@ echo $this->Form->create('Server', ['action' => 'editConfigCommon',
 		<td colspan="2">
 
 		<?php
-			/*
-		  * Нельзя выводить кнопку "Создать из шаблона" для
-		  * модов, плагинов и т.д. ,
-		  * т.к. шаблон конфигов априоре может быть только
-		  * для сервера.
-		  */
-			if (@$this->data['Server']['configType'] == 'server') {
-			//Кнопка для создания конфига из шаблона
-			echo $this->Html->link('<i class="icon-repeat icon recycle"></i> Создать из шаблона', '#',
-								array ('id'=>'create_config_button',
-									   'escape' => false,
-									   'div' => false,
-									   'label' => false,
-									   'class' => 'btn ui button'));
+		//Кнопка для переключения редактора
+		if ($editorType === null or $editorType == 'extended') {
+			$editorTypeButtonText = '<i class="icon-file file icon"></i> Включить обычный редактор';
+			$editorTypeSwitch = 'simple';
+		} else {
+			$editorTypeButtonText = '<i class="icon-list-alt file text icon"></i> Включить расширенный редактор';
+			$editorTypeSwitch = 'extended';
+		}
 
-			$event  = $this->Js->request(array('controller'=>'Servers',
-										 'action'=>'editConfigCommon',
-										 $this->data['Server']['id'],
-										 $this->data['Server']['configId'],
-										 'create'),
-								   array('update' => '#configEditor',
-										 'before' => $loadingShow.';$("#create_config_button").addClass("loading");',
-										 'complete'=>$loadingHide,
-										 'buffer'=>false));
+		echo $this->Html->link( $editorTypeButtonText, '#',
+							array ('id'=>'editor_type_switch',
+								   'escape' => false,
+								   'escape' => false,
+								   'div' => false,
+								   'label' => false,
+								   'class' => 'btn ui button'));
 
-			$this->Js->get('#create_config_button')->event('click', $event);
-			}
-		?>
+		$event  = $this->Js->request(array('controller'=>'Servers',
+									 'action'=>'editConfigCommon',
+									 $this->data['Server']['id'],
+									 $this->data['Server']['configId'],
+									 'read', $editorTypeSwitch),
+							   array('update' => '#configEditor',
+									 'before' => $loadingShow.';$("#editor_type_switch").addClass("loading");',
+									 'complete'=>$loadingHide,
+									 'buffer'=>false));
 
-		<?php
-			//Кнопка для переключения редактора
-			if ($editorType === null or $editorType == 'extended') {
-				$editorTypeButtonText = '<i class="icon-file file icon"></i> Включить обычный редактор';
-				$editorTypeSwitch = 'simple';
-			} else {
-				$editorTypeButtonText = '<i class="icon-list-alt file text icon"></i> Включить расширенный редактор';
-				$editorTypeSwitch = 'extended';
-			}
+		$this->Js->get('#editor_type_switch')->event('click', $event);
 
-			echo $this->Html->link( $editorTypeButtonText, '#',
-								array ('id'=>'editor_type_switch',
-									   'escape' => false,
-									   'escape' => false,
-									   'div' => false,
-									   'label' => false,
-									   'class' => 'btn ui button'));
+		/*
+	  * Нельзя выводить кнопку "Создать из шаблона" для
+	  * модов, плагинов и т.д. ,
+	  * т.к. шаблон конфигов априоре может быть только
+	  * для сервера.
+	  */
+		if (@$this->data['Server']['configType'] == 'server') {
+		//Кнопка для создания конфига из шаблона
+		echo $this->Html->link('<i class="icon-repeat icon recycle"></i> Создать из шаблона', '#',
+							array ('id'=>'create_config_button',
+								   'escape' => false,
+								   'div' => false,
+								   'label' => false,
+								   'class' => 'btn ui button'));
 
-			$event  = $this->Js->request(array('controller'=>'Servers',
-										 'action'=>'editConfigCommon',
-										 $this->data['Server']['id'],
-										 $this->data['Server']['configId'],
-										 'read', $editorTypeSwitch),
-								   array('update' => '#configEditor',
-										 'before' => $loadingShow.';$("#editor_type_switch").addClass("loading");',
-										 'complete'=>$loadingHide,
-										 'buffer'=>false));
+		$event  = $this->Js->request(array('controller'=>'Servers',
+									 'action'=>'editConfigCommon',
+									 $this->data['Server']['id'],
+									 $this->data['Server']['configId'],
+									 'create'),
+							   array('update' => '#configEditor',
+									 'before' => $loadingShow.';$("#create_config_button").addClass("loading");',
+									 'complete'=>$loadingHide,
+									 'buffer'=>false));
 
-			$this->Js->get('#editor_type_switch')->event('click', $event);
-			?>
+		$this->Js->get('#create_config_button')->event('click', $event);
+		}
+	?>
 		</td>
 	</tr>
 </table>
