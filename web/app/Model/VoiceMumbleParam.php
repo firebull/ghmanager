@@ -136,15 +136,12 @@ class VoiceMumbleParam extends AppModel {
 	);
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
-	public $hasAndBelongsToMany = array(
+	public $belongsTo = array(
 		'Server' => array(
 			'className' => 'Server',
-			'joinTable' => 'servers_voice_mumble_params',
-			'foreignKey' => 'voice_mumble_param_id',
-			'associationForeignKey' => 'server_id',
 			'unique' => true,
 			'conditions' => '',
-			'fields' => 'id',
+			'fields' => 'id, address, port',
 			'order' => '',
 			'limit' => '',
 			'offset' => '',

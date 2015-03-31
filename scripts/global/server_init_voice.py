@@ -144,26 +144,21 @@ if lock:
 
                     # Создание типового конфига в базе
                     paramsCursor.execute("""INSERT INTO `teamserver`.`voice_mumble_params`
-                                            (`id`, `autobanAttempts`, `autobanTimeframe`,
+                                            (`server_id`, `autobanAttempts`, `autobanTimeframe`,
                                             `autobanTime`, `welcometext`, `serverpassword`,
                                             `SuperUserPassword`, `bandwidth`, `textmessagelength`,
                                             `imagemessagelength`, `allowhtml`, `logdays`, `registerName`,
                                             `registerPassword`, `registerUrl`, `registerHostname`,
                                             `sslCert`, `sslKey`, `certrequired`, `created`, `modified`)
                                             VALUES
-                                            (NULL, '10', '120', '300',
-                                            '<br />Welcome to this <b>Murmur</b> server at TeamServer.ru!<br />Enjoy your stay!<br />',
+                                            (%s, '10', '120', '300',
+                                            '<br />Welcome to this <b>Murmur</b> server at GH Manager!<br />Enjoy your stay!<br />',
                                             NULL, NULL, '72000', '5000', '131072', 'true', '31', NULL, NULL, NULL, NULL, NULL, NULL, 'false',
-                                            %s, %s);""", (datetime.now(), datetime.now()))
+                                            %s, %s);""", (serverID, datetime.now(), datetime.now()))
 
                     # id созданой записи
                     paramsID = db.insert_id()
 
-                    # Сохранение привязки параметров к серверу
-                    joinCursor.execute("""INSERT INTO `teamserver`.`servers_voice_mumble_params`
-                                          (`voice_mumble_param_id`, `server_id`)
-                                          VALUES
-                                          (%s, %s);""", (paramsID, serverID))
                     db.commit()
 
                 else:

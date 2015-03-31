@@ -72,8 +72,8 @@ class ServersController extends AppController {
             $sessionUserId = $sessionUser['UserGroup']['id'];
             $sessionUserGroup = $sessionUser['Group'][0]['id'];
 
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'GameTemplate',
                     'Type',
                     'Plugin',
@@ -81,9 +81,9 @@ class ServersController extends AppController {
                     'RootServer',
                     'Service',
                     'Order',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
             $this->Server->id = $serverId;
             $server = $this->Server->read();
@@ -657,16 +657,16 @@ class ServersController extends AppController {
         // Переходим к серверам
         // Нефиг запрашивать лишнюю информацию из базы
         $this->Server->unbindModel([
-            'hasAndBelongsToMany' => [
-                'Mod',
-                'Plugin',
-                'RootServer',
-                'Service',
-                'Order',
-                'User',
-                'VoiceMumbleParam',
-                'RadioShoutcastParam',
-            ]]);
+                'hasAndBelongsToMany' => [
+                    'Mod',
+                    'Plugin',
+                    'RootServer',
+                    'Service',
+                    'Order',
+                    'User',
+                    'RadioShoutcastParam',
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
         $this->Server->bindModel([
             'hasAndBelongsToMany' => [
@@ -1361,13 +1361,14 @@ class ServersController extends AppController {
         if ($this->checkRights($id)) {
             $this->loadModel('ServerStore');
             // Нефиг запрашивать лишнюю информацию из базы
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Order',
                     'User',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
+
             // Надо посмотреть, не использовалась ли услуга за последние сутки
             $this->Server->bindModel(array(
                 'hasOne' => array(
@@ -1778,15 +1779,14 @@ class ServersController extends AppController {
         }
 
         // Нефиг запрашивать лишнюю информацию из базы
-        $this->Server->unbindModel(array(
-            'hasAndBelongsToMany' => array(
-                'Order',
-                'Plugin',
-                'Service',
-                'VoiceMumbleParam',
-                'RadioShoutcastParam',
-            )),
-            false);
+        $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
+                    'Plugin',
+                    'Service',
+                    'Order',
+                    'RadioShoutcastParam',
+                ],
+                'hasOne' => ['VoiceMumbleParam']], false);
 
         if (!empty($conditions)) {
             $this->paginate = array('conditions' => $conditions,
@@ -2099,71 +2099,112 @@ class ServersController extends AppController {
 
     }
 
-    /**
-     * @param $id
-     */
     public function viewVoiceMumble($id = null) {
         $this->DarkAuth->requiresAuth();
+        $this->layout = 'ajax';
+
         //Проверка прав на сервер
         if ($this->checkRights($id)) {
-            $this->Server->id = $id;
-            $server = $this->Server->read();
+            $status = ['Server' => [],
+                    'Location' => [],
+                    'Type' => [],
+                    'GameTemplate' => [],
+                    'Eac' => [],
+                    'Status' => [
+                        'graphs'  => ['24h', '7d'],
+                        'players' => [],
+                        'hltv'    => [],
+                        'params'  => []],
+                    'error' => 'ok'];
 
-            $this->set('serverId', $id);
+            // Переходим к серверам
+            // Нефиг запрашивать лишнюю информацию из базы
+            $this->Server->unbindModel([
+            'hasAndBelongsToMany' => [
+                'Mod',
+                'Plugin',
+                'RootServer',
+                'Service',
+                'Order',
+                'User',
+                'RadioShoutcastParam',
+            ],
+            'hasOne' => ['VoiceMumbleParam']]);
 
-            $serverIp = $server['Server']['address'];
-            $serverPort = $server['Server']['port'];
-            $serverId = $server['Server']['id'];
-            $serverName = $server['GameTemplate'][0]['name'];
-            $serverType = $server['Type'][0]['name'];
+            $this->Server->bindModel([
+                'hasAndBelongsToMany' => [
+                    'Type' => ['fields' => 'id, name, longname'],
+                    'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
+                    'Location' => ['fields' => 'id, name, collocation'],
+                ],
+                'hasOne' => [
+                    'Voice' => ['className' => 'VoiceMumbleParam']
+                ]
+            ]);
 
-            $fp = @fsockopen($serverIp, 80, $errno, $errstr, 10);
-            if (!$fp) {
+            $server = $this->Server->find('first',
+                ['conditions' => ['Server.id' => $id],
+                    'fields' => 'id, name, slots, address, port,' .
+                    'privateType, privateStatus, payedTill,' .
+                    'initialised, action, status, statusDescription, statusTime,' .
+                    'crashReboot, crashCount, crashTime, controlByToken,'.
+                    'Voice.id, Voice.defaultchannel, Voice.autobanAttempts, Voice.autobanTimeframe,'.
+                    'Voice.autobanTime, Voice.welcometext, Voice.serverpassword, Voice.bandwidth,'.
+                    'Voice.textmessagelength, Voice.imagemessagelength, Voice.allowhtml, Voice.logdays,'.
+                    'Voice.registerName, Voice.registerPassword, Voice.registerUrl, Voice.registerHostname,'.
+                    'Voice.sslCert, Voice.sslKey, Voice.certrequired'
+                    ]);
 
-                $this->Session->setFlash("Невозможно подключиться к серверу: <br />\n" . "$errstr ($errno)<br />\n", 'flash_error');
+            if ($server)
+            {
+                $this->set('serverId', $id);
+                $status['Server'] = $server['Server'];
+                $status['Type'] = $server['Type'][0];
+                $status['GameTemplate'] = $server['GameTemplate'][0];
+                $status['Status']['params'] = $server['Voice'];
 
-            } else {
-                $data = "action=check" .
-                "&ip=" . $serverIp .
-                "&port=" . $serverPort;
-                $out = "POST /~configurator/scripts/check_port.py?" . $data . " HTTP/1.1\r\n";
-                $out .= "Host: " . $serverIp . "\r\n";
-                $out .= "Connection: Close\r\n\r\n";
+                // Рассчет графика окончания аренды
+                $status['Server']['scaleTime'] = $this->scaleDate($server['Server']['payedTill']);
+                $status['Server']['name'] = strip_tags($status['Server']['name']); //XSS
 
-                fwrite($fp, $out);
-
-                $response = '';
-
-                while (!feof($fp)) {
-                    $response .= fgets($fp, 1024);
+                if (!empty($server['Location'])) {
+                    $status['Location'] = $server['Location'][0];
                 }
-                fclose($fp);
 
-                $response = split("\r\n\r\n", $response);
-                $header = $response[0];
-                $responsecontent = $response[1];
-                if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
-                    $aux = split("\r\n", $responsecontent);
-                    for ($i = 0; $i < count($aux); $i++) {
-                        if ($i == 0 || ($i % 2 == 0)) {
-                            $aux[$i] = "";
-                        }
+                if ($status['Server']['initialised'] and $status['Server']['status'] == 'exec_success') {
+                    $requestStr = "/~configurator/scripts/check_port.py?";
+                    $data =
+                    "action=check" .
+                    "&ip=" . $server['Server']['address'] .
+                    "&port=" . $server['Server']['port'];
+
+                    $HttpSocket = new HttpSocket();
+                    $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
+
+                    $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response->body(), $out);
+                    $responsecontent = trim($out[1]);
+
+                    if ($responsecontent == 'open') {
+                        $status['Status']['running'] = false;
+                        $this->set('status', 'stoped');
+                    } elseif ($responsecontent == 'used') {
+                        $status['Status']['running'] = true;
+                        $this->set('status', 'runing');
                     }
-
-                    $responsecontent = implode("", $aux);
                 }
-
-                $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $responsecontent, $out);
-                $responsecontent = trim($out[1]);
-
-                if ($responsecontent === 'open') {
+                else
+                {
+                    $status['Status']['running'] = false;
                     $this->set('status', 'stoped');
-                } elseif ($responsecontent === 'used') {
-                    $this->set('status', 'runing');
-                } else {
-                    pr($responsecontent); // DEBUG!!!
                 }
 
+                $this->set('result', $status);
+                $this->set('_serialize', ['result']);
+
+            }
+            else
+            {
+                throw new NotFoundException('Сервера не существует');
             }
         }
     }
@@ -3142,9 +3183,9 @@ class ServersController extends AppController {
                     'Service',
                     'Order',
                     'User',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                ]]);
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
             $this->Server->bindModel([
                 'hasAndBelongsToMany' => [
@@ -3340,9 +3381,9 @@ class ServersController extends AppController {
                     'Service',
                     'Order',
                     'User',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                ]]);
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
             $this->Server->bindModel([
                 'hasAndBelongsToMany' => [
@@ -3692,15 +3733,17 @@ class ServersController extends AppController {
             }
 
             if (!empty($queryList)) {
-                $this->Server->unbindModel(['hasAndBelongsToMany' => ['Mod',
-                    'Plugin',
+                $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Type',
+                    'Plugin',
                     'RootServer',
                     'Service',
                     'Order',
                     'User',
-                    'VoiceMumbleParam',
-                    'RadioShoutcastParam']]);
+                    'RadioShoutcastParam',
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
                 $this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' => ['Mod', 'Plugin', 'Config', 'Service']]);
 
@@ -3831,19 +3874,6 @@ class ServersController extends AppController {
 
         if ($game === 'all') {
             // Нефиг запрашивать лишнюю информацию из базы
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
-                    'Type',
-                    'Mod',
-                    'Plugin',
-                    'Location',
-                    'RootServer',
-                    'Service',
-                    'Order',
-                    'User',
-                    'VoiceMumbleParam',
-                    'RadioShoutcastParam',
-                )));
             $this->Server->GameTemplate->unbindModel(array(
                 'hasAndBelongsToMany' => array(
                     'Mod',
@@ -3852,6 +3882,21 @@ class ServersController extends AppController {
                     'Service',
                     'Server',
                 )));
+
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
+                    'Type',
+                    'Mod',
+                    'Plugin',
+                    'Location',
+                    'RootServer',
+                    'Service',
+                    'Order',
+                    'User',
+                    'RadioShoutcastParam',
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
+
             $this->Server->bindModel(array(
                 'hasAndBelongsToMany' => array(
                     'RootServer' => array('joinTable' => 'servers_root_servers'),
@@ -3905,8 +3950,9 @@ class ServersController extends AppController {
                     ),
                     'Protocol' => array(),
                 )));
-            $this->GameTemplate->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+
+            $this->GameTemplate->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Type',
                     'Mod',
                     'Plugin',
@@ -3915,9 +3961,10 @@ class ServersController extends AppController {
                     'Service',
                     'Order',
                     'User',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
+
             $this->GameTemplate->Server->bindModel(array(
                 'hasAndBelongsToMany' => array(
                     'RootServer' => array('joinTable' => 'servers_root_servers'),
@@ -4495,17 +4542,18 @@ class ServersController extends AppController {
             $messages = ['info' => [], 'error' => []];
 
             // Нефиг запрашивать лишнюю информацию из базы
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Type',
-                    'Order',
                     'Mod',
                     'Plugin',
-                    'Config',
                     'RootServer',
-                    'VoiceMumbleParam',
+                    'Service',
+                    'Order',
+                    'Config',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
             $this->Server->id = $id;
             $server = $this->Server->read();
@@ -5483,17 +5531,19 @@ class ServersController extends AppController {
 
             if (!$this->checkForBlockedParam($paramName)) {
                 // Отключить лишние запросы
-                $this->Server->unbindModel(array(
-                    'hasAndBelongsToMany' => array(
-                        'Mod',
-                        'Plugin',
-                        'Service',
-                        'Order',
-                        'User',
-                        'RootServer',
-                        'VoiceMumbleParam',
-                        'RadioShoutcastParam',
-                    )));
+                $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
+                    'Mod',
+                    'Plugin',
+                    'Service',
+                    'RootServer',
+                    'Service',
+                    'Order',
+                    'User',
+                    'RadioShoutcastParam',
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
+
                 $this->Server->id = $id;
 
                 $server = $this->Server->read();
@@ -6019,15 +6069,16 @@ class ServersController extends AppController {
         if ($this->checkRights($id)) {
 
             // Отключить лишние запросы
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Type',
+                    'RootServer',
                     'Service',
                     'Order',
-                    'RootServer',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
+
             $this->Server->id = $id;
             $this->ServerPluginId->id = $id;
             $this->request->data = $this->Server->read();
@@ -6841,7 +6892,6 @@ class ServersController extends AppController {
 
         if ($addonType == 'none')
         {
-
             $addonType = null;
         }
 
@@ -7098,41 +7148,51 @@ class ServersController extends AppController {
      * @param $id
      * @return mixed
      */
-    public function editParamsVoiceMumble($id = null) {
+    public function editParamsVoiceMumble($id = null, $ver = null) {
         $this->DarkAuth->requiresAuth();
 
         if (@$id == null) {
             $id = $this->request->data['Server']['id'];
         }
 
-        if ($this->checkRights($id)) {
+        // Выбор шаблона для V2
+        if (!null == $ver) {
+            $path = 'v' . $ver . '/';
+        } else {
+            $path = '';
+        }
 
-            /*
-             * Сначала проверить принадлежность сервера пользователю
-             */
-
-            if ($this->checkRights($id)) {
-
+        // Сначала проверить принадлежность сервера пользователю
+        if ($this->checkRights($id))
+        {
+            if (empty($this->request->data))
+            {
+                $this->Server->id = $id;
+                $this->Server->contain(['VoiceMumbleParam']);
+                $this->request->data = $this->Server->read();
+            } else {
                 $this->loadModel('VoiceMumbleParam');
 
-                if (empty($this->request->data)) {
-                    $this->Server->id = $id;
-                    $this->request->data = $this->Server->read();
-                } else {
-                    // Сначала надо обнулить опасные поля
-                    $this->request->data['Server']['slots'] = '';
-                    $this->request->data['Server']['payedTill'] = '';
+                // Сначала надо обнулить опасные поля
+                unset($this->request->data['Server']['slots']);
+                unset($this->request->data['Server']['payedTill']);
+                unset($this->request->data['VoiceMumbleParam']['server_id']);
 
-                    // Теперь сохранить изменения параметров
-                    $this->Server->id = $this->request->data['Server']['id'];
-                    $server = $this->Server->read();
-                    $this->VoiceMumbleParam->id = $server['VoiceMumbleParam'][0]['id'];
-                    $mumbleParams['VoiceMumbleParam'] = $this->request->data['VoiceMumbleParam'][0];
-                    if ($this->VoiceMumbleParam->save($mumbleParams)) {
-                        // Теперь надо сгенерировать новый конфиг и передать его скрипту.
-                        $newParams = $this->VoiceMumbleParam->read();
-                        $newConfig =
-                        '
+                // Теперь сохранить изменения параметров
+                $this->Server->id = $this->request->data['Server']['id'];
+                $this->Server->contain(['VoiceMumbleParam' => ['fields' => 'id'],
+                                        'User'         => ['fields' => 'id'],
+                                        'GameTemplate' => ['fields' => 'id, name']]);
+
+                $server = $this->Server->read();
+                $this->VoiceMumbleParam->id = $server['VoiceMumbleParam']['id'];
+                $mumbleParams['VoiceMumbleParam'] = $this->request->data['VoiceMumbleParam'];
+
+                if ($this->VoiceMumbleParam->save($mumbleParams)) {
+                    // Теперь надо сгенерировать новый конфиг и передать его скрипту.
+                    $newParams = $this->VoiceMumbleParam->read();
+                    $newConfig =
+                    '
 # How many login attempts do we tolerate from one IP
 # inside a given timeframe before we ban the connection?
 # Note that this is global (shared between all virtual servers), and that
@@ -7227,45 +7287,43 @@ Ice.MessageSizeMax=65536
 
 ';
 
-                        $serverId = $server['Server']['id'];
-                        $serverName = $server['GameTemplate'][0]['name'];
-                        $userId = $server['User'][0]['id'];
+                    $serverId = $server['Server']['id'];
+                    $serverName = $server['GameTemplate'][0]['name'];
+                    $userId = $server['User'][0]['id'];
 
-                        $iniPath = "/home/client" . $userId . "/servers/" . $serverName . "_" . $serverId . "/murmur.ini";
+                    $iniPath = "/home/client" . $userId . "/servers/" . $serverName . "_" . $serverId . "/murmur.ini";
 
-                        // Совершаем запрос и форматируем вывод
+                    // Совершаем запрос и форматируем вывод
 
-                        $data = "action=write" .
-                        "&cfgPath=" . $iniPath .
-                        "&cfgText=" . urlencode($newConfig);
+                    $data = "action=write" .
+                    "&cfgPath=" . $iniPath .
+                    "&cfgText=" . urlencode($newConfig);
 
-                        $requestStr = '/~configurator/scripts/write_user_configs.py';
+                    $requestStr = '/~configurator/scripts/write_user_configs.py';
 
-                        $HttpSocket = new HttpSocket();
-                        $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
+                    $HttpSocket = new HttpSocket();
+                    $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
 
-                        $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response, $out);
-                        $responsecontent = trim($out[1]);
-                        if ($responsecontent === 'success') {
-                            $this->Session->setFlash('Конфиг сохранён. Перезапустите сервер.', 'flash_success');
-                            return $this->redirect(array('action' => 'result', $id));
-                        } else {
-                            $this->Session->setFlash('Произошла ошибка: -' . $responsecontent . '-', 'flash_error');
-                            return $this->redirect(array('action' => 'result', $id));
-                        }
-
-                        $this->Session->setFlash('Параметры сохранены, перегрузите сервер.', 'flash_success');
-                        return $this->redirect(array('action' => 'result'));
+                    $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response, $out);
+                    $responsecontent = trim($out[1]);
+                    if ($responsecontent == 'success') {
+                        $this->Session->setFlash('Конфиг сохранён. Перезапустите сервер.', $path . 'flash_success');
+                        return $this->redirect(array('action' => 'result', $ver));
                     } else {
-                        $this->set('errors', $this->VoiceMumbleParam->invalidFields());
-                        $this->Session->setFlash('Возникла ошибка при сохранении параметров.' . mysql_error(), 'flash_error');
+                        $this->Session->setFlash('Произошла ошибка: "' . $responsecontent . '"', $path . 'flash_error');
+                        return $this->redirect(array('action' => 'result', $ver));
                     }
 
+                    $this->Session->setFlash('Параметры сохранены, перегрузите сервер.', $path . 'flash_success');
+                    return $this->redirect(array('action' => 'result', $ver));
+                } else {
+                    $this->set('errors', $this->VoiceMumbleParam->invalidFields());
+                    $this->Session->setFlash('Произошла ошибка БД', $path . 'flash_error');
                 }
             }
-
         }
 
+        $this->render($path . 'edit_params_voice_mumble');
     }
 
     /**
@@ -8041,17 +8099,17 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
             // Переходим к серверам
             // Нефиг запрашивать лишнюю информацию из базы
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Plugin',
                     'Location',
                     'RootServer',
                     'Service',
                     'Order',
                     'User',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
             $userServers = $this->Server->find('all', array(
                 'conditions' => array('id' => $serversIdsList)));
@@ -8369,14 +8427,15 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
         if ($id === null && !empty($this->request->data['Server']['id'])) {
             $id = $this->request->data['Server']['id'];
         } elseif ($id === null && empty($this->request->data['Server']['id'])) {
-            $this->Session->setFlash('Не указан ID сервера', $path . 'flash_error');
-            return $this->redirect($this->referer());
-            return false;
+            throw new BadRequestException('Не указан ID сервера');
         }
 
         if ($this->checkRights($id)) {
 
-            $this->Server->contain(['Type', 'GameTemplate', 'Mod', 'Plugin']);
+            $this->Server->contain(['Type'         => ['fields' => 'id, name, longname'],
+                                    'GameTemplate' => ['fields' => 'id, name, longname, configPath'],
+                                    'Mod'    => ['fields' => 'id, name'],
+                                    'Plugin' => ['fields' => 'id, name']]);
             $this->Server->id = $id;
 
             if ($this->request->data) {
@@ -8391,46 +8450,53 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
                 if ($this->ServerClean->save($server)) {
                     // Теперь сохранить имя сервера в конфиг
-
                     $server = $this->Server->find('first',
                         ['conditions' => ['Server.id' => $id],
                             'fields' => ['id', 'name', 'desc', 'address']]);
 
                     /* Выбрать имя параметра - Начало*/
-                    if (!empty($server['Type'])) {
+                    if (!empty($server['Type']) )
+                    {
+                        if ($server['Type'][0]['name'] != 'voice')
+                        {
+                            /* Выбрать конфиг, в который писать по типу сервера*/
+                            switch ($server['Type'][0]['name']) {
+                                case 'srcds':
+                                case 'hlds':
+                                    $this->request->data['Server']['paramName'] = 'hostname';
+                                    break;
 
-                        /* Выбрать конфиг, в который писать по типу сервера*/
-                        if ($server['Type'][0]['name'] === 'srcds'
-                            or
-                            $server['Type'][0]['name'] === 'hlds'
-                        ) {
+                                case 'cod':
+                                    if ($server['GameTemplate'][0]['name'] == 'cod2') {
+                                        $this->request->data['Server']['paramName'] = 'set sv_hostname';
+                                    } else {
+                                        $this->request->data['Server']['paramName'] = 'sets sv_hostname';
+                                    }
 
-                            $this->request->data['Server']['paramName'] = 'hostname';
+                                    $this->request->data['Server']['nameInGame'] = iconv('UTF8', 'CP1251', $this->request->data['Server']['nameInGame']);
+                                    break;
 
-                        } elseif ($server['Type'][0]['name'] === 'cod') {
-                            if ($server['GameTemplate'][0]['name'] === 'cod2') {
-                                $this->request->data['Server']['paramName'] = 'set sv_hostname';
-                            } else {
-                                $this->request->data['Server']['paramName'] = 'sets sv_hostname';
+                                case 'ueds':
+                                    $this->request->data['Server']['paramName'] = 'ServerName';
+                                    break;
+
+                                default:
+                                    throw new BadRequestException('Не знаю данный тип серверов');
+                                    break;
                             }
 
-                            $this->request->data['Server']['nameInGame'] = iconv('UTF8', 'CP1251', $this->request->data['Server']['nameInGame']);
+                            $this->request->data['Server']['paramValue'] = $this->request->data['Server']['nameInGame'];
 
-                        } elseif ($server['Type'][0]['name'] === 'ueds') {
+                            if ($this->setConfigParam($id, 'return')) {
+                                $this->Session->setFlash('Новое имя сохранено. Перегрузите сервер или смените карту.', $path . 'flash_success');
+                            }
 
-                            $this->request->data['Server']['paramName'] = 'ServerName';
-
+                            /* Конец выбора параметра */
                         }
-                        /* Конец выбора конфига */
-
-                        $this->request->data['Server']['paramValue'] = $this->request->data['Server']['nameInGame'];
-
-                        if ($this->setConfigParam($id, 'return')) {
-                            $this->Session->setFlash('Новое имя сохранено. Перегрузите сервер или смените карту.', $path . 'flash_success');
-                        }
-
-                    } else {
-                        $this->Session->setFlash('Возникла ошибка.' . mysql_error(), $path . 'flash_error');
+                    }
+                    else
+                    {
+                        throw new InternalErrorException('У сервера не задан тип');
                     }
 
                     // Редирект для панели v1
@@ -8556,50 +8622,32 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
             if ($this->checkRights($id)) {
 
                 $this->Server->id = $id;
+                $this->Server->contain(['GameTemplate' => ['fields' => 'id, name'],
+                                        'Type'         => ['fields' => 'id, name'],
+                                        'User'         => ['fields' => 'id']]);
+
                 $server = $this->Server->read();
 
-                $serverIp = $server['Server']['address'];
+                $serverIp   = $server['Server']['address'];
                 $serverPort = $server['Server']['port'];
-                $serverId = $server['Server']['id'];
+                $serverId   = $server['Server']['id'];
                 $serverName = $server['GameTemplate'][0]['name'];
                 $serverType = $server['Type'][0]['name'];
-                $userId = $server['User'][0]['id'];
+                $userId     = $server['User'][0]['id'];
 
-                $fp = @fsockopen($serverIp, 80, $errno, $errstr, 10);
+                $requestStr = "/~client" . $userId . "/common/.mumble_change_root_pass.py";
+                $data = "action=change&id=" . $serverId;
 
-                if (!$fp) {
+                $HttpSocket = new HttpSocket();
+                $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
 
+                if (!$response)
+                {
                     $this->Session->setFlash("Невозможно подключиться к серверу: <br />\n" . "$errstr ($errno)<br />\n", 'flash_error');
-
-                } else {
-                    $data = "action=change" .
-                    "&id=" . $serverId;
-                    $out = "POST /~client" . $userId . "/common/.mumble_change_root_pass.py?" . $data . " HTTP/1.1\r\n";
-                    $out .= "Host: " . $serverIp . "\r\n";
-                    $out .= "Connection: Close\r\n\r\n";
-
-                    fwrite($fp, $out);
-
-                    $response = '';
-
-                    while (!feof($fp)) {
-                        $response .= fgets($fp, 1024);
-                    }
-                    fclose($fp);
-
-                    $response = split("\r\n\r\n", $response);
-                    $header = $response[0];
-                    $responsecontent = $response[1];
-                    if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
-                        $aux = split("\r\n", $responsecontent);
-                        for ($i = 0; $i < count($aux); $i++) {
-                            if ($i == 0 || ($i % 2 == 0)) {
-                                $aux[$i] = "";
-                            }
-                        }
-
-                        $responsecontent = implode("", $aux);
-                    }
+                }
+                else
+                {
+                    $responsecontent = $response->body();
 
                     $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $responsecontent, $out);
                     $responsecontent = trim($out[1]);
@@ -8610,12 +8658,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                     } else {
                         $this->Session->setFlash("Произошла ошибка. Попробуйте позднее." . $responsecontent, 'flash_error');
                     }
-
                 }
 
                 return $this->redirect(array('action' => 'result'));
             }
-
         }
     }
 
@@ -8896,18 +8942,19 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
     public function rcon($id = null, $isHltv = false) {
         $this->DarkAuth->requiresAuth();
         $this->Server->id = $id;
-        $this->Server->unbindModel(array(
-            'hasAndBelongsToMany' => array(
-                'GameTemplate',
-                'Mod',
-                'Plugin',
-                'Service',
-                'Order',
-                'User',
-                'RootServer',
-                'VoiceMumbleParam',
-                'RadioShoutcastParam',
-            )));
+        $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
+                    'GameTemplate',
+                    'Mod',
+                    'Plugin',
+                    'RootServer',
+                    'Service',
+                    'Order',
+                    'User',
+                    'RadioShoutcastParam',
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
+
         $server = $this->Server->read();
         $this->Session->delete('rconPassword');
         $this->set('serverType', $server['Type'][0]['name']);
@@ -8943,16 +8990,16 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
         // Проверка прав на сервер
         if ($this->checkRights($id)) {
             $this->Server->id = $id;
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Mod',
                     'Plugin',
+                    'RootServer',
                     'Service',
                     'Order',
-                    'RootServer',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
 
             $server = $this->Server->read();
             $serverTemplate = $server['GameTemplate'][0]['name'];
@@ -9624,24 +9671,27 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
             $this->Server->User->id = $this->DarkAuth->getUserId();
             $this->Server->User->saveField('tokenhash', $token);
 
-            $this->Server->unbindModel(array(
-                'hasAndBelongsToMany' => array(
+            $this->Server->unbindModel([
+                'hasAndBelongsToMany' => [
                     'Mod',
                     'Plugin',
+                    'RootServer',
                     'Service',
                     'Order',
-                    'RootServer',
-                    'VoiceMumbleParam',
                     'RadioShoutcastParam',
-                )));
+                ],
+                'hasOne' => ['VoiceMumbleParam']]);
             $this->Server->id = $id;
             $this->request->data = $this->Server->read();
         }
 
     }
 
-    public function result() {
+    public function result($ver = '') {
         // Функция пустышка для вывода результатов операций
+        if ($ver != ''){
+            $this->render('v'.$ver.'/result');
+        }
     }
 
 }

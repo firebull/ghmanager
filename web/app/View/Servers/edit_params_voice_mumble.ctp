@@ -6,6 +6,7 @@
  * by bulaev
  */
  include('loading_params.php');
+ //pr($this->data);
 ?>
 <cake:nocache>
 <div id="voice_params" style="margin-left: 30px;">
@@ -28,7 +29,7 @@
 		<td>defaultchannel</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.defaultchannel',
+		<?php echo $this->Form->input('VoiceMumbleParam.defaultchannel',
 									array(
 										'div' => true,
 										'label' => false,
@@ -42,7 +43,7 @@
 		<td>autobanAttempts</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.autobanAttempts',
+		<?php echo $this->Form->input('VoiceMumbleParam.autobanAttempts',
 									array(
 										'size' => '10',
 										'div' => true,
@@ -57,7 +58,7 @@
 		<td>autobanTimeframe</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.autobanTimeframe',
+		<?php echo $this->Form->input('VoiceMumbleParam.autobanTimeframe',
 									array(
 										'size' => '10',
 										'div' => true,
@@ -72,7 +73,7 @@
 		<td>autobanTime</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.autobanTime',
+		<?php echo $this->Form->input('VoiceMumbleParam.autobanTime',
 									array(
 										'size' => '10',
 										'div' => true,
@@ -87,7 +88,7 @@
 		<td valign="top">Welcometext</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.welcometext',
+		<?php echo $this->Form->input('VoiceMumbleParam.welcometext',
 									array(
 										'div' => true,
 										'label' => false,
@@ -101,7 +102,7 @@
 		<td>ServerPassword</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.serverpassword',
+		<?php echo $this->Form->input('VoiceMumbleParam.serverpassword',
 									array(
 										'size' => '20',
 										'div' => true,
@@ -116,7 +117,7 @@
 		<td>textmessagelength</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.textmessagelength',
+		<?php echo $this->Form->input('VoiceMumbleParam.textmessagelength',
 									array(
 										'size' => '10',
 										'div' => true,
@@ -131,7 +132,7 @@
 		<td>imagemessagelength</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.imagemessagelength',
+		<?php echo $this->Form->input('VoiceMumbleParam.imagemessagelength',
 									array(
 										'size' => '10',
 										'div' => true,
@@ -146,7 +147,7 @@
 		<td>allowhtml</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.allowhtml',
+		<?php echo $this->Form->input('VoiceMumbleParam.allowhtml',
 									array(
 										'options'=>array(
 														'true' => 'Да',
@@ -164,7 +165,7 @@
 		<td>registerName</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.registerName',
+		<?php echo $this->Form->input('VoiceMumbleParam.registerName',
 									array(
 										'size' => '25',
 										'div' => true,
@@ -179,7 +180,7 @@
 		<td>registerPassword</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.registerPassword',
+		<?php echo $this->Form->input('VoiceMumbleParam.registerPassword',
 									array(
 										'size' => '15',
 										'div' => true,
@@ -193,7 +194,7 @@
 		<td>registerUrl</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.registerUrl',
+		<?php echo $this->Form->input('VoiceMumbleParam.registerUrl',
 									array(
 										'size' => '25',
 										'div' => true,
@@ -208,7 +209,7 @@
 		<td>registerHostname</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.registerHostname',
+		<?php echo $this->Form->input('VoiceMumbleParam.registerHostname',
 									array(
 										'size' => '25',
 										'div' => true,
@@ -224,7 +225,7 @@
 	<td>bandwidth</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1" style="width: 270px;">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.bandwidth',
+		<?php echo $this->Form->input('VoiceMumbleParam.bandwidth',
 									array(
 										'type' => 'hidden',
 										'div' => false,
@@ -247,7 +248,7 @@
 		<td valign="top">sslCert</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.sslCert',
+		<?php echo $this->Form->input('VoiceMumbleParam.sslCert',
 									array(
 										'size' => '30',
 										'div' => true,
@@ -262,7 +263,7 @@
 		<td valign="top">sslKey</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.sslKey',
+		<?php echo $this->Form->input('VoiceMumbleParam.sslKey',
 									array(
 										'size' => '30',
 										'div' => true,
@@ -277,7 +278,7 @@
 		<td valign="top">certrequired</td>
 		<td>
 		<div class="qlabs_tooltip_right qlabs_tooltip_style_1">
-		<?php echo $this->Form->input('VoiceMumbleParam.0.certrequired',
+		<?php echo $this->Form->input('VoiceMumbleParam.certrequired',
 									array(
 										'options'=>array(
 														'true' => 'Да',
@@ -324,7 +325,7 @@
 
 		$("#bandwidth").slider({
 								range: "max",
-								value: <?php echo $this->data['VoiceMumbleParam'][0]['bandwidth']; ?>,
+								value: <?php echo $this->data['VoiceMumbleParam']['bandwidth']; ?>,
 								min: 8192,
 								max: 131072,
 								step: 2048,

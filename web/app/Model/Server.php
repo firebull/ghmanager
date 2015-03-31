@@ -69,13 +69,6 @@ class Server extends AppModel {
             'unique' => true,
             'fields' => 'id,first_name,second_name,username,email,steam_id,guid,tokenhash,money',
         ),
-        'VoiceMumbleParam' => array(
-            'className' => 'VoiceMumbleParam',
-            'joinTable' => 'servers_voice_mumble_params',
-            'foreignKey' => 'server_id',
-            'associationForeignKey' => 'voice_mumble_param_id',
-            'unique' => true,
-        ),
         'RadioShoutcastParam' => array(
             'className' => 'RadioShoutcastParam',
             'joinTable' => 'radio_shoutcast_params_servers',
@@ -84,6 +77,13 @@ class Server extends AppModel {
             'unique' => true,
         ),
     );
+
+	public $hasOne =
+		['VoiceMumbleParam' => [
+            'className' => 'VoiceMumbleParam',
+            'unique' => true,
+        ],
+        ];
 
 }
 // Модель, для работы в других контроллерах
@@ -158,13 +158,6 @@ class ServerComp extends AppModel {
             'unique' => true,
             'fields' => 'id,first_name,second_name,username,steam_id,guid,email',
         ),
-        'ServerVoiceMumbleParam' => array(
-            'className' => 'VoiceMumbleParam',
-            'joinTable' => 'servers_voice_mumble_params',
-            'foreignKey' => 'server_id',
-            'associationForeignKey' => 'voice_mumble_param_id',
-            'unique' => true,
-        ),
         'ServerRadioShoutcastParam' => array(
             'className' => 'RadioShoutcastParam',
             'joinTable' => 'radio_shoutcast_params_servers',
@@ -173,6 +166,13 @@ class ServerComp extends AppModel {
             'unique' => true,
         ),
     );
+
+	public $hasOne =
+		['ServerVoiceMumbleParam' => [
+            'className' => 'VoiceMumbleParam',
+            'unique' => true,
+        ],
+        ];
 
 }
 

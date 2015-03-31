@@ -407,7 +407,41 @@
 </script>
 
 <script type="text/html" id="render-template-voice">
-
+	<div class="ui top attached block header">
+		<img src="/img/bigicons/mumble.png"/>
+		<div class="content">
+			<span data-bind='text: "\"" + renderedServer().Server.name + "\"", visible: renderedServer().Server.name'></span>
+			<span data-bind='text: renderedServer().GameTemplate.longname'></span>,
+			<span data-bind='text: $root.privateType()'></span>
+			<span data-bind="text: '(ID: ' + renderedServer().Server.id + ')'"></span>
+			<br/>
+			<span data-bind="visible: renderedServer().Server.address, text: renderedServer().Server.address + ':' + renderedServer().Server.port + ', '"></span>
+			<span data-bind="visible: renderedServer().Location.name, text: renderedServer().Location.collocation + ' (' + renderedServer().Location.name + ')'"></span>
+		</div>
+		<div class="ui active inline loader" data-bind="visible: loadingModal"></div>
+	</div>
+	<div class="ui bottom attached segment" data-bind="visible: !renderedServer().Server.initialised && renderedServer().Server.payedTill">
+		<div class="ui active inline loader"></div> Идёт установка сервера, подождите немного.
+	</div>
+	<div class="ui labeled icon fluid menu attached" data-bind="visible: renderedServer().Server.initialised">
+		<!-- Продление только для инициализированного сервера
+		     Иконка для продления оплаты игрового сервера -->
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Продлить аренду сервера', '/orders/prolongate/' + renderedServer().Server.id)}, visible: gameServers()[selectedServer()].Server.initialised">
+			<i class="add to cart icon"></i>Продлить
+		</a>
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Изменить имя сервера', '/servers/changeName/' + renderedServer().Server.id)}">
+			<i class="edit icon"></i>Имя сервера
+		</a>
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Изменить настройки сервера', '/servers/editParams/' + renderedServer().Server.id)}">
+			<i class="file text icon"></i>Настройки
+		</a>
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Изменить пароль Superuser', '/servers/changeMumbleRootPass/' + renderedServer().Server.id + '/change')}">
+			<i class="lock icon"></i>Пароль
+		</a>
+		<a class="item" data-bind="event: {click: $root.showModal.bind($data, 'fullscreen', 'Просмотр логов сервера', '/servers/viewLog/' + renderedServer().Server.id + '/run')}">
+			<i class="file text outline icon"></i>Лог
+		</a>
+	</div>
 </script>
 
 <script type="text/html" id="render-template-eac">

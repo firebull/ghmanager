@@ -5,6 +5,7 @@
  * Made for project GHmanager(Git)
  * by Nikita Bulaev
  */
+
 ?>
 <div id="changeServerName">
 	<div class="ui active inverted dimmer" style="display: none;" id="changeServerNameLoader">
@@ -23,10 +24,14 @@
 									 'title' => 'Введите имя сервера в панели',
 									]);
 
-	echo $this->Form->input('nameInGame', [ 'div'   => 'field',
-											'label' => 'Имя сервера в игре и мониторинге',
-											'title' =>'Введите имя сервера в игре',
-											]);
+	if ($this->data['Type'][0]['name'] != 'voice')
+	{
+		echo $this->Form->input('nameInGame', [ 'div'   => 'field',
+												'label' => 'Имя сервера в игре и мониторинге',
+												'title' =>'Введите имя сервера в игре',
+												]);
+	}
+
 	echo $this->Form->input('desc', ['type'  => 'textarea',
 			  						 'wrap'  => 'on',
 			  						 'div'   => 'field',

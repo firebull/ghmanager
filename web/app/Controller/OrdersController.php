@@ -329,17 +329,19 @@ class OrdersController extends AppController {
 		// Выбор заказов по серверу
 		if (!empty($this->request->data['Server']['id']) and $this->request->data['Server']['id'] !== 'all') {
 
-			$this->Order->Server->unbindModel(array( 'hasAndBelongsToMany' => array(
-																					'Type',
-																					'GameTemplate',
-																					'Mod',
-																					'Plugin',
-																					'RootServer',
-																					'Service',
-																					'User',
-																					'VoiceMumbleParam',
-																					'RadioShoutcastParam'
-																				   )));
+			$this->Order->Server->unbindModel(['hasAndBelongsToMany' =>
+														[
+														'Type',
+														'GameTemplate',
+														'Mod',
+														'Plugin',
+														'RootServer',
+														'Service',
+														'User',
+														'RadioShoutcastParam'
+													   ],
+											    'hasOne' => ['VoiceMumbleParam']
+											    ]);
 
 			$this->Order->Server->bindModel(array(
 													'hasAndBelongsToMany' => array(
@@ -2649,13 +2651,12 @@ class OrdersController extends AppController {
 			$this->Order->id = $orderId;
 			$order = $this->Order->read();
 
-			$this->Order->Server->unbindModel(array(
-												'hasAndBelongsToMany' => array(
+			$this->Order->Server->unbindModel(['hasAndBelongsToMany' => [
 																	'Plugin',
-																	'VoiceMumbleParam',
 																	'RadioShoutcastParam',
 																	'User'
-														)));
+																		],
+												'hasOne' => ['VoiceMumbleParam']]);
 
 			$this->set('order', $order);
 
