@@ -295,7 +295,7 @@
                             });
 
         function countKbits() {
-$('#indexModal').modal('refresh');
+
             var bits = $("#bandwidthHidden").val();
 
             kbits = Math.round(eval(bits/1024)) + 'Кбит';

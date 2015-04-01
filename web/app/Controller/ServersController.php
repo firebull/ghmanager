@@ -2172,7 +2172,7 @@ class ServersController extends AppController {
                 }
 
                 if ($status['Server']['initialised'] and $status['Server']['status'] == 'exec_success') {
-                    $requestStr = "/~configurator/scripts/check_port.py?";
+                    $requestStr = "/~configurator/scripts/check_mumble.py?";
                     $data =
                     "action=check" .
                     "&ip=" . $server['Server']['address'] .
@@ -2181,14 +2181,25 @@ class ServersController extends AppController {
                     $HttpSocket = new HttpSocket();
                     $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
 
-                    $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response->body(), $out);
-                    $responsecontent = trim($out[1]);
+                    $serverStatus = json_decode($response->body, true);
 
-                    if ($responsecontent == 'open') {
+                    if (isset($serverStatus['error']))
+                    {
                         $status['Status']['running'] = false;
+                        $status['Status']['error'] = $serverStatus['error'];
                         $this->set('status', 'stoped');
-                    } elseif ($responsecontent == 'used') {
+                        if (isset($serverStatus['desc'])){
+                            $status['Status']['errorDesc'] = $serverStatus['desc'];
+                        }
+                    }
+                    else
+                    {
                         $status['Status']['running'] = true;
+                        $status['Status']['version'] = $serverStatus['version'];
+                        $status['Status']['users'] = $serverStatus['users'];
+                        $status['Status']['slots'] = $serverStatus['slots'];
+                        $status['Status']['bandwidth'] = $serverStatus['bandwidth'];
+                        $status['Status']['proto'] = $serverStatus['proto'];
                         $this->set('status', 'runing');
                     }
                 }
@@ -2270,9 +2281,16 @@ class ServersController extends AppController {
      * @param null $ver
      * @return mixed
      */
-    public function viewLog($id = null, $type = null, $ver = null) {
+    public function viewLog($id = null, $type = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('GameTemplate');
+
+        if (!empty($this->params['named']['ver'])) {
+            $ver = $this->params['named']['ver'];
+        } else {
+            $ver = null;
+        }
+
         $this->Server->id = $id;
         $server = $this->Server->read();
         // В зависимости от типа и шаблона, переадресуем на соответвующий контроллер
@@ -6043,6 +6061,10 @@ class ServersController extends AppController {
         }
     }
 
+    public function addons($id = null){
+        $this->set('serverId', $id);
+    }
+
     /**
      * @param $id
      * @param null $addon
@@ -6058,9 +6080,9 @@ class ServersController extends AppController {
          * @$installBy - инсталлирует скрипт или юзер
          *
          **/
+        //pr($this->params['named']['ver']);
         $this->DarkAuth->requiresAuth();
-        $this->loadModel('ServerMod');
-        $this->loadModel('ServerPluginId');
+
         if (!empty($this->request->params['named']['rediscover'])) {
             $rediscover = $this->request->params['named']['rediscover'];
         }
@@ -6069,41 +6091,47 @@ class ServersController extends AppController {
         if ($this->checkRights($id)) {
 
             // Отключить лишние запросы
-            $this->Server->unbindModel([
-                'hasAndBelongsToMany' => [
-                    'Type',
-                    'RootServer',
-                    'Service',
-                    'Order',
-                    'RadioShoutcastParam',
-                ],
-                'hasOne' => ['VoiceMumbleParam']]);
+            $this->Server->contain(['GameTemplate' => ['fields' => 'id, name'],
+                                    'Mod' => ['fields' => 'id, name'],
+                                    'Plugin',
+                                    'User' => ['fields' => 'id']
+                                    ]);
 
             $this->Server->id = $id;
-            $this->ServerPluginId->id = $id;
-            $this->request->data = $this->Server->read();
-            $serverPluginsIds = $this->ServerPluginId->read();
-            $serverId = $this->request->data['Server']['id'];
-            $serverIp = $this->request->data['Server']['address'];
-            $serverPort = $this->request->data['Server']['port'];
-            $serverTemplate = $this->request->data['GameTemplate'][0]['name'];
-            $userId = $this->request->data['User'][0]['id'];
+            $server = $this->Server->read();
 
-            $this->Server->GameTemplate->unbindModel(array(
-                'hasAndBelongsToMany' => array(
-                    'Type',
-                    'Config',
-                    'Protocol',
-                    'Service',
-                )));
-            $this->Server->GameTemplate->id = $this->request->data['GameTemplate'][0]['id'];
+            $this->loadModel('ServerPluginId');
+            $this->ServerPluginId->id = $id;
+            $serverPluginsIds = $this->ServerPluginId->read('id');
+
+            $serverId = $server['Server']['id'];
+            $serverIp = $server['Server']['address'];
+            $serverPort = $server['Server']['port'];
+            $serverTemplate = $server['GameTemplate'][0]['name'];
+            $userId = $server['User'][0]['id'];
+
+            if (!empty($server['Mod']))
+            {
+                $this->Server
+                     ->GameTemplate
+                     ->contain(['Mod', 'Plugin']);
+            }
+            else
+            {
+                $this->Server
+                     ->GameTemplate
+                     ->contain(['Mod']);
+            }
+
+            $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
             $gameTemplate = $this->Server->GameTemplate->read();
             $this->set('serverId', $id);
             //pr($gameTemplate);
 
-            // Если переменная $plugin существует, то
+            // Если переменная $addon существует, то
             // запускаем процедуру инсталяции
-            if (!empty($addon)) {
+            if (!empty($addon))
+            {
                 // инсталяция модов, плагинов
                 if ($type === 'mod') {
                     /*
@@ -6115,7 +6143,7 @@ class ServersController extends AppController {
                     $this->Server->Mod->id = $addon;
                     $modToInstall = $this->Server->Mod->read();
                     $mods = array($addon);
-                    foreach ($this->request->data['Mod'] as $mod) {
+                    foreach ($server['Mod'] as $mod) {
                         if ($mod['name'] != $modToInstall['Mod']['name']) {
                             $mods[] = $mod['id'];
                         }
@@ -6132,7 +6160,7 @@ class ServersController extends AppController {
                     $this->Server->Plugin->id = $addon;
                     $pluginToInstall = $this->Server->Plugin->read();
                     $plugins = array($addon);
-                    foreach ($this->request->data['Plugin'] as $plugin) {
+                    foreach ($server['Plugin'] as $plugin) {
                         if ($plugin['name'] != $pluginToInstall['Plugin']['name']) {
                             $plugins[] = $plugin['id'];
                         }
@@ -6172,6 +6200,9 @@ class ServersController extends AppController {
 
                 if (@$installResult === 'success' or $installBy === 'user') {
 
+                    $server['User']['id'] = $server['User'][0]['id'];
+                    $server['GameTemplate']['id'] = $server['GameTemplate'][0]['id'];
+
                     if ($this->Server->saveAll($server)) {
 
                         if (@$configResult === 'success') {
@@ -6209,10 +6240,10 @@ class ServersController extends AppController {
                     }
                 }
 
-                if (!empty($this->request->data['Mod'])) {
+                if (!empty($server['Mod'])) {
 
                     // Получим список плагинов, относящихся к моду
-                    foreach ($this->request->data['Mod'] as $mod) {
+                    foreach ($server['Mod'] as $mod) {
                         $modsList[] = $mod['id'];
 
                     }
@@ -6295,7 +6326,7 @@ class ServersController extends AppController {
                     }
 
                     $this->set('installedMod', $modsList);
-                    $this->set('installedPlugins', $this->request->data['Plugin']);
+                    $this->set('installedPlugins', $server['Plugin']);
 
                 }
 
@@ -6308,23 +6339,21 @@ class ServersController extends AppController {
                     }
 
                     $this->Server->Mod->unbindModel(array(
-                        'hasAndBelongsToMany' => array('Config')));
+                        'hasAndBelongsToMany' => array('Config', 'Plugin')));
 
-                    $this->Server->Mod->bindModel(array(
+                    /*$this->Server->Mod->bindModel(array(
                         'hasAndBelongsToMany' => array(
                             'Plugin' => array('fields' => 'id, longname, version',
                                 'conditions' => array(
                                     'id' => @$gameTemplatePluginsIds,
                                 ),
                             ),
-                        )));
+                        )));*/
 
                     $mods = $this->Server->Mod->find('all',
-                        array(
-                            'conditions' => array(
-                                'id' => $modsList,
-                            ),
-                        )
+                        [ 'conditions' => ['id' => $modsList],
+                          'fields' => 'id, name, longname, version, shortDescription, description'
+                        ]
                     );
 
                     $this->set('modsList', $mods);
@@ -6337,6 +6366,10 @@ class ServersController extends AppController {
             }
         }//check rights
 
+        if ($this->params['ext'] == 'json'){
+            $this->TeamServer->flashToJson(true);
+            $this->set('_serialize', ['serverId', 'modsList', 'pluginsList', 'installedMod', 'installedPlugins']);
+        }
     }
 
     /**
@@ -6832,11 +6865,17 @@ class ServersController extends AppController {
      * @param $id
      * @return mixed
      */
-    public function editParams($id = null, $ver = null) {
+    public function editParams($id = null) {
         $this->DarkAuth->requiresAuth();
 
         if (@$id == null) {
             $id = $this->request->data['Server']['id'];
+        }
+
+        if (!empty($this->params['named']['ver'])) {
+            $ver = $this->params['named']['ver'];
+        } else {
+            $ver = null;
         }
 
         if (intval($id) > 0) {
@@ -7568,11 +7607,17 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      * @param $id
      * @return mixed
      */
-    public function editStartParams($id = null, $ver = null) {
+    public function editStartParams($id = null) {
         $this->DarkAuth->requiresAuth();
 
         if (@$id == null) {
             $id = $this->request->data['Server']['id'];
+        }
+
+        if (!empty($this->params['named']['ver'])) {
+            $ver = $this->params['named']['ver'];
+        } else {
+            $ver = null;
         }
 
         if (intval($id) > 0) {
@@ -8414,11 +8459,12 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
      * @param null $ver
      * @return mixed
      */
-    public function changeName($id = null, $ver = null) {
+    public function changeName($id = null) {
         $this->DarkAuth->requiresAuth();
         $this->loadModel('ServerClean');
 
-        if (!null == $ver) {
+        if (!empty($this->params['named']['ver'])) {
+            $ver = $this->params['named']['ver'];
             $path = 'v' . $ver . '/';
         } else {
             $path = '';
@@ -8502,6 +8548,8 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                     // Редирект для панели v1
                     if (null === $ver) {
                         return $this->redirect($this->referer());
+                    } else {
+                        return $this->redirect(['action' => 'result', 2]);
                     }
 
                 }
@@ -9689,6 +9737,9 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     public function result($ver = '') {
         // Функция пустышка для вывода результатов операций
+        if (!empty($this->params['named']['ver'])) {
+            $ver = $this->params['named']['ver'];
+        }
         if ($ver != ''){
             $this->render('v'.$ver.'/result');
         }

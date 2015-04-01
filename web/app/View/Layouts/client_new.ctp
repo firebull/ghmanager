@@ -12,7 +12,7 @@
 	<?php
 		echo $this->Html->meta('icon');
 
-		echo $this->Html->css(array('semantic.1.11.1',
+		echo $this->Html->css(array('semantic.1.11.6',
 								    'jquery-ui-1.11.3.css',
 								    'ts-theme/teamserver.css',
 								    'validationEngine.jquery',
@@ -49,7 +49,7 @@
 			'jquery-2.1.3.js',
 			//'jquery-ui.1.11.3.js',
 			'knockout-3.3.0.js',
-			'semantic.1.11.1.js',
+			'semantic.1.11.6.js',
 			'codemirror/codemirror',
 			'codemirror/mode/clike',
 			'moment-with-locales'
