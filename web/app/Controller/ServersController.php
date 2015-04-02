@@ -214,89 +214,6 @@ class ServersController extends AppController {
         }
     }
 
-    /* SOURCE ENGINE QUERY FUNCTION, requires the server ip:port */
-    /**
-     * @param $HL2_address
-     * @param $HL2_port
-     * @param $timeout
-     * @return mixed
-     */
-    public function sourceQuery($HL2_address, $HL2_port = 27015, $timeout = 1) {
-
-        $HL2_command = "\377\377\377\377TSource Engine Query\0";
-
-        $HL2_socket = fsockopen("udp://" . $HL2_address, $HL2_port, $errno, $errstr, 3);
-        fwrite($HL2_socket, $HL2_command);
-        stream_set_timeout($HL2_socket, 2);
-        $JunkHead = fread($HL2_socket, 4);
-        $CheckStatus = stream_get_meta_data($HL2_socket);
-
-        if ($CheckStatus["unread_bytes"] == 0) {
-            return false;
-        }
-
-        $do = 1;
-        $HL2_stats = '';
-        while ($do) {
-            stream_set_timeout($HL2_socket, $timeout);
-            $str = fread($HL2_socket, 1);
-            $HL2_stats .= $str;
-            $status = stream_get_meta_data($HL2_socket);
-            if ($status["unread_bytes"] == 0) {
-                $do = 0;
-            }
-        }
-        fclose($HL2_socket);
-
-        $x = 0;
-        $result = '';
-        while ($x <= strlen($HL2_stats)) {
-            $x++;
-            $result .= substr($HL2_stats, $x, 1);
-        }
-
-        // ord ( string $string );
-        $result = str_split($result);
-        $keys = array('name', 'map', 'dir', 'description', 'version');
-        $info = array_fill_keys($keys, '');
-
-        $info['network'] = ord($result[0]);
-        $char = 1;
-        while (ord($result[$char]) !== "%00") {
-            $info['name'] .= $result[$char];
-            $char++;}$char++;
-        while (ord($result[$char]) !== "%00") {
-            $info['map'] .= $result[$char];
-            $char++;}$char++;
-        while (ord($result[$char]) !== "%00") {
-            $info['dir'] .= $result[$char];
-            $char++;}$char++;
-        while (ord($result[$char]) !== "%00") {
-            $info['description'] .= $result[$char];
-            $char++;}$char++;
-        $info['appid'] = ord($result[$char] . $result[($char + 1)]);
-        $char += 2;
-        $info['players'] = ord($result[$char]);
-        $char++;
-        $info['max'] = ord($result[$char]);
-        $char++;
-        $info['bots'] = ord($result[$char]);
-        $char++;
-        $info['dedicated'] = ord($result[$char]);
-        $char++;
-        $info['os'] = chr(ord($result[$char]));
-        $char++;
-        $info['password'] = ord($result[$char]);
-        $char++;
-        $info['secure'] = ord($result[$char]);
-        $char++;
-        while (ord($result[$char]) !== "%00") {
-            $info['version'] .= $result[$char];
-            $char++;}
-
-        return $info;
-    }
-
     /**
      * @param $text
      * @return mixed
@@ -344,19 +261,19 @@ class ServersController extends AppController {
      * @param $param
      */
     public function checkForBlockedParam($param = null) {
-        $blockedParam = array('set net_ip',
-            'set net_port',
-            'set sv_maxclients',
-            'set ui_maxclients',
-            'set sv_fps',
-            'maxclients',
-            'pingboost',
-            'tickrate',
-            'sys_tickrate',
-            'fps_max',
-            'host',
-            'port',
-            'oldqueryportnumber');
+        $blockedParam = [   'set net_ip',
+                            'set net_port',
+                            'set sv_maxclients',
+                            'set ui_maxclients',
+                            'set sv_fps',
+                            'maxclients',
+                            'pingboost',
+                            'tickrate',
+                            'sys_tickrate',
+                            'fps_max',
+                            'host',
+                            'port',
+                            'oldqueryportnumber'];
         if (array_search(strtolower($param), $blockedParam)) {
             return true;
         } else {
@@ -496,7 +413,6 @@ class ServersController extends AppController {
                     return false;
                 }
 
-
                 if ($response->code === '200') {
                     $graphs[$period] = $fullGraphUrl;
                 }
@@ -516,32 +432,17 @@ class ServersController extends AppController {
      * @return mixed
      */
     protected function mapDesc($gameTemplateId = null, $mapName = null) {
-        // Описание карты
-        // Нефиг запрашивать лишнюю информацию из базы
-        $this->Server->GameTemplate->unbindModel(array('hasAndBelongsToMany' => array(
-            'Mod',
-            'Plugin',
-            'Config',
-            'Service',
-            'Server',
-        )));
-        $this->Server->GameTemplate->bindModel(array('hasAndBelongsToMany' => array(
-            'Map' => array(
-                'fields' => 'id, name, longname, desc, official, map_type_id',
-                'conditions' => array('name' => $mapName),
-            ),
-        )));
-
-        $this->Server->GameTemplate->id = $gameTemplateId;
-        $gameTemplate = $this->Server->GameTemplate->read();
-
-        ///////
         // Сгенерировать массив из всех карт по шаблонам и закэшировать его навсегда
         if (($mapsByTemplate = Cache::read('mapsByTemplate')) === false) {
-            $this->Server->GameTemplate->unbindModel(['hasAndBelongsToMany' =>
-                ['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
+            $this->Server
+                 ->GameTemplate
+                 ->unbindModel(['hasAndBelongsToMany' =>
+                                    ['Type', 'Mod', 'Plugin', 'Config', 'Protocol', 'Service']]);
 
-            $this->Server->GameTemplate->bindModel(['hasAndBelongsToMany' => ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
+            $this->Server
+                 ->GameTemplate
+                 ->bindModel(['hasAndBelongsToMany' =>
+                                    ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
 
             $gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
 
@@ -563,7 +464,6 @@ class ServersController extends AppController {
                         }
                     }
                 }
-
 
                 if (!empty($mapsByTemplate)) {
                     Cache::write('mapsByTemplate', $mapsByTemplate);
@@ -6061,6 +5961,8 @@ class ServersController extends AppController {
         }
     }
 
+    // Render window for mods/plugins installer
+    // After that script will query pluginInstall by JSON
     public function addons($id = null){
         $this->set('serverId', $id);
     }
@@ -7837,7 +7739,6 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                     $this->set('minTimeToUseService', $minTimeToUseService);
                 }
             }
-            //$this->set('server', $server);
 
             /* Прочесть пароль из конфига - Начало*/
             if (!empty($template)) {
@@ -8475,7 +8376,6 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
     /*
      * Смена имени сервера.
-     * TODO: Сделать смену не только в базе, но и в конфигах.
      */
     /**
      * @param $id
