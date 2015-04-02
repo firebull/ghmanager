@@ -6090,6 +6090,7 @@ class ServersController extends AppController {
         // Проверим  - владееет ли пользователь сессии этим сервером?
         if ($this->checkRights($id)) {
 
+            $result = ['error' => []];
             // Отключить лишние запросы
             $this->Server->contain(['GameTemplate' => ['fields' => 'id, name'],
                                     'Mod' => ['fields' => 'id, name'],
@@ -6148,7 +6149,9 @@ class ServersController extends AppController {
                             $mods[] = $mod['id'];
                         }
                     }
-                    $server['Mod'] = array('Mod' => $mods);
+                    $server['Mod'] = ['Mod' => $mods];
+
+                    unset($server['Plugin']);
 
                 } elseif ($type === 'plugin') {
                     /*
@@ -6165,7 +6168,10 @@ class ServersController extends AppController {
                             $plugins[] = $plugin['id'];
                         }
                     }
-                    $server['Plugin'] = array('Plugin' => $plugins);
+
+                    $server['Plugin'] = ['Plugin' => $plugins];
+
+                    unset($server['Mod']);
                 }
 
                 $server['Server']['id'] = $id;
@@ -6180,40 +6186,42 @@ class ServersController extends AppController {
                     "&plugin=" . $addon .
                     "&type=" . $type;
 
-                    $request = "~configurator/scripts/subscript_plugin_install.py?" . $data;
+                    $requestStr = "/~configurator/scripts/subscript_plugin_install.py";
 
-                    $response = $this->TeamServer->webGet($serverIp, 0, $request, "GET");
+                    $HttpSocket = new HttpSocket();
+                    $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
 
-                    // Формируем результат запроса
+                    $response = $response->body();
+                    $result = json_decode($response, true);
 
-                    $var = eregi("<!-- INSTALL RESULT START -->(.*)<!-- INSTALL RESULT END -->", $response, $out);
-                    $installResult = trim($out[1]);
-                    $var = eregi("<!-- CONFIG RESULT START -->(.*)<!-- CONFIG RESULT END -->", $response, $out);
-                    $configResult = trim($out[1]);
-
-                    if ($installResult === 'error') {
-                        $this->Session->setFlash('Ошибка при установке плагина/мода. Обратитесь в техподдержку.', 'flash_error');
-                        return $this->redirect(array('action' => 'pluginInstall', $id));
+                    if (!empty($result['error'])) {
+                        if ($this->params['ext'] == 'json')
+                        {
+                            $this->set('result', $result);
+                            $this->set('_serialize', ['result']);
+                            return $this->render();
+                        }
+                        else
+                        {
+                            $this->Session->setFlash('Ошибка при установке плагина/мода. Обратитесь в техподдержку.<br/>'.implode('<br/>', $result['log']), 'flash_error');
+                            return $this->redirect(array('action' => 'pluginInstall', $id));
+                        }
+                    } else {
+                        $installResult = 'success';
                     }
-
                 }
 
-                if (@$installResult === 'success' or $installBy === 'user') {
+                if (@$installResult == 'success' or $installBy == 'user') {
 
                     $server['User']['id'] = $server['User'][0]['id'];
                     $server['GameTemplate']['id'] = $server['GameTemplate'][0]['id'];
 
                     if ($this->Server->saveAll($server)) {
 
-                        if (@$configResult === 'success') {
+                        if (@$installResult  == 'success') {
                             $this->Session->setFlash('Установлен и сконфигурирован успешно. ' .
                                 'Не забудьте перезагрузить сервер для ' .
                                 'активации плагина/мода.', 'flash_success');
-                        } elseif (@$configResult === 'error') {
-                            $this->Session->setFlash('Установлен успешно, но при конфигурации ' .
-                                'возникла ошибка. Попробуйте сконфигурировать ' .
-                                'вручную или обратитесь в техподдержку. Вы можете ' .
-                                'перезагрузить сервер для активации плагина/мода. ', 'flash_error');
                         }
 
                         if ($installBy === 'user') {
@@ -6222,9 +6230,24 @@ class ServersController extends AppController {
                                 'Обратите внимание, что плагины привязаны к ' .
                                 'определённому моду!', 'flash_success');
                         }
-
-                        return $this->redirect(array('action' => 'pluginInstall', $id));
                     }
+                    else
+                    {
+                        $result['error'][] = 'Произошла ошибка БД';
+                        $this->Session->setFlash('Произошла ошибка БД', 'flash_error');
+                    }
+                }
+
+                if ($this->params['ext'] == 'json')
+                {
+                    $this->TeamServer->flashToJson(true);
+                    $this->set('result', $result);
+                    $this->set('_serialize', ['result', 'flash']);
+                    return $this->render();
+                }
+                else
+                {
+                    return $this->redirect(array('action' => 'pluginInstall', $id));
                 }
             }// Инсталляция модов/плагинов - конец
 
@@ -6324,9 +6347,9 @@ class ServersController extends AppController {
                         }
 
                     }
-
+                    //debug($server);
                     $this->set('installedMod', $modsList);
-                    $this->set('installedPlugins', $server['Plugin']);
+                    $this->set('installedPlugins', Hash::extract($server, 'Plugin.{n}.id'));
 
                 }
 

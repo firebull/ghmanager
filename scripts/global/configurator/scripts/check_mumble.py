@@ -76,7 +76,7 @@ try:
     if ping < 0: ping += 1000
 
     print '{"version": "%s", "users": %d, "slots": %d, "bandwidth": %d, "proto": "%s"}' % \
-    (version, r[5], r[6], r[7]/1000, {10: "IPv6", 2: "IPv4"}[family])
+    (version, r[5], r[6], r[7]/1024, {10: "IPv6", 2: "IPv4"}[family])
 
 except Exception, e:
     print '{"error": %s}' % e

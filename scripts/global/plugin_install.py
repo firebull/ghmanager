@@ -1,13 +1,10 @@
 #!/usr/bin/env python2
 # coding: UTF-8
 
-# print "Content-Type: text/html"     # HTML is following
-# print                               # blank line, end of headers
-
 '''
 ***********************************************
 Install ang configurate plugin or mod.
-Copyright (C) 2013 Nikita Bulaev
+Copyright (C) 2015 Nikita Bulaev
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -52,52 +49,51 @@ moreParams = str(options.moreParams)
 
 installTo = serverPath + "/" + installPath
 
-print 'Попытка установить плагин: ', addonPath, '<br/>'
-print 'Путь для установки плагина: ', serverPath + "/" + installPath, '<br/>'
+print 'INFO: Попытка установить плагин: ', addonPath
+print 'INFO: Путь для установки плагина: ', serverPath + "/" + installPath
 
 try:
     distutils.dir_util.copy_tree(addonPath, installTo, preserve_symlinks=1)
     os.chmod(installTo, 0770)
-    print "Копирование аддона завершено.</br>\n"
-    print "<!-- INSTALL RESULT START -->"
-    print "success"
-    print "<!-- INSTALL RESULT END -->"
+    print "OK: Копирование аддона завершено"
 
     # Конфигуратор аддона
     confScript = "/images/scripts/individual/configurators/" + configurator + ".py"
 
+    print "INFO: Запускаю конфигуратор"
     if os.path.exists(confScript):
         try:
-            retcode = call(confScript + " -s " + serverPath + " -a " + installPath +
-                           " -p " + steamId + " -g " + guid + " -m \"" + moreParams + "\"", shell=True)
-            if retcode < 0:
-                print "Команда была прервана с кодом: ", retcode
-                print "<!-- CONFIG RESULT START -->"
-                print "error"
-                print "<!-- CONFIG RESULT END -->"
-            elif retcode == 0:
-                print "Запускаю конфигуратор\n"
-                print "<!-- CONFIG RESULT START -->"
-                print "success"
-                print "<!-- CONFIG RESULT END -->"
+            retcode = Popen(confScript
+                            + " -s " + serverPath
+                            + " -a " + installPath
+                            + " -p " + str(steamId)
+                            + " -g " + str(guid)
+                            + " -m " + str(moreParams),
+                            shell=True,
+                            stdin=PIPE,
+                            stdout=PIPE,
+                            stderr=PIPE)
+            retcode.wait()
+            (out, err) = retcode.communicate()
+            print out
+            if err < 0:
+                print "ERROR: Команда была прервана с кодом: %s" % err
+
+            elif err == 0 or err == "":
+                print "OK: Конфигурация успешна"
+
             else:
-                print "Команда вернула код: ", retcode
+                print "ERROR: При попытке запуска конфигуратора мода/плагина возникла ошибка: %s" % err
+
         except OSError, e:
-            print "Команда завершилась неудачей:", e
-            print "<!-- CONFIG RESULT START -->"
-            print "error"
-            print "<!-- CONFIG RESULT END -->"
+            print "ERROR: Команда завершилась неудачей: %s" % e
+
     else:
-        print "<!-- CONFIG RESULT START -->"
-        print "success"
-        print "<!-- CONFIG RESULT END -->"
+        print "INFO: Конфигурация не требуется"
 
 except OSError, e:
-    print "Не удалось скопировать шаблон:", e, '</br>\n'
-    print "<!-- INSTALL RESULT START -->"
-    print "error"
-    print "<!-- INSTALL RESULT END -->"
-    # continue # Переход к следующему игровому серверу
+    print "ERROR: Не удалось скопировать шаблон: %s " % e
 
+except Exception, e:
+    print "ERROR: Ошибка при попытке запуска скрипта: %s" % e
 
-print "\n\n<br/><br/>"

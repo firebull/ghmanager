@@ -1,7 +1,7 @@
 
 <div id="usersServersIndex">
     <div class="ui padded grid">
-        <div class="ui equal height stretched row">
+        <div class="ui equal height row">
         <div class="six wide white column">
             <div class="ui top attached block header" data-bind="visible: gameServers().length > 0">Игровые серверы</div>
             <div class="ui divided selection list" data-bind="visible: gameServers().length > 0, foreach: {data: gameServers, afterRender: defineSelected.bind($data, 'game')}">
@@ -57,13 +57,12 @@
                 <!-- /ko -->
             </div>
         </div>
-        <div class="ten wide left aligned white column" id="indexRightColumn">
-            <div data-bind="visible: renderSelected,
-                            template: {if: selectedType() && renderedServer(),
+        <div class="ten wide left aligned white column" id="indexRightColumn" data-bind="if: renderSelected">
+            <!-- ko                             template: {if: selectedType() && renderedServer(),
                                        name: 'render-template-' + selectedType()
-                                       }">
+                                       } -->
 
-            </div>
+            <!-- /ko -->
         </div>
         </div>
     </div>
@@ -273,7 +272,7 @@
             <div class="ui row" data-bind="visible: $root.showRconConsole">
                 <div class="ui column" id="rconConsole" style="background-color: #272822; color: white;"></div>
             </div>
-            <div class="ui equal height stretched row" data-bind="if: renderedServer().Server.initialised && $root.showType() == 'server'">
+            <div class="ui equal height row" data-bind="if: renderedServer().Server.initialised && $root.showType() == 'server'">
                 <div class="ui eight wide column">
                     <div class="ui top attached tertiary segment">
                         <b>Статус сервера</b>
@@ -329,14 +328,14 @@
                     <img data-bind="visible: renderedServer().Status.image, attr: {src: renderedServer().Status.image}" />
                 </div>
                 <div class="ui eight wide column">
-                    <div class="ui top attached tabular menu" >
+                    <div class="ui pointing secondary menu" >
                         <a class="active item" data-tab="24h" id="playersStat24h">Сутки</a>
                         <a class="item" data-tab="7d" id="playersStat7d">Неделя</a>
                     </div>
-                    <div class="ui bottom attached active tab segment" data-tab="24h" data-bind="visible: renderedServer().Status.graphs['24h']">
+                    <div class="ui active tab segment" data-tab="24h" data-bind="visible: renderedServer().Status.graphs['24h']">
                         <img data-bind="visible: renderedServer().Status.graphs['24h'], attr: {src: renderedServer().Status.graphs['24h']}" />
                     </div>
-                    <div class="ui bottom attached tab segment" data-tab="7d" data-bind="visible: renderedServer().Status.graphs['7d']">
+                    <div class="ui tab segment" data-tab="7d" data-bind="visible: renderedServer().Status.graphs['7d']">
                         <img data-bind="visible: renderedServer().Status.graphs['7d'], attr: {src: renderedServer().Status.graphs['7d']}" />
                     </div>
                     <small data-bind="visible: renderedServer().Status.graphs['24h'] || renderedServer().Status.graphs['7d']">Графики обновляются каждые 15 минут </small>
@@ -467,15 +466,18 @@
                 </div>
             </div>
         </div>
-        <span data-bind="visible: renderedServer().Server.status == 'stopped'">Сервер выключен</span>
+        <p data-bind="visible: renderedServer().Server.status == 'stopped'">Сервер выключен</p>
         <span data-bind="visible: !renderedServer().Status.running && renderedServer().Server.status == 'exec_success'"><div class="ui active inline loader"></div> Нет данных</span>
-        <div class="ui grid">
+        <div class="ui grid" data-bind="if: renderedServer().Status.running">
             <div class="ui three column row">
-                <div class="center aligned column"><b>Версия:</b> <span data-bind="text: renderedServer().Status.version"></span></div>
+                <div class="center aligned column" data-bind="if: renderedServer().Status.version">
+                    <b>Версия:</b>
+                    <span data-bind="text: renderedServer().Status.version"></span>
+                </div>
                 <div class="center aligned column">
                     <span data-bind="visible: renderedServer().Server.slots, html: $root.showSlots(renderedServer().Server.slots, renderedServer().Status.users)"></span>
                 </div>
-                <div class="center aligned column"><b>Полоса пропускания:</b> <span data-bind="text: renderedServer().Status.bandwidth"></span>kbit</div>
+                <div class="center aligned column"><b>Полоса пропускания:</b> <span data-bind="text: renderedServer().Status.bandwidth"></span>kbit/s</div>
             </div>
         </div>
     </div>
@@ -496,7 +498,7 @@
 
 <script type="text/javascript">
 
-    $('#indexModal').modal({allowMultiple: false });
+    $('#indexModal').modal({closable: false });
 
 
     var userServersViewModel = function(){

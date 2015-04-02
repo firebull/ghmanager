@@ -17,10 +17,6 @@ Lesser General Public License for more details.
 ***********************************************
 '''
 
-
-print "Content-Type: text/html; charset=UTF-8"     # HTML is following
-print                                              # blank line, end of headers
-
 from optparse import OptionParser
 from shutil import *
 import os
@@ -46,7 +42,7 @@ if os.path.exists(gamPath):
     if os.path.exists(gamPath + '.bak'):  # Необходимо удалить старый .bak, если есть
         os.remove(gamPath + '.bak')
 
-    print "Вношу изменения в " + gamPath
+    print "INFO: Вношу изменения в %s" % gamPath
     pattern_1 = "gamedll_linux"
     pattern_2 = ""
 
@@ -62,16 +58,19 @@ if os.path.exists(gamPath):
         newCfg.close()
         os.chmod(gamPath, 0640)
 
+        print "OK: Успешно"
+
     except OSError, e:
-                print "Команда завершилась неудачей:", e
+        print "ERROR: Команда завершилась неудачей: %s" % e
 else:
-    print gamPath + "не найден!"
+    print "ERROR: %s не найден!" % gamPath
 
 if steamId.lower() != 'none':
-    print "Вношу админов"
+    print "INFO: Вношу админов"
     try:
         ini = open(adminsCfg, "a")
         text = '\n"%s" "" "abcdefghijklmnopqrstu" "ce" \n' % steamId
         ini.write(text)
+        print "OK: Успешно"
     except OSError, e:
-                print "Команда завершилась неудачей:", e
+        print "ERROR: Команда завершилась неудачей: %s" % e
