@@ -64,34 +64,28 @@ def scan(pluginDir, serverDir):
                                 if re.search(checkExt, name):
                                     checkSize = True  # Ключ - проверить размер, если файл существует
 
-            desc += '%s%s/%s' % (serverDir, subTree[1], name)
+
 
             if not os.path.exists(serverDir + subTree[1] + "/" + name):
                 if critFilesInDir == True or critFile == True:
-                    desc += " - Не найден критичный файл\n"
+                    desc += "%s%s/%s - Не найден критичный файл\n" % (serverDir, subTree[1], name)
                     desc += "Проверка остановлена, плагин не установлен.\n"
 
                     print desc
                     cycle = 'break'
                     break
-                elif checkSize == True:
-                    desc += " - Не найден\n"
-                else:
-                    desc += " - Не нужен\n"
 
             else:
                 ourSize = getsize(join(root, name))
                 realSize = getsize(serverDir + subTree[1] + "/" + name)
 
                 if ourSize != realSize and (critFilesInDir == False or critFile == False and checkSize == True):
-                    desc += " - Установлена другая версия\n"
+                    desc += "%s%s/%s - Установлена другая версия\n" % (serverDir, subTree[1], name)
                 elif ourSize != realSize and (critFilesInDir == True or critFile == True):
-                    desc += " - Установлена другая версия критичного файла\n"
+                    desc += "%s%s/%s - Установлена другая версия критичного файла\n" % (serverDir, subTree[1], name)
                     print desc
                     cycle = 'break'
                     break
-                else:
-                    desc += " - OK\n"
 
     if cycle == 'break':  # Иногда, когда обрывается цикл на последнем файле, выход из фуекции надо осуществялть тут
         return 'not installed'

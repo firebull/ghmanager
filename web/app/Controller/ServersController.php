@@ -6308,7 +6308,9 @@ class ServersController extends AppController {
             $this->loadModel('GameTemplate');
             $this->loadModel('ServerPlugin');
             $this->Server->id = $id;
+            $this->Server->contain(['GameTemplate', 'Mod']);
             $server = $this->Server->read();
+            $result = ['error' => [], 'log' => []];
 
             if (!empty($server['Mod'])) {
                 // Получим список плагинов, относящихся к моду
@@ -6371,18 +6373,46 @@ class ServersController extends AppController {
                 $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
 
                 $xmlAsArray = Xml::toArray(Xml::build($response->body));
+
+                $error = false;
                 $plugins = array();
+
+                if (!empty($xmlAsArray['response']['log']))
+                {
+                    foreach ($xmlAsArray['response']['log'] as $log)
+                    {
+                        $result['log'][] = 'INFO: '.$log;
+                    }
+                }
 
                 if (!empty($xmlAsArray['response']['plugin'])) {
                     // Если больше одного плагина, перебираем их
                     if (!empty($xmlAsArray['response']['plugin'][0])) {
                         foreach ($xmlAsArray['response']['plugin'] as $plugin) {
+                            $result['log'][] = 'INFO: Проверка '.$plugin['@name'];
+                            if (!empty($plugin['log'])){
+                                foreach ($plugin['log'] as $log)
+                                {
+                                    $result['log'][] = 'INFO: '.$log;
+                                }
+                            }
+
                             if (@$plugin['result'] == 'installed') {
                                 $plugins[] = $plugin['@id'];
+                                $result['log'][] = 'OK: Установлен';
+                            } else {
+                                $result['log'][] = 'OK: Не установлен';
+                            }
+
+                            if (!empty($plugin['error'])){
+                                $error = true;
+                                $result['log'][] = 'ERROR: '.$error;
                             }
                         }
                     } else // Иначе просто присваиваем
                     if ($xmlAsArray['response']['plugin']['result'] == 'installed') {
+                        $result['log'][] = 'INFO: Проверка '.$xmlAsArray['response']['plugin']['name'];
+                        $result['log'][] = 'OK: Установлен';
                         $plugins[] = $xmlAsArray['response']['plugin']['id'];
                     }
 
@@ -6398,8 +6428,8 @@ class ServersController extends AppController {
                             'установлена с ошибками. В этом случае рекомендуем установить нашу протестированную ' .
                             'версию.', 'flash_success');
                     } else {
-                        $this->Session->setFlash('Возникла ошибка при сохранении данных синхронизации.' .
-                            ' Попробуйте повторить позже.', 'flash_error');
+                        $result['error'][] = 'Произошла ошибка БД';
+                        $this->Session->setFlash('Произошла ошибка БД', 'flash_error');
                     }
                 } else {
                     $this->Session->setFlash('Синхронизация проведена успешно. ' .
@@ -6411,11 +6441,27 @@ class ServersController extends AppController {
                 }
 
             } else {
+                $result['error'][] = 'На сервере не установлен мод. Синхронизация невозможна.';
                 $this->Session->setFlash('На сервере не установлен мод. Синхронизация невозможна.', 'flash_error');
             }
 
         }
-        return $this->redirect(array('action' => 'pluginInstall', $id));
+
+        if ($this->params['ext'] == 'json')
+        {
+            if ($error === true){
+                $result['error'][] = 'При проверке установленных плагинов произошла ошибка, читайте подробный лог.';
+            }
+
+            $this->TeamServer->flashToJson(false);
+            $this->set('result', $result);
+            $this->set('_serialize', ['result']);
+        }
+        else
+        {
+            return $this->redirect(array('action' => 'pluginInstall', $id));
+        }
+
     }
 
     /**

@@ -126,6 +126,7 @@
 		</div>
 		<!-- /ko -->
 	</div>
+	<div class="ui primary fluid small button" data-bind="visible: installedMods().length > 0, event: {click: action.bind($data, 'resync', false, false)}">Синхронизировать список плагинов</div>
 </div>
 <script type="text/javascript">
 	var addonsViewModel = function(){
@@ -165,12 +166,12 @@
 
         this.action = function(action, type, manual, item){
         	var self = this;
-
+console.log(action);
         	if (type == 'mod'){
         		var addonId = item.Mod.id;
         	} else if (type == 'plugin') {
         		var addonId = item.Plugin.id;
-        	} else {
+        	} else if (action != 'resync') {
         		return false;
         	}
 
@@ -182,6 +183,10 @@
         				+ '/' + addonId
         				+ '/' + type
         				+ '/manual.json';
+        	} else if (action == 'resync'){
+        		var url = '/servers/pluginResync/'
+        				+ this.serverId()
+        				+ '.json';
         	} else {
         		var url = '/servers/pluginInstall/'
         				+ this.serverId()
@@ -207,6 +212,8 @@
 				        	} else if (type == 'plugin') {
 				        		self.installedPlugins.push(item);
 				        		self.availiablePlugins.remove(item);
+				        	} else if (action == 'resync') {
+				        		self.loadData();
 				        	} else {
 				        		return false;
 				        	}
