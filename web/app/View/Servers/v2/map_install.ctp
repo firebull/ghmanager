@@ -16,10 +16,10 @@
 			 	and
 			 $on === true) {
 
-			return $html->tag('button','<i class="icon-ban-circle"></i> Выключить',
+			return $html->tag('button','<i class="icon ban"></i> Выключить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'turnOff');",
 							   		  'escape' => false,
-							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
+							   		  'class' => 'ui small orange button') );
 
 
 
@@ -30,10 +30,10 @@
 			 $installed === true
 			 	and
 			 $on === false) {
-			return $html->tag('button','<i class="icon-plus-sign"></i> Включить',
+			return $html->tag('button','<i class="icon plus"></i> Включить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'turnOn');",
 							   		  'escape' => false,
-							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
+							   		  'class' => 'ui small green button') );
 
 		}
 		else
@@ -46,17 +46,17 @@
 			 	and
 			 $official === false) {
 
-			return $html->tag('button','<i class="icon-remove-sign"></i> Удалить',
+			return $html->tag('button','<i class="icon remove circle"></i> Удалить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'delete');",
 							   		  'escape' => false,
-							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
+							   		  'class' => 'ui small red button') );
 
 
 		} elseif ( $canDelete === true and $installed === false) {
-			return $html->tag('button','<i class="icon-plus-sign"></i> Установить',
+			return $html->tag('button','<i class="icon plus"></i> Установить',
 							   array( 'onClick' => "mapAction('".$serverId."', '".$mapId."', 'install');",
 							   		  'escape' => false,
-							   		  'class' => 'btn btn-mini', 'style' => 'width: 108px;') );
+							   		  'class' => 'ui small green button') );
 
 		} else {
 			return false;
@@ -69,68 +69,62 @@
 
 ?>
 
-	<form class="form-horizontal">
-		<div class="control-group" style="float: right; width: 45%;">
-			<div class="btn-group" style="float: right;">
-				<?php
-					echo $this->Html->link('<i class="icon-th-list" id="list_i"></i> Списком',
-										'#',
-										array( 'class' => 'btn',
-											   'id' => 'list',
-											   'escape' => false));
+<?php
+	echo $this->Html->link('<i class="grid layout icon" id="mosaic_i"></i> Мозаикой',
+						'#',
+						array('class' => 'ui right floated button',
+							   'id' => 'mosaic',
+							   'escape' => false));
 
-					$effect = $this->Js->get('#map_install')->effect('slideIn');
-					$event  = $this->Js->request(array (
-													'controller'=>'Servers',
-													'action'=>'mapInstall',
-													$id,
-													'all',
-													$mapTypeActive,
-													0,
-													'html',
-													'list'
-													),
-										   array(	'update' => '#map_install',
-												 	'before'=>$loadingShow,
-												 	'complete'=>$loadingHide
-												 	));
+	$event  = $this->Js->request(array (
+									'controller'=>'Servers',
+									'action'=>'mapInstall',
+									$id,
+									'all',
+									$mapTypeActive,
+									0,
+									'html',
+									'mosaic'
+									),
+						   array(	'update' => '#map_install',
+								 	'before'=>$loadingShow,
+								 	'complete'=>$loadingHide
+								 	));
 
-					$this->Js->get('#list')->event('click', $event);
+	$this->Js->get('#mosaic')->event('click', $event);
 
-					echo $this->Html->link('<i class="icon-th" id="mosaic_i"></i> Мозаикой',
-										'#',
-										array('class' => 'btn',
-											   'id' => 'mosaic',
-											   'escape' => false));
+	echo $this->Html->link('<i class="list layout icon" id="list_i"></i> Списком',
+						'#',
+						array( 'class' => 'ui right floated button',
+							   'id' => 'list',
+							   'escape' => false));
 
-					$event  = $this->Js->request(array (
-													'controller'=>'Servers',
-													'action'=>'mapInstall',
-													$id,
-													'all',
-													$mapTypeActive,
-													0,
-													'html',
-													'mosaic'
-													),
-										   array(	'update' => '#map_install',
-												 	'before'=>$loadingShow,
-												 	'complete'=>$loadingHide
-												 	));
+	$effect = $this->Js->get('#map_install')->effect('slideIn');
+	$event  = $this->Js->request(array (
+									'controller'=>'Servers',
+									'action'=>'mapInstall',
+									$id,
+									'all',
+									$mapTypeActive,
+									0,
+									'html',
+									'list'
+									),
+						   array(	'update' => '#map_install',
+								 	'before'=>$loadingShow,
+								 	'complete'=>$loadingHide
+								 	));
 
-					$this->Js->get('#mosaic')->event('click', $event);
+	$this->Js->get('#list')->event('click', $event);
 
+?>
 
 
-				?>
-			</div>
-		</div>
-	</form>
-
-<div id="clear"></div>
+<div style="clear:both;"></div>
+<br/>
 <cake:nocache>
 	<div id="flash"><?php echo $this->Session->flash(); ?></div>
-	<?php echo $this->element('map_install_top_menu', array ( 'serverId' => $id,
+	<?php echo $this->element('v2/map_install_top_menu', array ( 'serverId' => $id,
 															  'mapTypes' => $mapTypes,
 															  'mapTypeActive' => $mapTypeActive
 
@@ -138,7 +132,7 @@
 <?php
 	if (!empty($maps)) {
 ?>
-<div style="height: 100%; width: 100%; float: left;">
+<div class="ui grid" style="margin-top:15px !important;">
 <?php
 	// Отображение мозаикой
 	if ($output == 'mosaic') {
@@ -318,16 +312,20 @@
 		$i = 0;
 		$j = 1;
 		foreach ($maps as $mapName => $mapDesc):
-
 			$i++;
+?>
+			<div class="eight wide column">
+<?php
+
 
 			if (!empty($mapDesc['installed']) and $mapDesc['installed'] === true and $mapDesc['on'] === true) {
 ?>
-				<div class="map_listed map_installed_left">
+
+				<i class="green toggle on icon"></i>
 <?php
 			} else {
 ?>
-				<div class="map_listed">
+				<i class="toggle off icon"></i>
 <?php
 			}
 ?>
@@ -399,8 +397,9 @@
 					$link = mapLink( $id, $mapDesc['id'], @$mapDesc['official'], @$mapDesc['installed'], @$mapDesc['canDelete'], @$mapDesc['on'], $this->Html);
 
 					if ($link !== false) {
-						echo $this->Html->tag('div', $link, array('id' => 'map_action_'.$mapDesc['id'],
-															'style' => 'float: right;'));
+						echo $this->Html->tag('div', $link,
+													['id' => 'map_action_'.$mapDesc['id'],
+													 'style' => 'float: right;']);
 					}
 				}
 			?>
@@ -408,7 +407,7 @@
 <?php
 		if ($i == 2) {
 			$i = 0;
-			echo "<div id='clear'></div>\n";
+			//echo "<div id='clear'></div>\n";
 		}
 
 		$j++;
@@ -422,8 +421,7 @@
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 8px; padding: 0 .7em;">
 	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
 	<small>
-	Названия желаемых карт, просьба присылать на <?php echo $this->Text->autoLinkEmails('support@teamserver.ru',
-																						array('style' => 'color: #DD1500 !important;')); ?>
+	Названия желаемых карт, просьба присылать на <?php echo $this->Text->autoLinkEmails('support@teamserver.ru', array('style' => 'color: #DD1500 !important;')); ?>
 	<br/>или опубликовать список в нашей группе <?php echo $this->Html->link( 'Вконтакте',
 																		  'http://vkontakte.ru/topic-26301515_24913577',
 																		  array('target' => '_blank',
@@ -467,8 +465,8 @@
 		function styleListButton() {
 			var buttonId = '#<?php echo $output;?>';
 
-			$(buttonId).addClass('btn-primary');
-			$(buttonId + '_i').addClass('icon-white');
+			$(buttonId).addClass('primary');
+			$(buttonId + '_i').addClass('white');
 		}
 
 		styleListButton();

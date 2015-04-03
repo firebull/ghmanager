@@ -130,7 +130,7 @@
         <a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Установка модов и плагинов', '/servers/addons/' + renderedServer().Server.id)}">
             <i class="suitcase icon"></i>Плагины
         </a>
-        <a class="item" data-bind="event: {click: $root.showModal.bind($data, 'large', 'Установка карт', '/servers/mapInstall/' + renderedServer().Server.id)}, visible: jQuery.inArray(renderedServer().GameTemplate['name'], ['css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old', 'csgo', 'csgo-t128']) != -1">
+        <a class="item" data-bind="event: {click: $root.showModal.bind($data, 'large', 'Установка карт', '/servers/mapInstall/' + renderedServer().Server.id)}, visible: jQuery.inArray(renderedServer().GameTemplate['name'], ['css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old']) != -1">
             <i class="bomb icon"></i>Карты
         </a>
         <!-- ko if: renderedServer().Type['name'] == 'hlds' -->

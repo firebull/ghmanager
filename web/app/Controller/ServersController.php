@@ -6475,9 +6475,10 @@ class ServersController extends AppController {
             $this->loadModel('ServerPlugin');
             $this->loadModel('Plugin');
             $this->ServerPlugin->id = $id;
-            $server = $this->ServerPlugin->read();
+            $server = $this->ServerPlugin->read(); // TODO: Добавить plugin.id  в запрос
 
             if (!empty($server['Plugin'])) {
+                $result = ['error' => [], 'log' => []];
 
                 $data = "id=" . $id .
                 "&plugins=" . $pluginId .
@@ -6489,12 +6490,38 @@ class ServersController extends AppController {
                 $response = $HttpSocket->get('http://' . $server['ServerPlugin']['address'] . $requestStr, $data);
 
                 $xmlAsArray = Xml::toArray(Xml::build($response->body));
-                //pr($xmlAsArray);
+
                 $plugins = array();
+                $error = false;
+
+                if (!empty($xmlAsArray['response']['log']))
+                {
+                    foreach ($xmlAsArray['response']['log'] as $log)
+                    {
+                        $result['log'][] = 'INFO: '.$log;
+                    }
+                }
+
+                if (!empty($xmlAsArray['response']['plugin']['log'])){
+                    foreach ($xmlAsArray['response']['plugin']['log'] as $log)
+                    {
+                        $result['log'][] = 'INFO: '.$log;
+                    }
+                }
+
+                if (!empty($plugin['error'])){
+                    $error = true;
+                    $result['log'][] = 'ERROR: '.$error;
+                }
+
+
                 if (!empty($xmlAsArray['response']['plugin'])
                     and
                     $xmlAsArray['response']['plugin']['result'] === 'success'
                 ) {
+
+                    $result['log'][] = 'OK: Удалён успешно';
+
                     foreach ($server['Plugin'] as $plugin) {
 
                         if ($plugin['id'] != $pluginId) {
@@ -6515,12 +6542,25 @@ class ServersController extends AppController {
                     $this->Session->setFlash('Возникла ошибка удаления плагина.', 'flash_error');
                 }
 
+            } else {
+                throw new BadRequestException();
             }
-
         }
 
-        return $this->redirect(array('action' => 'pluginInstall', $id));
+        if ($this->params['ext'] == 'json')
+        {
+            if ($error === true){
+                $result['error'][] = 'При попытке удалить плагин произошла ошибка, читайте подробный лог.';
+            }
 
+            $this->TeamServer->flashToJson(false);
+            $this->set('result', $result);
+            $this->set('_serialize', ['result']);
+        }
+        else
+        {
+            return $this->redirect(array('action' => 'pluginInstall', $id));
+        }
     }
 
     /* Установка и просмотр установленных карт
@@ -6542,9 +6582,11 @@ class ServersController extends AppController {
     public function mapInstall($id = null, $mapId = null, $mapType = 'installed', $action = 'install', $out = 'html', $output = null) {
         $this->DarkAuth->requiresAuth();
 
-//        $this->Session->setFlash('Установка карт еще в тестовом режиме!!! Большинство функций не работают! ' .
-        //                                 'Пожалуйста, не пишите в техподдержку, пока мы не анонсируем полностью ' .
-        //                                 'рабочий вариант.', 'flash_error');
+        if (!empty($this->params['named']['ver'])) {
+            $path = sprintf('v%s/', $this->params['named']['ver']);
+        } else {
+            $path = '';
+        }
 
         if (@$id == null) {
             $id = $this->request->data['Server']['id'];
@@ -6754,7 +6796,7 @@ class ServersController extends AppController {
                     case 'cod':
 
                     default:
-                        $this->Session->setFlash('Установка карт для данного типа серверов невозможна. Если вы считаете это неправильным, сообщите нам.', 'flash_error');
+                        $this->Session->setFlash('Установка карт для данного типа серверов невозможна. Если вы считаете это неправильным, сообщите нам.', $path.'flash_error');
                         $this->render();
                         break;
 
@@ -6812,7 +6854,7 @@ class ServersController extends AppController {
                     $this->Session->setFlash('Возникла ошибка при ' . $actionWordErr . ' карты: ' . $responseMessages['error'] .
                         'Лог выполнения задания: ' . $responseMessages['log'], 'flash_error');
 
-                    $this->set('result', 'error');
+                    $this->set('result', ['error' => $responseMessages['log']]);
 
                 } else {
                     $this->Session->setFlash('Карта ' . $actionWord . ' успешно. Перезагрузите сервер для применения изменений.', 'flash_success');
@@ -6822,13 +6864,14 @@ class ServersController extends AppController {
                 if ($out === 'html') {
                     return $this->redirect(array('action' => 'mapInstall', $id, 'all', $mapType));
                 } else {
-                    $this->layout = 'ajax';
-                    $this->render('result_json');
+                    $this->TeamServer->flashToJson(false);
+                    $this->set('_serialize', ['result']);
+                    return $this->render();
                 }
-
             }
-
         }
+
+        $this->render($path.'map_install');
 
     }
 

@@ -58,13 +58,13 @@ def delete(pluginDir, serverDir):
                         os.rename(dest, dest + ".old")
                         desc += " - Файл переименован\n"
                     except OSError, e:
-                        desc += " - Ошибка\n"
+                        desc += " - Ошибка\n%s\n" % e
                 else:
                     try:
                         os.remove(dest)
                         desc += " - Файл удален\n"
                     except OSError, e:
-                        desc += " - Ошибка\n", e
+                        desc += " - Ошибка\n%s\n" % e
 
             else:
                 desc += " - Файл не найден\n"

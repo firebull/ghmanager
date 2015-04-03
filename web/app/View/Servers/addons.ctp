@@ -83,7 +83,7 @@
 	<div class="ui divided list" data-bind="if: installedPlugins">
 		<!-- ko foreach: {data: installedPlugins, as: 'item'} -->
 		<div class="item">
-			<div class="right floated compact ui red icon button" title="Удалить плагин"><i class="ban icon"></i></div>
+			<div class="right floated compact ui red icon button" title="Удалить плагин" data-bind="event: {click: $root.action.bind($data, 'delete', 'plugin', false)}"><i class="ban icon"></i></div>
 			<div class="right floated compact ui orange button" data-bind="event: {click: $root.action.bind($data, 'install', 'plugin', false)}"><i class="repeat icon"></i> Переустановить</div>
 			<i class="toggle on green large icon"></i>
 			<div class="content">
@@ -166,12 +166,12 @@
 
         this.action = function(action, type, manual, item){
         	var self = this;
-console.log(action);
+
         	if (type == 'mod'){
         		var addonId = item.Mod.id;
         	} else if (type == 'plugin') {
         		var addonId = item.Plugin.id;
-        	} else if (action != 'resync') {
+        	} else if (action != 'resync' && action != 'delete') {
         		return false;
         	}
 
@@ -187,13 +187,22 @@ console.log(action);
         		var url = '/servers/pluginResync/'
         				+ this.serverId()
         				+ '.json';
-        	} else {
+        	} else if (action == 'delete'){
+        		var url = '/servers/pluginDelete/'
+        				+ this.serverId()
+        				+ '/' + addonId
+        				+ '.json';
+        	}else {
         		var url = '/servers/pluginInstall/'
         				+ this.serverId()
         				+ '/' + addonId
         				+ '/' + type
         				+ '.json';
         	}
+
+        	self.infos([]);
+        	self.errors([]);
+        	self.showInfos(false);
 
         	$.getJSON(url)
 	         .done( function(data){
@@ -209,12 +218,15 @@ console.log(action);
 	                        if (type == 'mod'){
 				        		self.availiableMods.remove(item);
 				        		self.loadData();
-				        	} else if (type == 'plugin') {
+				        	} else if (type == 'plugin' && action == 'install') {
 				        		self.installedPlugins.push(item);
 				        		self.availiablePlugins.remove(item);
 				        	} else if (action == 'resync') {
 				        		self.loadData();
-				        	} else {
+				        	} else if (action == 'delete') {
+				        		self.installedPlugins.remove(item);
+				        		self.availiablePlugins.unshift(item);
+				        	}else {
 				        		return false;
 				        	}
 	                    }

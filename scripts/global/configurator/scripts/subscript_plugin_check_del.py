@@ -168,6 +168,7 @@ if numrows > 0:
                     addonPath += '-' + addon['version']
                 print "<plugin id='%s' name='%s'>" % (addon['id'], addon['name'])
                 try:
+                    print "<log>Удаляю файлы плагина</log>"
                     retcode = Popen("sudo -u " + userName
                                     + " ./plugin_delete.py"
                                     + " -r " + addonPath
@@ -180,12 +181,12 @@ if numrows > 0:
                     print out
                     print '<error>%s</error>' % err
                     if err < 0:
-                        print "<error>При попытке удаления возникла ошибка: ", err, '</error>'
+                        print "<error>Возникла ошибка: %s</error>" % err
                     elif err == 0 or err == "":
-                        print "<log>Данные получены</log>"
+                        print "<log>Успешно</log>"
 
                 except OSError, e:
-                    print "<error>При попытке удаления возникла ошибка: ", e, '</error>'
+                    print "<error>Возникла ошибка: %s </error>" % e
 
                 print "</plugin>"
 

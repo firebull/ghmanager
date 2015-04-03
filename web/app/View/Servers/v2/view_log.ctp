@@ -39,7 +39,7 @@ function cutString($string, $length = 30) {
 							  );
 
 		$event  = $this->Js->request(array('controller'=>'servers',
-									 'action'   => 'viewLog', $id, "startup", 2),
+									 'action'   => 'viewLog', $id, "startup", "ver:2"),
 							   array('update'   => '#server_log_view',
 									 'before'   => "$('#logsLoading').show();",
 								     'complete' => "$('#logsLoading').hide();"
@@ -56,7 +56,7 @@ function cutString($string, $length = 30) {
 					  );
 
 	$event  = $this->Js->request(array('controller'=>'servers',
-								 'action'   => 'viewLog', $id, 'run', 2),
+								 'action'   => 'viewLog', $id, 'run', "ver:2"),
 						   array('update'   => '#server_log_view',
 								 'before'   => "$('#logsLoading').show();",
 								 'complete' => "$('#logsLoading').hide();"
@@ -72,7 +72,7 @@ function cutString($string, $length = 30) {
 					  );
 
 	$event  = $this->Js->request(array('controller' => 'servers',
-								 'action'   => 'viewLog', $id, "update", 2),
+								 'action'   => 'viewLog', $id, "update", "ver:2"),
 						   array('update'   => '#server_log_view',
 								 'before'   => "$('#logsLoading').show();",
 								 'complete' => "$('#logsLoading').hide();"
@@ -89,7 +89,7 @@ function cutString($string, $length = 30) {
 					  );
 
 	$event  = $this->Js->request(array('controller'=>'servers',
-								 'action'   => 'viewLog', $id, "debug", 2),
+								 'action'   => 'viewLog', $id, "debug", "ver:2"),
 						   array('update'   => '#server_log_view',
 								 'before'   => "$('#logsLoading').show();",
 								 'complete' => "$('#logsLoading').hide();",
