@@ -4,6 +4,6 @@
  *
  */
 ?>
-<div class="alert alert-error" style="margin: 10px;">
+<div class="ui error message">
 	  	  <?php echo $message; ?>
 </div>

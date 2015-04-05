@@ -523,7 +523,7 @@ class ServersController extends AppController {
 
     public function index() {
         $this->DarkAuth->requiresAuth();
-        $this->layout = 'client_new';
+        $this->layout = 'v2/client';
         $this->set('title_for_layout', 'Администрирование серверов');
         $this->loadModel('GameTemplateType');
         $this->loadModel('Eac');

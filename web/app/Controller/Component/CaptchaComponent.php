@@ -45,7 +45,7 @@ class CaptchaComponent extends Component {
 
         # show credits
         $showCredits = true; # set to false to remove credits line. Credits adds 12 pixels to image height
-        $credits = 'GH Manager'; # if empty, HTTP_HOST will be shown
+        $credits = Configure::read('Panel.vendor.name'); # if empty, HTTP_HOST will be shown
 
         # CAPTCHA image colors (RGB, 0-255)
         //$foregroundColor = array(0, 0, 0);

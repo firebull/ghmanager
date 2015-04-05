@@ -9,7 +9,7 @@
  * letters and special characters.
  *
  * Copyright (c) 2010 Sagie Maoz <n0nick@php.net>
- * Licensed under the GPL license, see http://www.gnu.org/licenses/gpl-3.0.html 
+ * Licensed under the GPL license, see http://www.gnu.org/licenses/gpl-3.0.html
  *
  *
  * NOTE: This script requires jQuery to work.  Download jQuery at www.jquery.com
@@ -25,38 +25,38 @@ var passwordStrength = new function()
 		var match = val.match(rex);
 		return match ? match.length : 0;
 	};
-	
+
 	this.getStrength = function(val, minLength)
-	{	
+	{
 		var len = val.length;
-		
+
 		// too short =(
 		if (len < minLength)
 		{
 			return 0;
 		}
-		
+
 		var nums = this.countRegexp(val, /\d/g),
 			lowers = this.countRegexp(val, /[a-z]/g),
 			uppers = this.countRegexp(val, /[A-Z]/g),
 			specials = len - nums - lowers - uppers;
-		
+
 		// just one type of characters =(
 		if (nums == len || lowers == len || uppers == len || specials == len)
 		{
 			return 1;
 		}
-		
+
 		var strength = 0;
 		if (nums)	{ strength+= 2; }
 		if (lowers)	{ strength+= uppers? 4 : 3; }
 		if (uppers)	{ strength+= lowers? 4 : 3; }
 		if (specials) { strength+= 5; }
 		if (len > 10) { strength+= 1; }
-		
+
 		return strength;
 	};
-	
+
 	this.getStrengthLevel = function(val, minLength)
 	{
 		var strength = this.getStrength(val, minLength);
@@ -95,7 +95,7 @@ $.fn.password_strength = function(options)
 		},
 		'onCheck': null
 	}, options);
-	
+
 	return this.each(function()
 	{
 		var container = null, $bar = null, controller = null;
@@ -118,7 +118,7 @@ $.fn.password_strength = function(options)
 		{
 			$bar = $(settings.bar);
 		}
-		
+
 		$(this).bind('keyup.password_strength', function()
 		{
 			var val = $(this).val(),
@@ -128,7 +128,7 @@ $.fn.password_strength = function(options)
 			{
 				var _class = 'password_strength_' + level,
 						_barClass = 'password_bar_' + level;
-				
+
 				if (!container.hasClass(_class) && level in settings.texts)
 				{
 					container.text(settings.texts[level]).attr('class', 'help-block password_strength ' + _class);
@@ -141,16 +141,16 @@ $.fn.password_strength = function(options)
 				// Color control group of Bootstrap
 				if (level <= 2)
 				{
-					groupClass = 'control-group error';
+					groupClass = 'field error';
 				}
 				else
 				if (level >= 3 && level < 4)
 				{
-					groupClass = 'control-group warning';
+					groupClass = 'field warning';
 				}
 				else
 				{
-					groupClass = 'control-group success';
+					groupClass = 'field success';
 				}
 
 				if (controller !== null)

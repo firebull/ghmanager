@@ -58,9 +58,8 @@
             </div>
         </div>
         <div class="ten wide left aligned white column" id="indexRightColumn" data-bind="if: renderSelected">
-            <!-- ko                             template: {if: selectedType() && renderedServer(),
-                                       name: 'render-template-' + selectedType()
-                                       } -->
+            <!-- ko template: {if: selectedType() && renderedServer(),
+                               name: 'render-template-' + selectedType()} -->
 
             <!-- /ko -->
         </div>
