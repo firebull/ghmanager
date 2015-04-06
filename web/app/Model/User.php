@@ -10,6 +10,7 @@ App::uses('AppModel', 'Model');
 class User extends AppModel {
 
 	public $useTable = 'users';
+	public $actsAs = ['Containable'];
 
 	public $hasAndBelongsToMany = array (
 		'Group' => array (

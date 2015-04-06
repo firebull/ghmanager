@@ -19,6 +19,7 @@ Lesser General Public License for more details.
 */
 
 App::uses('CakeEmail', 'Network/Email');
+App::uses('HttpSocket', 'Network/Http');
 
 class UsersController extends AppController {
 
@@ -49,11 +50,33 @@ class UsersController extends AppController {
 						        )
 						    );
 
+	public function beforeRender() {
+        $this->User->contain(['Group']);
+
+        $this->User->id = $this->DarkAuth->getUserId();
+
+        $userInfo = $this->User->read();
+
+        if (!empty($userInfo)) {
+            unset($userInfo['User']['passwd'],
+                $userInfo['User']['tokenhash']);
+
+            // Убрать все теги, xss-уязвимость
+            foreach ($userInfo['User'] as $key => $value) {
+                $userInfo['User'][$key] = strip_tags($value);
+            }
+
+            // Вычислить имя пользователя
+            $userInfo['User']['fullName'] = $this->TeamServer->countUserName($userInfo);
+
+            $this->set('userinfo', $userInfo);
+        }
+    }
+
 	public function login() {
 		if (empty($this->DarkAuth->current_user))
 		{
-			$this->render('v2/login');
-			//return $this->redirect('/');
+			return $this->redirect('/');
 		}
 
 
@@ -311,11 +334,180 @@ class UsersController extends AppController {
 	 * Редактирование профиля пользователя
 	 */
 	public function edit() {
-		$this->layout = 'ajax';
 		$this->DarkAuth->requiresAuth(array ('Admin','GameAdmin','Member'));
 		$this->User->id = $this->DarkAuth->getUserId();
+		$this->layout = 'ajax';
 
-		if (empty($this->data)) {
+		if (isset($this->params['named']['ver'])){
+			$ver = $this->params['named']['ver'];
+			$path = sprintf('v%s/', $ver);
+		} else {
+			$ver = null;
+			$path = '';
+		}
+
+		if ($this->request->is('post'))
+		{
+			$this->User->contain();
+			$user = $this->User->read();
+
+			// Убрать все теги, xss-уязвимость
+			foreach ( $this->data['User'] as $key => $value ) {
+       				$this->request->data['User'][$key] = trim(strip_tags($value));
+			}
+
+			if ($this->data['User']['mailing'] != 0 ) {
+				$this->request->data['User']['mailing'] = 1;
+			}
+
+			$confirmation = false;
+			$emailRegexp = "/\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*([,;]\\s*\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*)*/";
+			// Перед сменой email отправить запрос на старый ящик
+			if ($this->data['User']['email'] != $user['User']['email'])
+			{
+				if (!preg_match($emailRegexp, $this->data['User']['email'])){
+					$this->Session->setFlash('Некорректный email', $path . 'flash_error');
+					return $this->redirect([ 'action' => 'edit', 'ver' => $ver]);
+				}
+
+				$this->TeamServer->logAction('Запрос изменение адреса email на'.$this->data['User']['email'], 'warn', $user['User']['id']);
+
+				$this->User->contain();
+
+				// Проверить, не принадлежит ли адрес другой записи
+				if ($this->User->find('first', ['conditions' => ['id NOT' => $user['User']['id'],
+																 'email'  => $this->data['User']['email']]]))
+				{
+					$this->Session->setFlash('Введённый email '.$this->data['User']['email'].' уже принадлежит другому клиенту.'.
+											 'Если вам нужно создать несколько аккаунтов на один email, напишите в техподдержку.',
+											 $path . 'flash_error');
+				}
+				else
+				if (($code = $this->TeamServer
+								  ->saveConfirm( 'email',
+												  $user['User']['id'],
+												  null,
+												  ['User' => ['email' => $this->data['User']['email']]])) !== false)
+				{
+					// Если не указан мобильный, то уведомление слать на почту
+					if (empty($user['User']['phone']))
+					{
+	                    try {
+						    //генерация e-mail
+							$Email = new CakeEmail();
+							$Email->config('smtp');
+							$Email->viewVars(array('code' => $code));
+							$Email->template('change_email', 'default')
+		    					  ->emailFormat('both')
+		    					  ->from(array('robot-no-answer@ghmanager.local' => 'GHmanager email robot'))
+		    					  ->to($user['User']['email'])
+								  ->subject('GHmanager: Подтверждение смены email портале. (Confirm New Email)')
+								  ->send();
+
+						    $this->Session->setFlash('На ваш текущий email отправлен код подтверждения.<br/>'.
+												     'Для смены email вам необходимо вставить этот код в поле ниже', $path . 'flash_success');
+
+						} catch (Exception $e) {
+						    $this->Session->setFlash(sprintf('Не удалось отправить уведомление. Ошибка "%s". Свяжитесь с техподдержкой напрямую.', $e->getMessage()), $path . 'flash_error');
+						}
+					}
+					else
+					{
+						if ($this->TeamServer->sendSms($user['User']['phone'], 'Код подтверждения нового email: '.$code)) {
+							$this->Session->setFlash('На ваш телефон отправлен код подтверждения.<br/>'.
+												 	 'Для смены email вам необходимо вставить этот код в поле ниже', $path . 'flash_success');
+						} else {
+							$this->Session->setFlash('Не удалось отправить код подтверждения на текущий телефон.<br/>'.
+						                     		 'Обратитесь в техподдержку.', $path . 'flash_error');
+						}
+					}
+				}
+				else
+				{
+					$this->Session->setFlash('Не удалось отправить код подтверждения.<br/>'.
+						                     'Обратитесь в техподдержку.', $path . 'flash_error');
+				}
+
+				$confirmation = true;
+				$this->request->data['User']['email'] = $user['User']['email'];
+			}
+
+			// Перед сменой номера телефона, отправить запрос на оба номера
+			if (isset($this->data['User']['phone'])
+					and ($this->data['User']['phone'] != $user['User']['phone'])
+					and $this->data['User']['phone'] != '')
+			{
+				$this->request->data['User']['phone'] = preg_replace('/\D/', '', $this->data['User']['phone']);
+
+				// Проверить номер на соответствие шаблону СНГ
+				if (preg_match('/^((\+?7|8)(?!95[4-79]|99[^2457]|907|94[^0]|336)([348]\d|9[0-689]|7[07])\d{8}|\+?(99[^456]\d{7,11}|994\d{9}|9955\d{8}|996[57]\d{8}|380[34569]\d{8}|375[234]\d{8}|372\d{7,8}|37[0-4]\d{8}))$/',
+							   $this->data['User']['phone'])) {
+
+					// После обработки повторно сравнить номера
+					if ($this->request->data['User']['phone'] != $user['User']['phone']) {
+
+						$this->TeamServer->logAction('Запрос изменение номера телефона на '.$this->data['User']['phone'], 'warn', $user['User']['id']);
+
+						// Проверить, не принадлежит ли телефон другой записи
+						if ($this->User->find('first', array( 'conditions' => array( 'id NOT' => $user['User']['id'],
+																					 'phone'  => $this->data['User']['phone'])))) {
+							$this->Session->setFlash('Введённый номер телефона '.$this->data['User']['phone'].' уже принадлежит другому клиенту.'.
+													 'Если вам нужно создать несколько аккаунтов на один номер телефона, напишите в техподдержку.',
+													 $path . 'flash_error');
+						} elseif (($code = $this->TeamServer->saveConfirm( 'phone',
+															$user['User']['id'],
+														    null,
+														    array('User' => array('phone' => $this->data['User']['phone']))
+														    )) !== false) {
+							// Сначала послать уведомление на текущий номер
+							if (!empty($user['User']['phone'])) {
+								if (!$this->TeamServer->sendSms($user['User']['phone'], 'Код подтверждения смены номера: '.$code[0])) {
+									$this->Session->setFlash('Не удалось отправить код подтверждения на текущий телефон.<br/>'.
+								                     		 'Обратитесь в техподдержку.', $path . 'flash_error');
+								}
+							}
+
+							// Следом послать уведомление на новый номер
+							if ($this->TeamServer->sendSms($user['User']['phone'], 'Код подтверждения нового номера: '.$code[1])) {
+								$this->Session->setFlash('На указанный телефон отправлен код подтверждения.<br/>'.
+													 	 'Для смены номера вам необходимо вставить этот код в поле ниже.<br/>'.
+													 	 'Если ранее был введён другой номер, вам необходимо будет вставить два кода в соответсвующие поля.', $path . 'flash_success');
+							} else {
+								$this->Session->setFlash('Не удалось отправить код подтверждения на текущий телефон.<br/>'.
+							                     		 'Обратитесь в техподдержку.', $path . 'flash_error');
+							}
+						} else {
+							$this->Session->setFlash('Не удалось отправить код подтверждения.<br/>'.
+								                     'Обратитесь в техподдержку.', $path . 'flash_error');
+						}
+
+						$confirmation = true;
+						$this->request->data['User']['phone'] = $user['User']['phone'];
+					} else {
+						$this->Session->setFlash('Вы ввели такой же номер.', $path . 'flash_success');
+						$this->redirect(array('action' => 'edit', 'ver' => $ver));
+					}
+				} else {
+					$this->Session->setFlash('Некооректный номер телефона или номер не из стран СНГ.<br/>.'.
+											 'Допускаются только цифры, длина номера 11 цифр.', $path . 'flash_error');
+					$this->redirect(array('action' => 'edit', 'ver' => $ver));
+				}
+
+			}
+
+			$this->User->contain();
+
+			if ($this->User->save($this->data, true, array('first_name', 'second_name', 'steam_id', 'guid', 'mailing', 'sms_news'))) {
+				if ($confirmation === false) {
+					$this->Session->setFlash('Информация о профиле обновлена.', $path . 'flash_success');
+					$this->redirect(array('action' => 'confirm'));
+				} else {
+					$this->redirect(array('action' => 'edit', 'ver' => $ver));
+				}
+			}
+		}
+		else
+		{
 			// Не нужно запрашивать лишнее
 			$this->User->unbindModel(array(
 											'hasAndBelongsToMany' => array(
@@ -335,181 +527,13 @@ class UsersController extends AppController {
 																		)
 														)));
 
-			$this->data = $this->User->read();
+			$this->request->data = $this->User->read();
 			unset($this->request->data['User']['passwd']);
 			unset($this->request->data['User']['ftppassword']);
 			$this->set('userinfo', $this->data);
-		} else {
-			$this->User->unbindModel(array(
-											'hasAndBelongsToMany' => array(
-																'Server',
-																'SupportTicket',
-																'Group'
-													),
-											'hasMany' => array('Eac')
-											)
-									);
-			$user = $this->User->read();
-
-			// Убрать все теги, xss-уязвимость
-			foreach ( $this->data['User'] as $key => $value ) {
-       				$this->data['User'][$key] = strip_tags($value);
-			}
-
-			if ($this->data['User']['mailing'] != 0 ) {
-				$this->data['User']['mailing'] = 1;
-			}
-
-			$confirmation = false;
-			// Перед сменой email отправить запрос на старый ящик
-			if ($this->data['User']['email'] != $user['User']['email']) {
-				$this->TeamServer->logAction('Запрос изменение адреса email на'.$this->data['User']['email'], 'warn', $user['User']['id']);
-
-				$this->User->unbindModel(array(
-											'hasAndBelongsToMany' => array(
-																'Server',
-																'SupportTicket',
-																'Group',
-																'Confirm'
-													),
-											'hasMany' => array('Eac')
-											)
-									);
-
-				// Проверить, не принадлежит ли адрес другой записи
-				if ($this->User->find('first', array( 'conditions' => array( 'id NOT' => $user['User']['id'],
-																			 'email'  => $this->data['User']['email'])))) {
-					$this->Session->setFlash('Введённый email '.$this->data['User']['email'].' уже принадлежит другому клиенту.'.
-											 'Если вам нужно создать несколько аккаунтов на один email, напишите в техподдержку.',
-											 'flash_error');
-				} elseif (($code = $this->TeamServer->saveConfirm( 'email',
-													$user['User']['id'],
-												    null,
-												    array('User' => array('email' => $this->data['User']['email']))
-												    )) !== false) {
-					// Если не указан мобильный, то уведомление слать на почту
-					if (empty($user['User']['phone']))
-					{
-	                    try {
-						    //генерация e-mail
-							$Email = new CakeEmail();
-							$Email->config('smtp');
-							$Email->viewVars(array('code' => $code));
-							$Email->template('change_email', 'default')
-		    					  ->emailFormat('both')
-		    					  ->from(array('robot-no-answer@ghmanager.local' => 'GHmanager email robot'))
-		    					  ->to($user['User']['email'])
-								  ->subject('GHmanager: Подтверждение смены email портале. (Confirm New Email)')
-								  ->send();
-
-						    $this->Session->setFlash('На ваш текущий email отправлен код подтверждения.<br/>'.
-												     'Для смены email вам необходимо вставить этот код в поле ниже', 'flash_success');
-
-						} catch (Exception $e) {
-						    $this->Session->setFlash(sprintf('Не удалось отправить уведомление. Ошибка "%s". Свяжитесь с техподдержкой напрямую.', $e->getMessage()), 'flash_error');
-						}
-					}
-					else
-					{
-						if ($this->TeamServer->sendSms($user['User']['phone'], 'Код подтверждения нового email: '.$code)) {
-							$this->Session->setFlash('На ваш телефон отправлен код подтверждения.<br/>'.
-												 	 'Для смены email вам необходимо вставить этот код в поле ниже', 'flash_success');
-						} else {
-							$this->Session->setFlash('Не удалось отправить код подтверждения на текущий телефон.<br/>'.
-						                     		 'Обратитесь в техподдержку.', 'flash_error');
-						}
-					}
-				}
-				else
-				{
-					$this->Session->setFlash('Не удалось отправить код подтверждения.<br/>'.
-						                     'Обратитесь в техподдержку.', 'flash_error');
-				}
-
-				$confirmation = true;
-				$this->data['User']['email'] = $user['User']['email'];
-			}
-
-			// Перед сменой номера телефона, отправить запрос на оба номера
-			if (($this->data['User']['phone'] != $user['User']['phone']) and $this->data['User']['phone'] !== '') {
-				$this->data['User']['phone'] = preg_replace('/\D/', '', $this->data['User']['phone']);
-
-				// Проверить номер на соответствие шаблону СНГ
-				if (preg_match('/^((\+?7|8)(?!95[4-79]|99[^2457]|907|94[^0]|336)([348]\d|9[0-689]|7[07])\d{8}|\+?(99[^456]\d{7,11}|994\d{9}|9955\d{8}|996[57]\d{8}|380[34569]\d{8}|375[234]\d{8}|372\d{7,8}|37[0-4]\d{8}))$/',
-							   $this->data['User']['phone'])) {
-
-					// После обработки повторно сравнить номера
-					if ($this->data['User']['phone'] != $user['User']['phone']) {
-
-						$this->TeamServer->logAction('Запрос изменение номера телефона на '.$this->data['User']['phone'], 'warn', $user['User']['id']);
-
-						// Проверить, не принадлежит ли телефон другой записи
-						if ($this->User->find('first', array( 'conditions' => array( 'id NOT' => $user['User']['id'],
-																					 'phone'  => $this->data['User']['phone'])))) {
-							$this->Session->setFlash('Введённый номер телефона '.$this->data['User']['phone'].' уже принадлежит другому клиенту.'.
-													 'Если вам нужно создать несколько аккаунтов на один номер телефона, напишите в техподдержку.',
-													 'flash_error');
-						} elseif (($code = $this->TeamServer->saveConfirm( 'phone',
-															$user['User']['id'],
-														    null,
-														    array('User' => array('phone' => $this->data['User']['phone']))
-														    )) !== false) {
-							// Сначала послать уведомление на текущий номер
-							if (!empty($user['User']['phone'])) {
-								if (!$this->TeamServer->sendSms($user['User']['phone'], 'Код подтверждения смены номера: '.$code[0])) {
-									$this->Session->setFlash('Не удалось отправить код подтверждения на текущий телефон.<br/>'.
-								                     		 'Обратитесь в техподдержку.', 'flash_error');
-								}
-							}
-
-							// Следом послать уведомление на новый номер
-							if ($this->TeamServer->sendSms($user['User']['phone'], 'Код подтверждения нового номера: '.$code[1])) {
-								$this->Session->setFlash('На указанный телефон отправлен код подтверждения.<br/>'.
-													 	 'Для смены номера вам необходимо вставить этот код в поле ниже.<br/>'.
-													 	 'Если ранее был введён другой номер, вам необходимо будет вставить два кода в соответсвующие поля.', 'flash_success');
-							} else {
-								$this->Session->setFlash('Не удалось отправить код подтверждения на текущий телефон.<br/>'.
-							                     		 'Обратитесь в техподдержку.', 'flash_error');
-							}
-						} else {
-							$this->Session->setFlash('Не удалось отправить код подтверждения.<br/>'.
-								                     'Обратитесь в техподдержку.', 'flash_error');
-						}
-
-						$confirmation = true;
-						$this->data['User']['phone'] = $user['User']['phone'];
-					} else {
-						$this->Session->setFlash('Вы ввели такой же номер.', 'flash_success');
-						$this->redirect(array('action' => 'edit'));
-					}
-				} else {
-					$this->Session->setFlash('Некооректный номер телефона или номер не из стран СНГ.<br/>.'.
-											 'Допускаются только цифры, длина номера 11 цифр.', 'flash_error');
-					$this->redirect(array('action' => 'edit'));
-				}
-
-			}
-
-			$this->User->unbindModel(array(
-											'hasAndBelongsToMany' => array(
-																'Server',
-																'SupportTicket',
-																'Group'
-													),
-											'hasMany' => array('Eac')
-											)
-									);
-
-			if ($this->User->save($this->data, true, array('first_name', 'second_name', 'steam_id', 'guid', 'mailing', 'sms_news'))) {
-				if ($confirmation === false) {
-					$this->Session->setFlash('Информация о профиле обновлена.', 'flash_success');
-					$this->redirect(array('action' => 'confirm'));
-				} else {
-					$this->redirect(array('action' => 'edit'));
-				}
-			}
-
 		}
+
+		$this->render(sprintf('v%s/edit', $ver));
 	}
 
 	// Верификация операций по коду
@@ -780,41 +804,50 @@ class UsersController extends AppController {
 
 	public function changeFtpPass($action = null) {
 		$this->DarkAuth->requiresAuth();
+
+		if (isset($this->params['named']['ver'])){
+			$ver = $this->params['named']['ver'];
+			$path = sprintf('v%s/', $ver);
+		} else {
+			$ver = null;
+			$path = '';
+		}
+
 		$this->loadModel('RootServer');
-		$this->loadModel('Server');
 		$user = $this->DarkAuth->getAllUserInfo();
 		$userId = $user['User']['id'];
 		$this->set('ftpLogin','client'.$userId);
-		if (empty($action)) {
+
+		if (empty($action))
+		{
 			$this->set('ftpPassword',@$user['User']['ftppassword']);
-		} elseif ($action === 'change') {
-			/*
-			 * Смена пароля должна производиться на каждом физическом сервере,
+		}
+		else
+		if ($action == 'change')
+		{
+			/* Смена пароля должна производиться на каждом физическом сервере,
 			 * где клиент имеет свои серверы.
 			 * Потому сначала надо получить их список.
 			 */
-			$serverIds = $user['Server'];
+			$this->User->contain(['Server' => ['fields' => 'id',
+				                               'conditions' => ['Server.address NOT' => NULL]]]);
 
-			$serversIdsList = array();
-			foreach ($user['Server'] as $serverId):
-				if ($serverId['initialised'] == 1) {
-					$serversIdsList[] = $serverId['id'];
-				}
-			endforeach;
-			$userServers = $this->Server->find('all', array(
-												'conditions' => array('id'=>$serversIdsList)));
+			$user = $this->User->find('first', ['conditions' => ['User.id' => $userId],
+				                                'fields' => ['id','ftppassword']]);
+
+			$serversIdsList = HASH::extract($user, 'Server.{n}.id');
+
+			$this->User->Server->contain(['RootServer' => ['fields' => 'id']]);
+			$userServers = $this->User
+								->Server
+								->find('all', ['conditions' => ['Server.id' => $serversIdsList],
+									           'fields'     => ['id', 'address']]);
 
 			// Обнулить переменные, на всякий случай
 			$rootServers  = array();
 			$tmp = array();
-			foreach ($userServers as $server):
 
-				if (!empty($server['RootServer'][0]['id'])) {
-					$rootServersIdsList[] = $server['RootServer'][0]['id'];
-				}
-			endforeach;
-
-			$rootServersIdsList = array_unique($rootServersIdsList);
+			$rootServersIdsList = array_unique(HASH::extract($userServers, '{n}.RootServer.{n}.id'));
 
 			/*
 			 * Если физический сервер только один, просто берем
@@ -822,11 +855,15 @@ class UsersController extends AppController {
 			 * Если их больше, то надо будет запросить список их IP.
 			 */
 
-			 if (count(@$rootServersIdsList) == 1) {
+			if (count(@$rootServersIdsList) == 1)
+			{
 			 	$rootServersIps[] = $userServers[0]['Server']['address'];
-			 } elseif (count(@$rootServersIdsList) >= 1) {
-			 	$rootServers = $this->RootServer->find('all', array(
-												'conditions' => array('id'=>$rootServersIdsList)));
+			}
+			else
+			if (count(@$rootServersIdsList) > 1)
+			{
+			 	$rootServers = $this->RootServer->find('all', [
+												'conditions' => ['id' => $rootServersIdsList]]);
 
 				$rootServersIps  = array();
 				$tmp = array();
@@ -836,62 +873,41 @@ class UsersController extends AppController {
 
 				endforeach;
 
-			 } elseif (count(@$rootServersIdsList) <= 0) {
-			 	$this->Session->setFlash('Нет инициализированных серверов, негде менять пароль.','flash_error');
-			 }
+			}
+			else
+			if (count(@$rootServersIdsList) <= 0) {
+			 	$this->Session->setFlash('Нет инициализированных серверов, негде менять пароль.', $path . 'flash_error');
+			}
 
-			 /*
-			  * Теперь, имея список IP, перебираем физические серверы
-			  * и меняем пароль на каждом из них
-			  */
-			  $ftp_password = 'none';
-			  if (!empty($rootServersIps)) {
-			  	  foreach ($rootServersIps as $serverIp):
+			/*
+			 * Теперь, имея список IP, перебираем физические серверы
+			 * и меняем пароль на каждом из них
+			 */
+			$ftp_password = 'none';
+			if (!empty($rootServersIps))
+			{
+			  	$HttpSocket = new HttpSocket();
+			  	$requestStr = sprintf("/~client%d/common/.change_pass.py", $userId);
+			  	$data       = sprintf("p=%s&n=%s", $user['User']['ftppassword'], $ftp_password);
 
-				  /*
-				   * Обращаемся к серверу по IP
-				   */
+			  	foreach ($rootServersIps as $serverIp):
+
+				    //Обращаемся к серверу по IP
+                	$response = $HttpSocket->get('http://' . $serverIp . $requestStr, $data);
 
 				   // Совершаем запрос и форматируем вывод
-					$fp = @fsockopen($serverIp, 80, $errno, $errstr, 10);
-					if (!$fp) {
-					    $this->Session->setFlash("Невозможно подключиться к серверу: <br />\n"."$errstr ($errno)<br />\n", 'flash_error');
-					    $this->redirect(array('action'=>'changeFtpPass'));
+					if (!$response or !$response->isOK())
+					{
+					    $this->Session->setFlash(sprintf("Невозможно подключиться к серверу: <br />\n %s ($d)<br />\n", $response->reasonPhrase, $response->code), $path . 'flash_error');
+					    $this->redirect(array('action'=>'changeFtpPass', 'ver' => $ver));
 
-					} else {
-
-						$out = "POST /~client".$userId."/common/.change_pass.py?p=".$user['User']['ftppassword']."&n=".$ftp_password." HTTP/1.1\r\n";
-
-					    $out .= "Host: ".$serverIp."\r\n";
-					    $out .= "Connection: Close\r\n\r\n";
-					    fwrite($fp, $out);
-
-					    $response = '';
-					    while (!feof($fp)) {
-					        $response.=fgets($fp, 1024);
-					    }
-					    fclose($fp);
-
-						$response=split("\r\n\r\n", $response);
-					    $header=$response[0];
-					    $responsecontent=$response[1];
-					    /*
-					     * Чесговоря не очень понятна суть закоментированного
-					     * куска. Но он мне всё портил. Разбираться сейчас некогда,
-					     * пока закоментировал - вдруг в будущем вылезет баг. =)))
-					     */
-//					    if (!(strpos($header,"Transfer-Encoding: chunked")===false)) {
-//					        $aux=split("\r\n", $responsecontent);
-//					        for ($i=0;$i<count($aux);$i++)
-//					            if ($i==0 || ($i%2==0))
-//					                $aux[$i]="";
-//					        $responsecontent=implode("", $aux);
-//					    }
-
-			 		 	$var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response[1], $out);
+					}
+					else
+					{
+			 		 	$var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $response->body, $out);
 
 			 		 	$responsecontent = trim($out[1]);
-			 		 	if ($responsecontent !== 'error') {
+			 		 	if ($responsecontent != 'error') {
 
 			 		 		/*
 			 		 		 * Пароль в базу сохраняем лишь однажды,
@@ -902,27 +918,27 @@ class UsersController extends AppController {
 			 		 			$this->User->id = $userId;
 
 				 		 			if ($this->User->saveField('ftppassword', $responsecontent)) {
-				 		 				 	$this->Session->setFlash('Пароль изменён.', 'flash_success');
+				 		 				 	$this->Session->setFlash('Пароль изменён.', $path . 'flash_success');
 				 		 		 			$this->set('ftpPassword',@$responsecontent);
 				 		 		 			$ftp_password = $responsecontent;
 				 		 			} else {
-				 		 				$this->Session->setFlash('Возникла ошибка:<br/>'.mysql_error(), 'flash_error');
+				 		 				$this->Session->setFlash('Возникла ошибка БД', $path . 'flash_error');
 				 		 			}
 			 		 		 }
 
 			 		 	} else {
-			 		 		$this->Session->setFlash('Произошла ошибка: -'.$responsecontent.'-', 'flash_error');
-			 		 		$this->redirect(array('action'=>'changeFtpPass'));
+			 		 		$this->Session->setFlash('Произошла ошибка: "'.$responsecontent.'"', $path . 'flash_error');
+			 		 		break;
 			 		 	}
-
 					}
 
-				  endforeach;
-				  $this->redirect(array('action'=>'changeFtpPass'));
-			  }
+				endforeach;
+			}
 
-			$this->redirect( array('action' => 'changeFtpPass') );
+			$this->redirect(['action' => 'changeFtpPass', 'ver' => $ver]);
 		}
+
+		$this->render(sprintf('v%s/change_ftp_pass', $ver));
 	}
 
 	public function autoComplete() {

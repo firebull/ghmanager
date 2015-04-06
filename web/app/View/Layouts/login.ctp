@@ -96,10 +96,11 @@
 						<label>Пароль</label>
 						<div class="ui left icon input">
 							<i class="lock icon"></i>
-							<?php   echo $this->Form->password('DarkAuth.password', [	'div' => false,
-																						'label' => false,
-																						'style' => ''
-																						]);     ?>
+							<?php   echo $this->Form->password('DarkAuth.password', [
+																'div' => false,
+																'label' => false,
+																'style' => ''
+																]);     ?>
 						</div>
 					</div>
 					<button class="ui fluid green button">Войти</button>
@@ -141,7 +142,7 @@
 
 		this.showModal = function(size, title, bodyUrl, data){
                 var self = this;
-console.log('sdsds');
+
                 $('#loginModal').removeClass('small large fullscreen').addClass(size);
                 $('#loginModal .header').html(title);
 

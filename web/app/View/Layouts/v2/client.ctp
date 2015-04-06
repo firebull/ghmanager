@@ -68,7 +68,7 @@
 	<!-- Top Menu start -->
 	<?php echo $this->element('v2/top_menu'); ?>
 	<!-- Top Menu end -->
-	<div style="margin-top: 50px !important;"></div>
+	<div style="padding-top: 50px !important;"></div>
 	<div id="flash"><?php echo $this->Session->flash(); ?></div>
 	<?php echo $this->fetch('content'); ?>
 
@@ -77,7 +77,15 @@
 	<?php
 			echo $this->Js->writeBuffer(); // Write cached scripts
 	?>
-
+	<div class="ui small modal" id="confirmModal">
+        <i class="close icon"></i>
+        <div class="header"></div>
+        <div class="content"><div class="description"></div></div>
+        <div class="actions">
+            <div class="ui red basic button">Отмена</div>
+            <div class="ui green ok button">OK</div>
+        </div>
+    </div>
 	<?php
 	// Скрипты в конец для более быстрой загрузки
 

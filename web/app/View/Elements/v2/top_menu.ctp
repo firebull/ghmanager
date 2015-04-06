@@ -21,7 +21,7 @@ else
 ?>
 
 
-    <div class="ui fixed main menu menu-shadow" style="margin-bottom: 40px; !important;">
+    <div class="ui fixed main menu menu-shadow" style="margin-bottom: 40px; !important;" id="topMenu">
         <div class="container">
             <a class="item menu-home-image" href="/">
                 <?php
@@ -68,9 +68,146 @@ else
                                         'escape'     => false]);
             }
             ?>
-                <a href="" class="ui item"><i class="user icon"></i> <?php echo $userinfo['User']['fullName'];?></a>
+                <div class="ui topmenu dropdown item">
+                    <i class="user icon"></i>
+                    <?php echo $userinfo['User']['fullName'];?>
+                    <i class="dropdown icon"></i>
+                    <div class="ui menu">
+                        <div class="header text item">
+                            Профиль
+                        </div>
+                        <div class="text item">
+                            <div class="ui list">
+                                <div class="item" style="color: #222 !important;">
+                                    <i class='user icon'></i>
+                                    <div class="content">
+                                        <div class="header">
+                                            <?php echo $userinfo['User']['fullName'];?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php if (!empty($userinfo['User']['steam_id'])){ ?>
+                                <div class="item" style="color: #222 !important;">
+                                    <i class='steam square icon'></i>
+                                    <div class="content">
+                                        <div class="desription">
+                                            <?php echo $userinfo['User']['steam_id'];?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php } ?>
+                                <div class="item" style="color: #222 !important;">
+                                    <i class='envelope icon'></i>
+                                    <div class="content">
+                                        <div class="desription">
+                                            <?php echo $userinfo['User']['email'];?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php if (@$userinfo['User']['discount'] > 0){ ?>
+                                <div class="item" style="color: #222 !important;">
+                                    <i class='money icon'></i>
+                                    <div class="content">
+                                        <div class="desription">
+                                            <?php echo 'Ваша скидка: '.$userinfo['User']['discount'];?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php } ?>
+                                <?php
+                                    $headerPrinted = false;
+                                    $userIsTester = false;
+                                    foreach ( $userinfo['Group'] as $group ) {
+                                        if (strtolower($group['name']) != 'member'){
+                                            if ($headerPrinted === false){
+                                                echo "<br/>Ваши права доступа:";
+                                                echo "<ul style='padding-left: 15px; margin-left: 10px; margin-bottom: 0px; margin-top: 0px;'>";
+                                                $headerPrinted = true;
+                                            }
+
+                                            echo "<li>".$group['desc'].'</li>';
+
+                                            // Определить ключ привязки к БетаТестерам
+                                            if (strtolower($group['name']) == 'betatesters'){
+                                                $userIsTester = true;
+                                            }
+                                        }
+                                    }
+                                    if ($headerPrinted === true){
+                                        echo "</ul>";
+                                    }
+
+                                ?>
+                            </div>
+                        </div>
+                        <div class="header item">
+                            Действия
+                        </div>
+                        <a data-bind="event: {click: showModal.bind(true, '', 'Изменить профиль', '/users/edit/ver:2')}" class="item">
+                            <i class="blue user icon"></i>Изменить профиль
+                        </a>
+                        <a data-bind="event: {click: showModal.bind(true, 'small', 'Изменить пароль FTP', '/users/changeFtpPass/ver:2')}" class="item">
+                            <i class="blue lock icon"></i>Пароль FTP
+                        </a>
+                        <a href="/servers/webHosting/ver:2" class="item">
+                            <i class="blue cloud icon"></i>Бесплатный Web-хостинг
+                        </a>
+                    </div>
+                </div>
 
                 <a href="/logout" class="ui item">Выйти</a>
             </div>
         </div>
     </div>
+    <div class="ui small modal" id="topMenuModal">
+        <i class="close icon"></i>
+        <div class="header"></div>
+        <div class="content"><div class="description"></div></div>
+        <div class="actions">
+            <div class="ui button">Отмена</div>
+        </div>
+    </div>
+<script type="text/javascript">
+    $('.topmenu.dropdown').dropdown({action: 'hide'});
+
+    var topMenuViewModel = function(){
+
+        var self = this;
+
+        this.loading = ko.observable(false);
+        this.errors  = ko.observableArray();
+
+        this.showModal = function(size, title, bodyUrl, data){
+            var self = this;
+
+            $('#topMenuModal').removeClass('small large fullscreen').addClass(size);
+            $('#topMenuModal .header').html(title);
+
+
+            self.loading(true);
+
+            $.get( bodyUrl )
+             .done(
+                    function(data){
+                        $('#topMenuModal .content .description').empty();
+                        $('#topMenuModal .content .description').html(data);
+                        $('#topMenuModal').modal({allowMultiple: true}).modal('show').modal('refresh');
+
+                        self.loading(false);
+                    })
+             .fail( function(data, status, statusText) {
+                if (data.status == 401){
+                    window.location.href = "/users/login";
+                } else {
+                    answer = "HTTP Error: " + statusText;
+                    self.errors.push(answer);
+                    self.loading(false);
+                }
+             });
+
+        }.bind(this);
+
+    };
+
+    ko.applyBindings(new topMenuViewModel(), document.getElementById("topMenu"));
+</script>
