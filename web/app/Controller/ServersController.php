@@ -442,7 +442,7 @@ class ServersController extends AppController {
             $this->Server
                  ->GameTemplate
                  ->bindModel(['hasAndBelongsToMany' =>
-                                    ['Map' => ['fields' => 'id, name, longname, map_type_id']]]);
+                                    ['Map' => ['fields' => 'id, name, longname, desc, official, map_type_id']]]);
 
             $gameTemplateMaps = $this->Server->GameTemplate->find('all', ['fields' => 'GameTemplate.id']);
 
@@ -471,12 +471,21 @@ class ServersController extends AppController {
             }
         }
 
-        //////
-        //pr($gameTemplate);
+        // Return map description
         if (!empty($mapsByTemplate)
-            and isset($mapsByTemplate[intval($gameTemplateId)][$mapName])) {
+            and isset($mapsByTemplate[intval($gameTemplateId)][$mapName]))
+        {
             return $mapsByTemplate[$gameTemplateId][$mapName];
-        } else {
+        }
+        // Return all gametemplate maps with descriptions
+        else
+        if (!empty($mapsByTemplate)
+            and !empty($mapsByTemplate[intval($gameTemplateId)]))
+        {
+            return $mapsByTemplate[$gameTemplateId];
+        }
+        else
+        {
             return false;
         }
     }
@@ -5964,6 +5973,7 @@ class ServersController extends AppController {
     // Render window for mods/plugins installer
     // After that script will query pluginInstall by JSON
     public function addons($id = null){
+        $this->DarkAuth->requiresAuth();
         $this->set('serverId', $id);
     }
 
@@ -6563,6 +6573,23 @@ class ServersController extends AppController {
         }
     }
 
+    // Render window for maps installer
+    // After that script will query mapInstall by JSON
+    public function maps($id = null, $output = null){
+        $this->DarkAuth->requiresAuth();
+        $this->set('serverId', $id);
+
+        if ($output !== null) {
+            $this->Session->write('mapOutput', $output);
+        } elseif ($output === null and $this->Session->check('mapOutput')) {
+            $output = $this->Session->read('mapOutput');
+        } elseif ($output === null and !$this->Session->check('mapOutput')) {
+            $output = 'list';
+        }
+
+        $this->set('output', $output);
+    }
+
     /* Установка и просмотр установленных карт
      *
      * - Получить список установленных карт на сервере
@@ -6571,7 +6598,7 @@ class ServersController extends AppController {
      *
      */
     /**
-     * @param $id
+     * @param $id: Server ID
      * @param null $mapId
      * @param null $mapType
      * @param $action
@@ -6608,7 +6635,8 @@ class ServersController extends AppController {
             $this->set('output', $output);
 
             // Если нет mapId, то пытаемся получить список установленных карт
-            if ($mapId === null or $mapId === 'all') {
+            if ($mapId === null or $mapId === 'all')
+            {
                 // Список карт получить из setMap
                 $this->setMap($id);
                 $server = $this->request->data;
@@ -6621,8 +6649,13 @@ class ServersController extends AppController {
                     case 'hlds':
                     case 'srcds':
 
+                        // Block map install for L4D/L4D2
+                        if (in_array($server['GameTemplate'][0]['name'], ['l4d', 'l4d-t100', 'l4d2', 'l4d2-t100'])) {
+                            throw new NotImplementedException('Установка карт для этой игры пока недоступна.');
+                        }
+
                         // Получить список включенных карт
-                        if (strtolower($server['Type'][0]['name']) === 'hlds') {
+                        if (strtolower($server['Type'][0]['name']) == 'hlds') {
                             // Для HL1 использовать только mapcycle
                             $mapsTurnedOn = $this->editConfigCommon($id, 72, 'read');
                         } else {
@@ -6633,20 +6666,13 @@ class ServersController extends AppController {
                             $mapsTurnedOn = preg_split('/\n/', $mapsTurnedOn);
                         }
 
-                        // Для лефты заблокировать установку карт
-                        if ($server['GameTemplate'][0]['name'] === 'l4d' or $server['GameTemplate'][0]['name'] === 'l4d2') {
-                            $this->Session->setFlash('Установка карт для этой игры пока недоступна.', 'flash_error');
-                            $this->render();
-                            break;
-                        }
-
                         // Подготовим массив и внесем параметры по-умолчанию,
                         // которые позже дополним
                         foreach ($server['Server']['maps'] as $map) {
                             $server['Server']['maps'][$map] = array('name' => $map,
                                 'installed' => true,     // карта на сервере установлена
                                  'canDelete' => false,     // по-умолчанию, мы не можем её удалить
-                                 'on' => true,     // по-усолчанию, считаем, что карта включена
+                                 'on' => true,     // по-умолчанию, считаем, что карта включена
                             );
                             // Проверить включена ли карта
                             if ($mapsTurnedOn !== false) {
@@ -6667,108 +6693,214 @@ class ServersController extends AppController {
                             'Service',
                             'Server',
                         )));
-                        $this->Server->GameTemplate->bindModel(array('hasAndBelongsToMany' => array(
-                            'Map' => array(
-                                'fields' => 'id, name, longname, desc, official, map_type_id',
-                            ),
-                        )));
 
                         $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
                         $gameTemplate = $this->Server->GameTemplate->read();
+                        $gameTemplateMaps = $this->mapDesc($server['GameTemplate'][0]['id']);
 
-                        // Если указан тип карт, то получить сначала список привязанных к нему карт
-                        // Потом скоррелировать его с шаблоном
+                        // For JSON requests will generate array by type
+                        // for all maps for current GameTemplate
+                        if ($this->params['ext'] == 'json')
+                        {
+                            //debug($server['Server']['maps']);
+                            $this->loadModel('MapType');
+                            $this->MapType->contain();
 
-                        if ($mapType !== null and $mapType !== 'installed') {
+                            $mapTypes = $this->MapType->find('all', ['fields' => ['id', 'name', 'longname']]);
+                            $mapTypesById = Hash::combine($mapTypes, '{n}.MapType.id', '{n}.MapType');
 
-                            // array_intersect в нашем случае работает через попень, т.к.
-                            // массивы многомерные и с кучей переносов строк и текста
-                            // Поэтому сделаю сравнение по ID карты
-                            if (!empty($gameTemplate['Map'])) {
-                                foreach ($gameTemplate['Map'] as $map) {
-                                    $gameTemplateMaps[] = $map['id'];
+                            $templateMapTypes = array();
+
+                            $fullMapList = ['installed' => []];
+
+                            foreach ($server['Server']['maps'] as $mapName => $mapInstalled) {
+
+
+                                if (!empty($gameTemplateMaps[$mapName]))
+                                {
+                                    $map = $gameTemplateMaps[$mapName];
+                                    $map['installed'] = $mapInstalled['installed'];
+                                    $map['canDelete'] = true;
+                                    $map['on'] = $mapInstalled['on'];
                                 }
+                                else
+                                {
+                                    $map = ['name' => $mapName,
+                                            'longname' => false,
+                                            'desc' => false,
+                                            'map_type_id' => false];
+
+                                    $map['installed'] = $mapInstalled['installed'];
+                                    $map['canDelete'] = false;
+                                    $map['on'] = $mapInstalled['on'];
+                                }
+
+                                // Get map type
+                                $type = preg_split('/_/', $mapName);
+                                if (count($type) > 0){
+                                    $map['map_type'] = $type[0];
+                                } else {
+                                    $map['map_type'] = 'none';
+                                }
+
+                                $fullMapList['installed'][] = $map;
                             }
 
-                            $this->loadModel('MapType');
+                            foreach ($gameTemplateMaps as $mapName => $map) {
+                                if (!empty($mapTypesById[$map['map_type_id']]))
+                                {
+                                    $mapType = $mapTypesById[$map['map_type_id']]['name'];
+                                }
+                                else
+                                {
+                                    $mapType = 'none';
+                                }
 
-                            $this->MapType->unbindModel(array('hasMany' => array('Map')));
-                            $this->MapType->bindModel(array('hasMany' => array(
-                                'Map' => array(
-                                    'fields' => 'id, name, longname, desc, official',
-                                ),
-                            )));
+                                $map['map_type'] = $mapType;
 
-                            $mapsByType = $this->MapType->find('all', array('conditions' => array('name' => $mapType)));
+                                if (!isset($fullMapList[$mapType])){
+                                    $fullMapList[$mapType] = array();
 
-                            $mapList = array();
-                            foreach ($mapsByType[0]['Map'] as $map) {
-                                if (in_array($map['id'], $gameTemplateMaps)) {
-                                    $mapList[$map['name']] = array('name' => $map['name']);
-                                    $mapList[$map['name']]['id'] = $map['id'];
-                                    $mapList[$map['name']]['longname'] = $map['longname'];
-                                    $mapList[$map['name']]['desc'] = $map['desc'];
-                                    $mapList[$map['name']]['official'] = ((bool)$map['official']);
+                                    if ($mapType != 'none')
+                                    {
+                                        $templateMapTypes[] = ['id'   => $map['map_type_id'],
+                                                               'name' => $mapType,
+                                                               'longname' => $mapTypesById[$map['map_type_id']]['longname']];
+                                    }
+                                    else
+                                    {
+                                        $templateMapTypes[] = ['id' => 0,
+                                                           'name' => 'none',
+                                                           'longname' => 'Тип не указан'];
+                                    }
+                                }
 
-                                    if (array_key_exists($map['name'], $server['Server']['maps'])) {
-                                        $mapList[$map['name']]['installed'] = true;
 
-                                        // Т.к. карта нам известна, мы можем её удалить
-                                        $mapList[$map['name']]['canDelete'] = true;
 
-                                        // Ключ, включена ли карта
-                                        if (!empty($server['Server']['maps'][$map['name']]['on'])) {
-                                            $mapList[$map['name']]['on'] = true;
+                                if (array_key_exists($map['name'], $server['Server']['maps']))
+                                {
+                                    $map['installed'] = $server['Server']['maps'][$map['name']]['installed'];
+                                    $map['canDelete'] = true;
+                                    $map['on'] = $server['Server']['maps'][$map['name']]['on'];
+                                }
+                                else
+                                {
+                                    $map['installed'] = false;
+                                    $map['canDelete'] = true;
+                                    $map['on'] = false;
+                                }
+
+
+                                $fullMapList[$mapType][] = $map;
+                            }
+
+                            $templateMapTypes = array_merge([['id' => 0,
+                                                              'name' => 'installed',
+                                                              'longname' => 'Установленные']],
+                                                            Hash::sort($templateMapTypes, '{n}.name', 'asc'));
+
+                            $this->set('mapTypes', $templateMapTypes);
+                            $this->set('mapTypesByName', Hash::combine($mapTypes, '{n}.MapType.name', '{n}.MapType'));
+                            $this->set('fullMapList', $fullMapList);
+
+                            $this->set('_serialize', ['mapTypes', 'mapTypesByName', 'fullMapList', 'output']);
+
+                            return $this->render();
+                        }
+                        else
+                        {
+                            // Если указан тип карт, то получить сначала список привязанных к нему карт
+                            // Потом скоррелировать его с шаблоном
+
+                            if ($mapType !== null and $mapType !== 'installed') {
+
+                                // array_intersect в нашем случае работает через попень, т.к.
+                                // массивы многомерные и с кучей переносов строк и текста
+                                // Поэтому сделаю сравнение по ID карты
+                                if (!empty($gameTemplateMaps)) {
+                                    foreach ($gameTemplateMaps as $map) {
+                                        $gameTemplateMapIds[] = $map['id'];
+                                    }
+                                }
+
+                                $this->loadModel('MapType');
+
+                                $this->MapType->unbindModel(array('hasMany' => array('Map')));
+                                $this->MapType->bindModel(array('hasMany' => array(
+                                    'Map' => array(
+                                        'fields' => 'id, name, longname, desc, official',
+                                    ),
+                                )));
+
+                                $mapsByType = $this->MapType->find('all', array('conditions' => array('name' => $mapType)));
+
+                                $mapList = array();
+                                foreach ($mapsByType[0]['Map'] as $map) {
+                                    if (in_array($map['id'], $gameTemplateMapIds)) {
+                                        $mapList[$map['name']] = array('name' => $map['name']);
+                                        $mapList[$map['name']]['id'] = $map['id'];
+                                        $mapList[$map['name']]['longname'] = $map['longname'];
+                                        $mapList[$map['name']]['desc'] = $map['desc'];
+                                        $mapList[$map['name']]['official'] = ((bool)$map['official']);
+
+                                        if (array_key_exists($map['name'], $server['Server']['maps'])) {
+                                            $mapList[$map['name']]['installed'] = true;
+
+                                            // Т.к. карта нам известна, мы можем её удалить
+                                            $mapList[$map['name']]['canDelete'] = true;
+
+                                            // Ключ, включена ли карта
+                                            if (!empty($server['Server']['maps'][$map['name']]['on'])) {
+                                                $mapList[$map['name']]['on'] = true;
+                                            } else {
+                                                $mapList[$map['name']]['on'] = false;
+                                            }
+
                                         } else {
+                                            $mapList[$map['name']]['installed'] = false;
+                                            $mapList[$map['name']]['canDelete'] = true;
                                             $mapList[$map['name']]['on'] = false;
                                         }
 
-                                    } else {
-                                        $mapList[$map['name']]['installed'] = false;
-                                        $mapList[$map['name']]['canDelete'] = true;
-                                        $mapList[$map['name']]['on'] = false;
-                                    }
-
-                                    // Проверить на наличие изображения карты
-                                    if (file_exists(WWW_ROOT . '/img/gameMaps/' . $map['id'] . '.jpg')) {
-                                        $mapList[$map['name']]['image'] = $map['id'];
-                                    } else {
-                                        $mapList[$map['name']]['image'] = NULL;
-                                    }
-                                }
-
-                            }
-                            asort($mapList);
-                            $this->set('maps', $mapList);
-                        } else {
-                            foreach ($gameTemplate['Map'] as $gameTemplateMap) {
-                                if (array_key_exists($gameTemplateMap['name'], $server['Server']['maps'])) {
-                                    $server['Server']['maps'][$gameTemplateMap['name']]['id'] = $gameTemplateMap['id'];
-                                    $server['Server']['maps'][$gameTemplateMap['name']]['longname'] = $gameTemplateMap['longname'];
-                                    $server['Server']['maps'][$gameTemplateMap['name']]['desc'] = $gameTemplateMap['desc'];
-                                    $server['Server']['maps'][$gameTemplateMap['name']]['official'] = ((bool)$gameTemplateMap['official']);
-
-                                    // Т.к. карта нам известна, мы можем её удалить
-                                    $server['Server']['maps'][$gameTemplateMap['name']]['canDelete'] = true;
-
-                                    // Проверить на наличие изображения карты
-                                    if (file_exists(WWW_ROOT . '/img/gameMaps/' . $gameTemplateMap['id'] . '.jpg')) {
-                                        $server['Server']['maps'][$gameTemplateMap['name']]['image'] = $gameTemplateMap['id'];
-                                    } else {
-                                        $server['Server']['maps'][$gameTemplateMap['name']]['image'] = NULL;
+                                        // Проверить на наличие изображения карты
+                                        if (file_exists(WWW_ROOT . '/img/gameMaps/' . $map['id'] . '.jpg')) {
+                                            $mapList[$map['name']]['image'] = $map['id'];
+                                        } else {
+                                            $mapList[$map['name']]['image'] = NULL;
+                                        }
                                     }
 
                                 }
-                            }
-                            asort($server['Server']['maps']);
-                            $this->set('maps', $server['Server']['maps']);
+                                asort($mapList);
+                                $this->set('maps', $mapList);
+                            } else {
+                                foreach ($gameTemplateMaps as $gameTemplateMap) {
+                                    if (array_key_exists($gameTemplateMap['name'], $server['Server']['maps'])) {
+                                        $server['Server']['maps'][$gameTemplateMap['name']]['id'] = $gameTemplateMap['id'];
+                                        $server['Server']['maps'][$gameTemplateMap['name']]['longname'] = $gameTemplateMap['longname'];
+                                        $server['Server']['maps'][$gameTemplateMap['name']]['desc'] = $gameTemplateMap['desc'];
+                                        $server['Server']['maps'][$gameTemplateMap['name']]['official'] = ((bool)$gameTemplateMap['official']);
 
+                                        // Т.к. карта нам известна, мы можем её удалить
+                                        $server['Server']['maps'][$gameTemplateMap['name']]['canDelete'] = true;
+
+                                        // Проверить на наличие изображения карты
+                                        if (file_exists(WWW_ROOT . '/img/gameMaps/' . $gameTemplateMap['id'] . '.jpg')) {
+                                            $server['Server']['maps'][$gameTemplateMap['name']]['image'] = $gameTemplateMap['id'];
+                                        } else {
+                                            $server['Server']['maps'][$gameTemplateMap['name']]['image'] = NULL;
+                                        }
+
+                                    }
+                                }
+                                asort($server['Server']['maps']);
+                                $this->set('maps', $server['Server']['maps']);
+                            }
                         }
-
                         // Список типов карт надо формировать по картам, привязанным на шаблон
                         // Сначала составить список, для отправки запроса в БД
-                        $gameTemplateMaps = array();
-                        foreach ($gameTemplate['Map'] as $map) {
+                        $gameTemplateMapIds = array();
+                        foreach ($gameTemplateMaps as $map) {
                             $gameTemplateMapIds[] = $map['id'];
                         }
 
@@ -6796,8 +6928,7 @@ class ServersController extends AppController {
                     case 'cod':
 
                     default:
-                        $this->Session->setFlash('Установка карт для данного типа серверов невозможна. Если вы считаете это неправильным, сообщите нам.', $path.'flash_error');
-                        $this->render();
+                        throw new NotImplementedException('Установка карт для этой игры пока недоступна.');
                         break;
 
                 }

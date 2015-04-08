@@ -285,6 +285,8 @@ class GameTemplatesController extends AppController {
 
 	}
 
+
+
 	public function editMap( $id = null) {
 		$this->DarkAuth->requiresAuth(array('Admin'));
 		$this->loadModel('Map');
@@ -295,16 +297,16 @@ class GameTemplatesController extends AppController {
 		if ($this->data) {
 
 			if (!empty($this->data['Map']['GameTemplate'])) {
-				$this->data['GameTemplate'] = $this->data['Map']['GameTemplate'];
+				$this->request->data['GameTemplate'] = $this->data['Map']['GameTemplate'];
 			}
 
 			if ($this->Map->save($this->data)) {
 
+			    $error = '';
 			    if ($this->data['Map']['map_image']['tmp_name'] !== null and $this->uploadMapImage()) {
 			    	// Переименовать картинку под ID карты
 			    	$imagesPath = WWW_ROOT."/img/gameMaps/";
 
-			    	$error = '';
 			    	// Удалить старую, если есть
 			    	if (file_exists($imagesPath.'/'.$this->Map->id.'.jpg')) {
 			    		if (!unlink($imagesPath.'/'.$this->Map->id.'.jpg')) {

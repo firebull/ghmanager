@@ -129,7 +129,7 @@
         <a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Установка модов и плагинов', '/servers/addons/' + renderedServer().Server.id)}">
             <i class="suitcase icon"></i>Плагины
         </a>
-        <a class="item" data-bind="event: {click: $root.showModal.bind($data, 'large', 'Установка карт', '/servers/mapInstall/' + renderedServer().Server.id)}, visible: jQuery.inArray(renderedServer().GameTemplate['name'], ['css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old']) != -1">
+        <a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Установка карт', '/servers/maps/' + renderedServer().Server.id)}, visible: jQuery.inArray(renderedServer().GameTemplate['name'], ['css', 'cssv34', 'dods', 'tf', 'cs16', 'cs16-old']) != -1">
             <i class="bomb icon"></i>Карты
         </a>
         <!-- ko if: renderedServer().Type['name'] == 'hlds' -->
@@ -818,16 +818,6 @@
                                     if (answer.Server.id == self.renderedServer().Server.id){
                                         self.renderedServer(answer);
                                     }
-
-                                    /*
-                                    $('.playerInfo').popup(
-                                        {distanceAway: 0,
-                                         offset: -50,
-                                         position: 'right center',
-                                         delay: {show: 300, hide: 10},
-                                         hoverable: true});*/
-
-
                                 }
 
                                 self.loadingModal(false);
@@ -853,7 +843,6 @@
 
             this.serverAction = function(action, event, data){
                 var self = this;
-                //console.log($(event.currentTarget).addClass('disabled'));
 
                 if ($(self.renderedServer()).size() > 0
                         && self.renderedServer().Server.initialised == 1
