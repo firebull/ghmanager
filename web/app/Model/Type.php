@@ -9,7 +9,8 @@ class Type extends AppModel {
     public $name = 'type';
 
     public $useTable = 'types';
-    
+    public $actsAs = ['Containable'];
+
         public $hasAndBelongsToMany = array (
 		'GameTemplate' => array (
 			'className' => 'GameTemplate',

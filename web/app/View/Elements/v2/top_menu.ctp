@@ -47,11 +47,12 @@ else
                                        ['class'      => $class['orders'],
                                         'escape'     => false]);
 
-                echo $this->Html->link('<i class="red plus icon"></i> Заказать сервер',
-                                       ['controller' => 'orders',
-                                        'action'     => 'add'],
+                echo $this->Html->tag( 'div',
+                                       '<i class="red plus icon"></i> Заказать сервер',
                                        ['class'      => 'item',
-                                        'escape'     => false]);
+                                        'escape'     => false,
+                                        'style'      => 'cursor: pointer;',
+                                        'id'         => 'orderButton']);
 
             ?>
             <div class="right menu">
@@ -158,6 +159,31 @@ else
                 <a href="/logout" class="ui item">Выйти</a>
             </div>
         </div>
+        <div class="ui flowing popup" id="orderMenu">
+            <div class="ui three column divided equal height center aligned grid" style="min-width: 500px;">
+                <div class="column">
+                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, 'small', 'Заказать игровой сервер', '/orders/add/1')}">
+                        <img class="ui centered image" src="/img/bigicons/ico-game.png"/>
+                        <br/>
+                        <div class="ui blue label">Игровой сервер</div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, 'small', 'Заказать голосовой сервер', '/orders/add/2')}">
+                        <img class="ui centered image" src="/img/bigicons/ico-voice.png"/>
+                        <br/>
+                        <div class="ui blue label"><nobr>Голосовой сервер</nobr></div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, 'small', 'Заказать сервер EAC', '/orders/addEac/8')}">
+                        <img class="ui centered image" src="/img/bigicons/ico-eac.png"/>
+                        <br/>
+                        <div class="ui blue label"><nobr>Сервер EAC</nobr></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="ui small modal" id="topMenuModal">
         <i class="close icon"></i>
@@ -169,6 +195,13 @@ else
     </div>
 <script type="text/javascript">
     $('.topmenu.dropdown').dropdown({action: 'hide'});
+
+    $('#orderButton')
+          .popup({
+            popup : $('#orderMenu'),
+            on    : 'click'
+          })
+        ;
 
     var topMenuViewModel = function(){
 

@@ -8,8 +8,8 @@
 
                 <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'game')}">
                     <div class="ui tiny_gh image">
-                        <img data-bind="visible: Status.image, attr: {src: Status.image}" />
-                        <img data-bind="visible: !Status.image ,attr: {src: '/img/icons/servers/big/' + $root.serverIcon(GameTemplate['name'])}" src="/img/personage01.png"/>
+                        <img class="ui tiny_gh image" data-bind="visible: Status.image, attr: {src: Status.image}" />
+                        <img class="ui tiny_gh image" data-bind="visible: !Status.image ,attr: {src: '/img/icons/servers/big/' + $root.serverIcon(GameTemplate['name'])}" src="/img/personage01.png"/>
                     </div>
                     <div class="content top aligned" data-bind="template: {name: 'render-server-item'}"></div>
                 </div>
@@ -20,7 +20,7 @@
                 <!-- ko foreach: voiceServers -->
                 <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'voice')}">
                     <div class="ui mini_gh image">
-                      <img src="/img/bigicons/mumble.png">
+                      <img class="ui tiny_gh image" src="/img/bigicons/mumble.png">
                     </div>
                     <div class="content" data-bind="template: {name: 'render-server-item'}"></div>
                 </div>
@@ -31,7 +31,7 @@
                 <!-- ko foreach: eacServers -->
                 <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'eac')}">
                     <div class="ui mini_gh image">
-                      <img src="/img/bigicons/eac.png">
+                      <img class="ui tiny_gh image" src="/img/bigicons/eac.png">
                     </div>
                     <div class="content">
                         <div class="header">

@@ -2,7 +2,7 @@
 class Location extends AppModel {
 	public $name = 'Location';
 	public $displayField = 'name';
-	
+	public $actsAs = ['Containable'];
 
 	public $hasAndBelongsToMany = array(
 		'RootServer' => array(
