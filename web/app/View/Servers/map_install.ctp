@@ -439,7 +439,7 @@
 
 			var okMessage  = '';
 			var errMessage = 'Ошибка';
-			var reqLink = '/servers/mapInstall/' + serverId + '/' + mapId + '/installed/' + action + '/json';
+			var reqLink = '/servers/mapInstall/' + serverId + '/' + mapId + '/installed/' + action + '.json';
 
 			if (action == 'install') {
 				okMessage  = 'Установлена на сервер';

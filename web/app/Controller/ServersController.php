@@ -6615,6 +6615,10 @@ class ServersController extends AppController {
             $path = '';
         }
 
+        if ($this->params['ext'] == 'json'){
+            $out = 'json';
+        }
+
         if (@$id == null) {
             $id = $this->request->data['Server']['id'];
         }
@@ -6710,41 +6714,6 @@ class ServersController extends AppController {
                             $mapTypesById = Hash::combine($mapTypes, '{n}.MapType.id', '{n}.MapType');
 
                             $templateMapTypes = array();
-
-                            $fullMapList = ['installed' => []];
-
-                            foreach ($server['Server']['maps'] as $mapName => $mapInstalled) {
-
-
-                                if (!empty($gameTemplateMaps[$mapName]))
-                                {
-                                    $map = $gameTemplateMaps[$mapName];
-                                    $map['installed'] = $mapInstalled['installed'];
-                                    $map['canDelete'] = true;
-                                    $map['on'] = $mapInstalled['on'];
-                                }
-                                else
-                                {
-                                    $map = ['name' => $mapName,
-                                            'longname' => false,
-                                            'desc' => false,
-                                            'map_type_id' => false];
-
-                                    $map['installed'] = $mapInstalled['installed'];
-                                    $map['canDelete'] = false;
-                                    $map['on'] = $mapInstalled['on'];
-                                }
-
-                                // Get map type
-                                $type = preg_split('/_/', $mapName);
-                                if (count($type) > 0){
-                                    $map['map_type'] = $type[0];
-                                } else {
-                                    $map['map_type'] = 'none';
-                                }
-
-                                $fullMapList['installed'][] = $map;
-                            }
 
                             foreach ($gameTemplateMaps as $mapName => $map) {
                                 if (!empty($mapTypesById[$map['map_type_id']]))
@@ -6948,48 +6917,58 @@ class ServersController extends AppController {
                 $HttpSocket = new HttpSocket();
                 $response = $HttpSocket->get('http://' . $server['ServerClean']['address'] . $requestStr, $data);
 
-                $xmlAsArray = Xml::toArray(Xml::build($response->body));
+                if ($response->code == 200){
+                    $xmlAsArray = Xml::toArray(Xml::build($response->body));
 
-                // Прасинг лога и ошибок
-                $responseMessages = $this->parseXmlResponse($xmlAsArray);
+                    // Прасинг лога и ошибок
+                    $responseMessages = $this->parseXmlResponse($xmlAsArray);
 
-                switch ($action) {
-                    case 'install':
-                        $actionWord = 'установлена';
-                        $actionWordErr = 'установке';
-                        Cache::delete('maps_' . $id);
-                        break;
+                    switch ($action) {
+                        case 'install':
+                            $actionWord = 'установлена';
+                            $actionWordErr = 'установке';
+                            Cache::delete('maps_' . $id);
+                            break;
 
-                    case 'delete':
-                        $actionWord = 'удалена';
-                        $actionWordErr = 'удалении';
-                        Cache::delete('maps_' . $id);
-                        break;
+                        case 'delete':
+                            $actionWord = 'удалена';
+                            $actionWordErr = 'удалении';
+                            Cache::delete('maps_' . $id);
+                            break;
 
-                    case 'turnOn':
-                        $actionWord = 'включена';
-                        $actionWordErr = 'включении';
-                        break;
+                        case 'turnOn':
+                            $actionWord = 'включена';
+                            $actionWordErr = 'включении';
+                            break;
 
-                    case 'turnOff':
-                        $actionWord = 'отключена';
-                        $actionWordErr = 'отключении';
-                        break;
+                        case 'turnOff':
+                            $actionWord = 'отключена';
+                            $actionWordErr = 'отключении';
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
+                    }
+
+                    if (!empty($responseMessages['error'])) {
+
+                        $this->Session->setFlash('Возникла ошибка при ' . $actionWordErr . ' карты: ' . $responseMessages['error'] .
+                            'Лог выполнения задания: ' . $responseMessages['log'], 'flash_error');
+
+                        $this->set('result', ['error' => $responseMessages['log']]);
+
+                    } else {
+                        $this->Session->setFlash('Карта ' . $actionWord . ' успешно. Перезагрузите сервер для применения изменений.', 'flash_success');
+                        $this->set('result', 'ok');
+                    }
                 }
-
-                if (!empty($responseMessages['error'])) {
-
-                    $this->Session->setFlash('Возникла ошибка при ' . $actionWordErr . ' карты: ' . $responseMessages['error'] .
-                        'Лог выполнения задания: ' . $responseMessages['log'], 'flash_error');
-
-                    $this->set('result', ['error' => $responseMessages['log']]);
-
-                } else {
-                    $this->Session->setFlash('Карта ' . $actionWord . ' успешно. Перезагрузите сервер для применения изменений.', 'flash_success');
-                    $this->set('result', 'ok');
+                else
+                {
+                    if ($out == 'html'){
+                        $this->setFlash(sprintf('Возникла ошибка: %d -> %s', $response->code, $response->reasonPhrase), 'flash_error');
+                    } else {
+                        throw new InternalErrorException($response->reasonPhrase);
+                    }
                 }
 
                 if ($out === 'html') {
@@ -9098,10 +9077,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
                     if ($responsecontent == 'success') {
                         $this->Session->setFlash('Конфиг создан. Откройте редактор снова.', 'flash_success');
-                        return $this->redirect(array('action' => 'result', $serverId));
+                        return $this->redirect(array('action' => 'result'));
                     } else {
                         $this->Session->setFlash('Произошла ошибка: ' . $responsecontent, 'flash_error');
-                        return $this->redirect(array('action' => 'result', $serverId));
+                        return $this->redirect(array('action' => 'result'));
                     }
                 } elseif ($action == 'write') {
                     if ($responsecontent) {
@@ -9113,10 +9092,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
                     if ($responsecontent == 'success') {
                         $this->Session->setFlash('Конфиг сохранён. Перезапустите сервер.', 'flash_success');
-                        return $this->redirect(array('action' => 'result', $serverId));
+                        return $this->redirect(array('action' => 'result'));
                     } else {
                         $this->Session->setFlash('Произошла ошибка: ' . $responsecontent, 'flash_error');
-                        return $this->redirect(array('action' => 'result', $serverId));
+                        return $this->redirect(array('action' => 'result'));
                     }
                 }
             }
