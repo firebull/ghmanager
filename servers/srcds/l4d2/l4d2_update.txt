@@ -1,0 +1,8 @@
+// update_csgo_ds.txt
+//
+//set_steam_guard_code 75PBP
+//login johnhasissues ks67fgrot
+login anonymous
+force_install_dir ./left4dead2
+app_update 222860 validate
+exit

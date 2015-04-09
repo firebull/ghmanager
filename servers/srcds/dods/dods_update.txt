@@ -1,0 +1,6 @@
+// update_dods_ds.txt
+//
+login anonymous
+force_install_dir ./dods_ds
+app_update 232290 validate
+exit

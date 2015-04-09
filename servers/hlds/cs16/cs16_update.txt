@@ -1,0 +1,6 @@
+// update_cs16_ds.txt
+//
+login anonymous
+force_install_dir ../
+app_update 90 validate
+exit

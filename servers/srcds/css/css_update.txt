@@ -1,0 +1,6 @@
+// update_css_ds.txt
+//
+login anonymous
+force_install_dir ./css_ds
+app_update 232330 validate
+exit

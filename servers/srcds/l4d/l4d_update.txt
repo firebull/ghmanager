@@ -1,0 +1,6 @@
+// update_l4d2_ds.txt
+//
+login anonymous
+force_install_dir ./l4d
+app_update 222840 validate
+exit
