@@ -90,16 +90,18 @@ class GameTemplatesController extends AppController {
 	public function beforeRender() {
 		$userInfo = $this->DarkAuth->getAllUserInfo();
 
-		// Убрать все теги, xss-уязвимость
-		foreach ( $userInfo['User'] as $key => $value ) {
-   				$userInfo['User'][$key] = strip_tags($value);
+		if ($userInfo){
+			// Убрать все теги, xss-уязвимость
+			foreach ( $userInfo['User'] as $key => $value ) {
+	   				$userInfo['User'][$key] = strip_tags($value);
+			}
+
+			$this->set('userinfo', $userInfo);
+
+			$this->loadModel('Support');
+			$openTickets = $this->Support->query("SELECT COUNT(*) FROM `support_tickets` WHERE `status`='open'");
+			$this->set('openTickets', $openTickets[0][0]['COUNT(*)']);
 		}
-
-		$this->set('userinfo', $userInfo);
-
-		$this->loadModel('Support');
-		$openTickets = $this->Support->query("SELECT COUNT(*) FROM `support_tickets` WHERE `status`='open'");
-		$this->set('openTickets', $openTickets[0][0]['COUNT(*)']);
 
 	}
 

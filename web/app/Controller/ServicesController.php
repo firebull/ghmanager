@@ -108,6 +108,7 @@ class ServicesController extends AppController {
 
 		$this->GameTemplate->id = $templateId;
 		$template = $this->GameTemplate->read();
+		$servicesList = array();
 
 		if (!empty($template['Service'])) {
 			if ($rootServer === 'all') {
@@ -122,6 +123,7 @@ class ServicesController extends AppController {
 						// серверу, считать, что она доступна всей локации
 						foreach ( $location['RootServer'] as $rootServer ) {
        						if ($this->checkService($service['id'], $templateId, $rootServer['id'])) {
+       							$servicesList[$service['id']]['id']   = $service['id'];
        							$servicesList[$service['id']]['name'] = $service['name'];
        							$servicesList[$service['id']]['longname'] = $service['longname'];
        							$servicesList[$service['id']]['desc']     = $service['description'];
@@ -145,7 +147,8 @@ class ServicesController extends AppController {
 					}
 				}
 			}
-			$this->set('servicesList', @$servicesList);
+			$this->set('result', array_values($servicesList));
+			$this->set('_serialize', ['result']);
 			return @$servicesList;
 		} else {
 			// Услуги шаблону не доступны или не привязаны

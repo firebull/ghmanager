@@ -586,19 +586,19 @@ class OrdersController extends AppController {
                         or
                     $template['Type'][0]['id'] == 5 ) {
 
-                        if ($template['GameTemplate']['name'] !== 'l4d'
-                                and
-                            $template['GameTemplate']['name'] !== 'l4d2') {
-                                if ($slots > 0 and $slots <= 12) {
-                                    $server['ServerComp']['fpsmax'] = 1000;
-                                } elseif ($slots > 12 and $slots <= 32) {
-                                    $server['ServerComp']['fpsmax'] = 500;
-                                } else {
-                                    $server['ServerComp']['fpsmax'] = 300;
-                                }
-
+                        if (!in_array($template['GameTemplate']['name'], ['l4d', 'l4d-t100', 'l4d2', 'l4d2-t100']))
+                        {
+                            if ($slots > 0 and $slots <= 12) {
+                                $server['ServerComp']['fpsmax'] = 1000;
+                            } elseif ($slots > 12 and $slots <= 32) {
+                                $server['ServerComp']['fpsmax'] = 500;
+                            } else {
+                                $server['ServerComp']['fpsmax'] = 300;
                             }
-                        $fpsMessage = "У сервера будет максимальный <strong>FPS ".$server['ServerComp']['fpsmax']."</strong>.";
+
+                            $fpsMessage = "У сервера будет максимальный <strong>FPS ".$server['ServerComp']['fpsmax']."</strong>.";
+                        }
+
 
                     }
                 /********************************************************************/
@@ -755,7 +755,7 @@ class OrdersController extends AppController {
                 //********************************************************
 
                 //Выберем шаблон, чтобы по нему составлять заказ
-                $this->set('gameTemplatesList', $this->GameTemplate->find('list', array('fields' => array('longname'),
+                $this->set('gameTemplatesList', $this->GameTemplate->find('list', array('fields' => array('name'),
                                                                                         'conditions' => array('active'=>'1')
                                                                                         )));
                 if (intval(@$game) > 0) {
@@ -782,6 +782,7 @@ class OrdersController extends AppController {
                 }
 
                 $this->set('gameTemplates', $gameTemplatesByType);
+                $this->set('gameTemplatesList', Hash::combine($gameTemplates, '{n}.GameTemplate.id', '{n}.GameTemplate'));
 
                 foreach ($gameTemplates as $gameTemplate):
                     if ($i>1) {

@@ -162,7 +162,7 @@ else
         <div class="ui flowing popup" id="orderMenu">
             <div class="ui three column divided equal height center aligned grid" style="min-width: 500px;">
                 <div class="column">
-                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, 'small', 'Заказать игровой сервер', '/orders/add/1')}">
+                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, '', 'Заказать игровой сервер', '/orders/add/1')}">
                         <img class="ui centered image" src="/img/bigicons/ico-game.png"/>
                         <br/>
                         <div class="ui blue label">Игровой сервер</div>

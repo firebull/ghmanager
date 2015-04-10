@@ -114,9 +114,12 @@ class PromosController extends AppController {
 																  ]]);
 
 		if ( !empty($promo) ) {
-			$this->set('promo', array('discount' => $promo['Promo']['discount']));
+			$this->set('result', array('discount' => $promo['Promo']['discount']));
+		} else {
+			$this->set('result', []);
 		}
 
+		$this->set('_serialize', ['result']);
 	}
 
 	// Отображает все коды промо-акции
