@@ -19,24 +19,24 @@ Lesser General Public License for more details.
 
 class HelpsController extends AppController {
 
-	public $name = 'Helps';
+    public $name = 'Helps';
 
-	public $layout = 'client';
+    public $layout = 'client';
 
-	public $helpers = array('Time', 'Html', 'Js');
-	public $components = array('RequestHandler', 'Session');
-	public $_DarkAuth;
+    public $helpers = array('Time', 'Html', 'Js');
+    public $components = array('RequestHandler', 'Session');
+    public $_DarkAuth;
 
-	public function view($id = null) {
+    public function view($id = null) {
 
-		if (!empty($this->data['Help']['id'])) {
-			$id = $this->data['Help']['id'];
-		}
+        if (!empty($this->data['Help']['id'])) {
+            $id = $this->data['Help']['id'];
+        }
 
-		$this->Help->id = $id;
-		$this->set('help', $this->Help->read());
+        $this->Help->id = $id;
+        $this->set('help', $this->Help->read());
 
-	}
+    }
 
 }
 ?>

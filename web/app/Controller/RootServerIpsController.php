@@ -19,105 +19,105 @@ Lesser General Public License for more details.
 
 class RootServerIpsController extends AppController {
 
-	public $name = 'RootServerIps';
+    public $name = 'RootServerIps';
 
-	public $layout = 'client';
+    public $layout = 'client';
 
-	public $_DarkAuth;
+    public $_DarkAuth;
 
-	public $helpers = array (
-		'Time',
-		'Html',
-		'Js' => array('Jquery')
-	);
-	public $components = array (
-		'RequestHandler',
-		'Session',
-		'DarkAuth'
-	);
+    public $helpers = array (
+        'Time',
+        'Html',
+        'Js' => array('Jquery')
+    );
+    public $components = array (
+        'RequestHandler',
+        'Session',
+        'DarkAuth'
+    );
 
-	public function beforeRender() {
-		$userInfo = $this->DarkAuth->getAllUserInfo();
+    public function beforeRender() {
+        $userInfo = $this->DarkAuth->getAllUserInfo();
 
-		// Убрать все теги, xss-уязвимость
-		foreach ( $userInfo['User'] as $key => $value ) {
-				$userInfo['User'][$key] = strip_tags($value);
-		}
+        // Убрать все теги, xss-уязвимость
+        foreach ( $userInfo['User'] as $key => $value ) {
+                $userInfo['User'][$key] = strip_tags($value);
+        }
 
-		$this->set('userinfo', $userInfo);
-		$this->loadModel('Support');
-		$openTickets = $this->Support->query("SELECT COUNT(*) FROM `support_tickets` WHERE `status`='open'");
-		$this->set('openTickets', $openTickets[0][0]['COUNT(*)']);
-	}
+        $this->set('userinfo', $userInfo);
+        $this->loadModel('Support');
+        $openTickets = $this->Support->query("SELECT COUNT(*) FROM `support_tickets` WHERE `status`='open'");
+        $this->set('openTickets', $openTickets[0][0]['COUNT(*)']);
+    }
 
-	public function add() {
-		$this->DarkAuth->requiresAuth(array('Admin'));
-		$this->loadModel('RootServer');
-		$this->loadModel('Server');
-//		Получаем список всех физических сервров,
-//		чтобы сразу привязывать IP к какому-либо из-них
-		$this->set('rootServersList', $this->RootServer->find('list'));
-		if (!empty($this->data)) {
+    public function add() {
+        $this->DarkAuth->requiresAuth(array('Admin'));
+        $this->loadModel('RootServer');
+        $this->loadModel('Server');
+//      Получаем список всех физических сервров,
+//      чтобы сразу привязывать IP к какому-либо из-них
+        $this->set('rootServersList', $this->RootServer->find('list'));
+        if (!empty($this->data)) {
 
-			// Можно задавать диапазон через '-'
-			if (strpos($this->data['RootServerIp']['ip'], '-') !== false ) {
-				$diapIp = explode('-', $this->data['RootServerIp']['ip']);
-				$ip = ip2long($diapIp[0]);
-				$ip2 = ip2long($diapIp[1]);
-				$i = 0;
-				while ($ip <= $ip2) {
-					$newIp[$i]['RootServerIp']['ip'] = long2ip($ip);
-					$newIp[$i]['RootServerIp']['type'] = $this->data['RootServerIp']['type'];
-					$newIp[$i++]['RootServer'] = $this->data['RootServer'];
-					$ip++;
-				}
-				unset($this->data);
-				$this->data = $newIp;
-			}
+            // Можно задавать диапазон через '-'
+            if (strpos($this->data['RootServerIp']['ip'], '-') !== false ) {
+                $diapIp = explode('-', $this->data['RootServerIp']['ip']);
+                $ip = ip2long($diapIp[0]);
+                $ip2 = ip2long($diapIp[1]);
+                $i = 0;
+                while ($ip <= $ip2) {
+                    $newIp[$i]['RootServerIp']['ip'] = long2ip($ip);
+                    $newIp[$i]['RootServerIp']['type'] = $this->data['RootServerIp']['type'];
+                    $newIp[$i++]['RootServer'] = $this->data['RootServer'];
+                    $ip++;
+                }
+                unset($this->request->data);
+                $this->request->data = $newIp;
+            }
 
-			//Сначала сохраним IP
-			if ($this->RootServerIp->saveAll($this->data)) {
-					// Теперь сохраняем привязку IP к серверу
-					$this->Session->setFlash('IP добавлен и привязан.', 'flash_success');
-					$this->redirect(array('controller'=>'RootServerIps','action' => 'add'));
+            //Сначала сохраним IP
+            if ($this->RootServerIp->saveAll($this->data)) {
+                    // Теперь сохраняем привязку IP к серверу
+                    $this->Session->setFlash('IP добавлен и привязан.', 'flash_success');
+                    $this->redirect(array('controller'=>'RootServerIps','action' => 'add'));
 
-			} else {
-				$this->Session->setFlash('Возникла ошибка:<br/>'.mysql_error(), 'flash_error');
-			}
+            } else {
+                $this->Session->setFlash('Возникла ошибка:<br/>'.mysql_error(), 'flash_error');
+            }
 
-		}
+        }
 
-	}
+    }
 
-	public function autoComplete() {
-		$this->layout = 'ajax';
+    public function autoComplete() {
+        $this->layout = 'ajax';
 
-		$this->DarkAuth->requiresAuth('Admin', 'GameAdmin', 'OrdersAdmin');
+        $this->DarkAuth->requiresAuth('Admin', 'GameAdmin', 'OrdersAdmin');
 
-		if (isset($this->params['url']['term'])) {
-			$this->RootServerIp->unbindModel(array(
-											'hasAndBelongsToMany' => array(
-																'RootServer'
-													)));
-			$terms = $this->RootServerIp->find('all', array(
-						'conditions' => array(
-							'ip LIKE' => $this->params['url']['term'].'%'
-						),
-						'limit' => 15,
-						'fields' => array('id','ip')
-			));
-			// Готовим список для корректного преобразования в JSON
-			if ( !empty($terms) ) {
-						$termsList = array();
-						foreach ($terms as $term):
+        if (isset($this->params['url']['term'])) {
+            $this->RootServerIp->unbindModel(array(
+                                            'hasAndBelongsToMany' => array(
+                                                                'RootServer'
+                                                    )));
+            $terms = $this->RootServerIp->find('all', array(
+                        'conditions' => array(
+                            'ip LIKE' => $this->params['url']['term'].'%'
+                        ),
+                        'limit' => 15,
+                        'fields' => array('id','ip')
+            ));
+            // Готовим список для корректного преобразования в JSON
+            if ( !empty($terms) ) {
+                        $termsList = array();
+                        foreach ($terms as $term):
 
-						$termsList[] = $term['RootServerIp']['ip'];
+                        $termsList[] = $term['RootServerIp']['ip'];
 
-						endforeach;
-						$this->set('list', $termsList);
-			}
-		}
-	}
+                        endforeach;
+                        $this->set('list', $termsList);
+            }
+        }
+    }
 
 }
 ?>
