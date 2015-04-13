@@ -4,39 +4,28 @@
 
 ?>
 <div id="flash"><?php echo $this->Session->flash(); ?></div>
-
-Укажите сумму, на которую вы бы хотели пополнить баланс Личного счёта:<br/><br/>
-
-<?php echo $this->Form->create('Order', array('class' => 'form-inline')); ?>
-<div class="control-group" style="margin-left: 25px;">
-    <div class="controls">
-        <div class="input-append">
+<div class="ui active inverted dimmer" id="depositLoader" style="display: none;">
+	<div class="ui text loader">Loading</div>
+</div>
+<div class="ui message">
+Укажите сумму, на которую вы бы хотели пополнить баланс Личного счёта
+</div>
+<?php echo $this->Form->create('Order', ['class' => 'ui form', 'id' => 'depositForm']); ?>
+<div class="two fields">
+    <div class="field">
+    	<div class="ui right labeled input">
 		<?php
 
-			echo $this->Form->input('amount', array(  'div' => false,
-												'label' => false,
-												'id' => 'depositAmount',
-												'placeholder' => 100,
-												'class' => 'span1'));
-			?><span class="add-on">руб.</span>
-		</div>
-
-		<?php
-
-			echo $this->Js->submit('Пополнить',   array(
-														'url'=> array(
-																		'controller'=>'Orders',
-																		'action'=>'makeDeposit'
-														 ),
-														'div' => false,
-														'label' => false,
-														'id' => 'depositConfirm',
-														'update' => '#deposit',
-														'class' => 'btn',
-														'before' =>$loadingShow,
-														'complete'=>$loadingHide.";$('#deposit').dialog( 'close' ).dialog({position: ['center',180], show: 'highlight', hide: 'highlight', width: 700});",
-														'buffer' => true));
+			echo $this->Form->input('amount', [ 'div'   => false,
+										   		'label' => false,
+										   		'id'    => 'depositAmount',
+										   		'placeholder' => 100]);
 		?>
+			<div class="label"><i class="ruble icon"></i></div>
+		</div>
+	</div>
+	<div class="field">
+		<div class="ui fluid primary button disabled" id="depositButton">Пополнить</div>
 	</div>
 </div>
 <div>
@@ -46,17 +35,46 @@
 
 	$(function() {
 
+			$('#depositButton').click(function(){
+
+				$('#depositLoader').show();
+
+				$.post( '/orders/makeDeposit', $('#depositForm').serialize() )
+	             .done(
+	                    function(data){
+	                    	$('#topMenuModal .header').html('Выбрать способ оплаты');
+	                        $('#topMenuModal').removeClass('small large fullscreen').addClass('large');
+	                        $('#topMenuModal .content .description').html(data);
+
+
+	                        self.loading(false);
+	                    })
+	             .fail( function(data, status, statusText) {
+	                if (data.status == 401){
+	                    window.location.href = "/users/login";
+	                } else {
+	                    answer = "HTTP Error: " + statusText;
+	                    self.errors.push(answer);
+	                    self.loading(false);
+	                }
+	             })
+	             .always( function(){
+	             	$('#depositLoader').hide();
+	             });
+
+			});
+
 			function depositCheckAmount()
 			{
-				var amount = eval($('#depositAmount').val());
+				var amount = Number($('#depositAmount').val());
 
 				if (amount > 0)
 				{
-					$('#depositConfirm').removeAttr('disabled');
+					$('#depositButton').removeClass('disabled');
 				}
 				else
 				{
-					$('#depositConfirm').attr('disabled', 'disabled');
+					$('#depositButton').addClass('disabled');
 				}
 
 			}
@@ -69,8 +87,3 @@
 
 			});
 </script>
-
-<?php
-
-			echo $this->Js->writeBuffer(); // Write cached scripts
-?>

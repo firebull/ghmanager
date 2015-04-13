@@ -111,7 +111,7 @@
     <div class="ui labeled icon fluid menu attached" data-bind="visible: renderedServer().Server.initialised">
         <!-- Продление только для инициализированного сервера
              Иконка для продления оплаты игрового сервера -->
-        <a class="item" data-bind="event: {click: $root.showModal.bind($data, '', 'Продлить аренду сервера', '/orders/prolongate/' + renderedServer().Server.id)}, visible: gameServers()[selectedServer()].Server.initialised">
+        <a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Продлить аренду сервера', '/orders/prolongate/' + renderedServer().Server.id)}, visible: gameServers()[selectedServer()].Server.initialised">
             <i class="add to cart icon"></i>Продлить
         </a>
         <a class="item" data-bind="event: {click: $root.showModal.bind($data, 'small', 'Изменить имя сервера', '/servers/changeName/' + renderedServer().Server.id)}">
@@ -539,7 +539,9 @@
                     return 'csgo.png';
                 } else if (game == 'l4d2' || game == 'l4d2-t100') {
                     return 'l4d2.png';
-                } else {
+                } else if (game == 'cod4' || game == 'cod4fixed') {
+                    return 'cod4.png';
+                }else {
                     return '';
                 }
             }

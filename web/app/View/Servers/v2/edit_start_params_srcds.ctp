@@ -5,7 +5,6 @@
  * File created for project GHManager
  * by Nikita Bulaev
  */
- include('loading_params.php');
  $id = $this->data['Server']['id'];
  $slots = $this->data['Server']['slots'];
 

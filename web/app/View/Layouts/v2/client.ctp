@@ -19,7 +19,8 @@
 								    'validationEngine.jquery',
 								    'codemirror/codemirror',
 								    'codemirror/monokai',
-								    'ghmanager.main.css?1'));
+								    'ghmanager.main.css?1',
+									'sweet-alert'));
 	?>
 
 	<?php
@@ -69,7 +70,6 @@
 	<?php echo $this->element('v2/top_menu'); ?>
 	<!-- Top Menu end -->
 	<div style="padding-top: 50px !important;"></div>
-	<div id="flash"><?php echo $this->Session->flash(); ?></div>
 	<?php echo $this->fetch('content'); ?>
 
 
@@ -97,6 +97,7 @@
 		,'jquery.validationEngine.js'
 		,'jquery.validationEngine-ru.js'
 		,'jquery.showStatusTs'
+		,'sweet-alert.min'
 
 	));
 

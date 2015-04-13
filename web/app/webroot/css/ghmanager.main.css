@@ -73,3 +73,5 @@ body {
     position: inherit !important;
     height: inherit !important;
 }
+
+a {cursor: pointer;}

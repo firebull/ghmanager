@@ -62,6 +62,9 @@ class OrdersController extends AppController {
                     $userInfo['User'][$key] = strip_tags($value);
             }
 
+            // Вычислить имя пользователя
+            $userInfo['User']['fullName'] = $this->TeamServer->countUserName($userInfo);
+
             $this->set('userinfo', $userInfo);
         }
 
@@ -195,6 +198,7 @@ class OrdersController extends AppController {
     public function index() {
         $this->set('title_for_layout', 'Просмотр заказов');
         $this->DarkAuth->requiresAuth();
+        $this->layout = 'v2/client';
         $this->loadModel('UserOrder');
         $this->loadModel('ServerTemplate');
 
@@ -1023,7 +1027,7 @@ class OrdersController extends AppController {
         $this->loadModel('ServerTemplateUser');
         $this->ServerTemplateUser->bindModel(array(
                     'hasAndBelongsToMany' => array(
-                                                    'Service' => array()
+                                                    'Service' => ['fields' => ['id', 'name', 'longname', 'price']]
                                                 )));
         if ($serverId) {
 
@@ -1031,7 +1035,8 @@ class OrdersController extends AppController {
             $this->checkBill($this->DarkAuth->getUserId());
 
             $this->ServerTemplateUser->id = $serverId;
-            $server = $this->ServerTemplateUser->read();
+            $server = $this->ServerTemplateUser->find('first', ['fields'     => ['id', 'initialised', 'payedTill', 'slots', 'privateType'],
+                                                                'conditions' => ['id' => $serverId]]);
             if (!empty($server)) {
                 // Проверим, принадлежит ли сервер пользователю
                 $rights = $this->DarkAuth->getAccessList(); // Права доступа
@@ -1053,11 +1058,11 @@ class OrdersController extends AppController {
                     }
 
                     if (empty($this->data) and $server['ServerTemplateUser']['initialised'] == 1) { // Заполнить форму
-                        $this->data = $server;
+                        $this->request->data = $server;
 
                         // Создать список типов приватных серверов
                         $typeDiscount = array(
-                                                '0' => 'Публичный сервер',
+                                                '0' => 'Публичный',
                                                 '1' => 'Приватный с паролем',
                                                 '2' => 'Приватный с автоотключением'
                                               );
@@ -1264,22 +1269,22 @@ class OrdersController extends AppController {
                 } // Проверка прав
                 else
                 {
-                    $this->Session->setFlash('Это чужой сервер. Ай-ай-ай!', 'flash_error');
+                    throw new ForbiddenException('Это чужой сервер. Ай-ай-ай!');
                 }
 
             } // !empty($server)
             else
             {
-                $this->Session->setFlash('Сервера не существует', 'flash_error');
+                throw new BadRequestException('Сервера не существует');
             }
 
         } // $serverId
         else
         {
-            $this->Session->setFlash('Не указан сервер', 'flash_error');
+            throw new BadRequestException('Не указан сервер');
         }
 
-             }
+    }
 
     // Пополнение Личного счёта
     public function makeDeposit($sum = null) {

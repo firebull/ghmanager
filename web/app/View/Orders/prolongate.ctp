@@ -1,479 +1,327 @@
 <?php
 /*
- * Created on 28.07.2010
+ * Created on 09.04.2015
  *
+ * Made for project GH Manager
+ * by Nikita Bulaev
  */
- include('loading_params.php');
- //pr(@$orderResult);
- //pr(@$this->data);
+//pr($this->data);
+$privateTypeId = $this->data['ServerTemplateUser']['privateType'];
 ?>
-<script type="text/javascript">
-	$(function() {
-		$('#add_server').empty();
-	});
-</script>
+<div id="prolongate">
+<div class="ui ordered three steps" style="margin-bottom: 10px;">
+    <div class="active step">
+        <div class="content">
+            <div class="title">Заказ</div>
+        </div>
+    </div>
+    <div class="disabled step">
+        <div class="content">
+            <div class="title">Оплата</div>
+        </div>
+    </div>
+    <div class="disabled step">
+        <div class="content">
+            <div class="title">Завершение</div>
+        </div>
+    </div>
+</div>
 <div id="flash"><?php echo $this->Session->flash(); ?></div>
 <?php
- echo $this->Form->create('Order', array('class' => 'form-inline'));
- $privateTypeId = $this->data['ServerTemplateUser']['privateType'];
-
- $slotDiscount = 0;
- $slotCost = $this->data['GameTemplate'][0]['price']; // Цена слота без скидок
- if ($privateTypeId == 1){
-	$slotCost = $this->data['GameTemplate'][0]['pricePrivatePassword'];
- }
- else
- if ($privateTypeId == 2){
-	$slotCost = $this->data['GameTemplate'][0]['pricePrivatePower'];
- }
-
- // Составить массив из ID подключенных услуг
- $serverServicesIds = array();
- if (!empty($this->data['Service'])){
-	 foreach ( $this->data['Service'] as $service ) {
-	 	$serverServicesIds[] = $service['id'];
-	 }
- }
+    echo $this->Form->create('Order', array('class' => 'ui form'));
 ?>
-<table class="new_order">
+    <div class="ui list">
+        <div class="item">
+        <?php
+            echo $this->Html->image('icons/servers/'.$this->data['GameTemplate'][0]['name'].'.png',
+                                    ['class' => 'ui image']);
+        ?>
+            <div class="content">
+                <div class="header">
+                    <?php
+                        echo $this->data['GameTemplate'][0]['longname'];
+                    ?>
+                </div>
+                <div class="description">
+                    <?php echo $typeDiscount[$privateTypeId];?>
+                </div>
+            </div>
+        </div>
+        <div class="item">
+            <i class="caret right icon" style="min-width: 28px;"></i>
+            <div class="content">
+                <div class="header">
+                    Слотов:
+                    <span data-bind="text: slots"></span>x<span data-bind="text: slotCost"></span><i class="ruble icon"></i>за слот
+                </div>
+            </div>
+        </div>
+        <div class="item">
+            <i class="caret right icon" style="min-width: 28px;"></i>
+            <div class="content">
+                <div class="header">
+                    Текущая аренда до
+                    <?php echo $this->Common->niceDate($this->data['ServerTemplateUser']['payedTill']);?>
+                </div>
+            </div>
+        </div>
+        <div class="item" data-bind="visible: services">
+            <i class="caret down icon" style="min-width: 28px;"></i>
+            <div class="content">
+                <div class="header">
+                    Подключенные услуги
+                </div>
+                <div class="description">
+                    (Для изменения списка услуг обратитесь в техподдержку)
+                </div>
+                <div class="list" data-bind="foreach: services">
+                    <div class="item">
+                        <i class="checkmark box icon"></i>
+                        <div class="content">
+                            <div class="header">
+                                <span data-bind="text: longname"></span>
+                                за <span data-bind="text: price"></span><i class="ruble icon"></i>в месяц
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-				<tr>
-					<td class="param_name">Сервер:</td>
-					<td class="param_value">
-					<div class="accent_lower">
-						<?php
-								echo $this->data['GameTemplate'][0]['longname']." (".$typeDiscount[$privateTypeId].")";
-						?>
-					</div>
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name">Слотов:</td>
-					<td class="param_value">
-					<div class="accent_lower">
-					<?php
-					echo $this->Form->input('slotsDisabled', array('div' => false,
-														'label' => false,
-														'type' => 'hidden',
-														'size'=>'2',
-														'style'=>'border:0; font-weight:bold;',
-														'value' => $this->data['ServerTemplateUser']['slots']
-															));
-					echo $this->Form->input('slotCost', array('div' => false,
-														'label' => false,
-														'type' => 'hidden',
-														'size'=>'4',
-														'id' => 'slotPrice',
-														'style'=>'border:0; font-weight:bold;',
-														'value' => $slotCost));?>
+    <div class="field">
+        <label>Продлить аренду на:</label>
+        <select data-bind="options: monthList,
+                           optionsText: 'name',
+                           optionsValue: 'number',
+                           value: selectedMonths"
+                name="data[Order][month]"></select>
+    </div>
+    <div class="two fields">
+        <div class="field">
+            <label>Промо-код (если есть):</label>
+            <input name="data[PromoCode][code]" id="promoCode" type="text">
+            <label id="promoCodeText"></label>
+        </div>
+        <div class="field">
+            <label>&nbsp;</label>
+            <button class="ui button" data-bind="event: {click: checkPromo}">Проверить</button>
+        </div>
+    </div>
+    <div class="ui horizontal divider">Итог заказа</div>
+    <table class="ui definition very basic table">
+        <tbody>
+            <tr class="positive">
+                <td>Итого с учётом скидки:</td>
+                <td>
+                    <b data-bind="text: totalCost"></b><i class="ruble icon"></i>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 35%;">Итоговая скидка:</td>
+                <td>
+                    <span data-bind="text: totalDiscount"></span>% или
+                    <span data-bind="text: discountSum"></span><i class="ruble icon"></i>
+                </td>
+            </tr>
+            <tr>
+                <td>Стоимость сервера:</td>
+                <td>
+                    <span data-bind="text: serverCost"></span><i class="ruble icon"></i>
+                    <span data-bind="visible: servicesCost() > 0">
+                        <br/>
+                        <span>+ дополнительные услуги на</span>
+                        <span data-bind="text: servicesCost"></span><i class="ruble icon"></i>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-					<?php echo $this->data['ServerTemplateUser']['slots']." x ".$slotCost; ?> руб. за слот
-					</div>
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name">Текущая аренда до:</td>
-					<td class="param_value" style="vertical-align: top;">
-						<div class="accent">
-							<?php echo $this->Common->niceDate($this->data['ServerTemplateUser']['payedTill']);?>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name">Продлить аренду на:</td>
-					<td class="param_value">
-
-
-					<?php
-					echo $this->Form->input('month', array('div' => false,
-														'label' => false,
-														'type'=>'hidden'));?>
-					<div id="OrderMonthDisabled" class="accent"></div>
-					<div id="sliderMonthProlongate" title="Перемещайте ползунок для выбора количества месяцев"></div>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td class="param_value">
-
-					<?php
-					echo $this->Form->input('discountDisabled', array('div' => false,
-														'label' => false,
-														'title'=>'Скидка даётся при аренде на срок более 3 месяцев',
-														'type' => 'hidden',
-														'size'=>'2',
-														'style'=>'border:0; font-weight:bold;'));?>
-					<div id="OrderDiscount" style="display: inline;" title="Скидка даётся при аренде на срок более 3 месяцев"></div>
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name" style="vertical-align: top;">Дополнительные услуги:</td>
-					<td class="param_value" style="vertical-align: top; padding-top: 5px;">
-
-					<?php
-
-						$serviceSum = 0;
-						if (!empty($this->data['Service'])){
-
-							 foreach ( $this->data['Service'] as $service ) {
-							 	$serviceSum += $service['price'];
-
-							 	echo $this->Html->div('checkmark_circle_checked qlabs_tooltip_right qlabs_tooltip_style_1', '<span>'.$service['description'].'</span>'.$service['longname'].' - '.$service['price'].' руб./мес.');
-
-	       						echo '<br/>';
-
-							 }
-						 }
-						 else
-						 {
-						 	echo "Не подключены";
-						 }
-
-					?>
-
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name">Учесть промо-код:<br/><small>(если есть)</small></td>
-					<td class="param_value">
-
-					<div class="controls">
-						<div class="input-append"  style="padding-top: 5px;"><?php
-							echo $this->Form->input('PromoCode.code', array('div' => false,
-																'label' => false,
-																'id' => 'promoCode',
-																'class' => 'span2'));
-
-							echo $this->Html->link( 'Проверить код',
-											  '#',
-											  array(
-											  			'id' => 'checkCode',
-											  			'class' => 'btn'
-											  			)
-											  );
-
-							?>
-						</div>
-					</div>
-					<div id="PromoCodeDisabled"></div>
-					<?php
-					echo $this->Form->input('Promo.discount', array('div' => false,
-														'label' => false,
-														'id' => 'promoDiscount',
-														'type'=>'hidden',
-														'value' => '0'));
-					?>
-					</td>
-				</tr>
-				<tr>
-					<td style="vertical-align: top;" class="param_name">
-					Оплата с Лицевого счёта:
-					<?php
-
-						if ($this->data['User'][0]['money'] > 0)
-						{
-							echo "<br/><small>(Доступно ".floatval($this->data['User'][0]['money'])." руб.)</small>";
-						}
-						else
-						{
-						 	echo "<br/><small>(Нет средств)</small>";
-						}
-					?>
-					</td>
-					<td>
-					<?php
-
-						echo $this->element('pay_from_account', array('userBalance' => $this->data['User'][0]['money']));
-
-					?>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="2" class="separator">
-					</td>
-				</tr>
-		</table>
-		<table class="new_order">
-				<tr>
-					<td class="param_name" style="width: 50%;">Стоимость текущих услуг:</td>
-					<td class="param_value">
-					<?php
-					if (empty($serviceSum)){
-						$serviceSum = 0;
-					}
-					echo $this->Form->input('serviceSum', array('div' => false,
-														'label' => false,
-														'value' => $serviceSum,
-														'id' => 'ServiceSum',
-														'type'=>'hidden'));?>
-
-					<div id="ServiceSumDisabled" class="accent"><?php echo $serviceSum; ?></div>
-					руб./мес.
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name">Итого<br/> с учётом услуг и скидки:</td>
-					<td class="param_value">
-
-					<?php
-					echo $this->Form->input('sum', array('div' => false,
-														'label' => false,
-														'type'=>'hidden'));?>
-					<div id="OrderSumDisabled" class="accent_more"></div>
-					руб. за сервер
-					</td>
-				</tr>
-				<tr>
-					<td class="param_name">Скидка составляет:</td>
-					<td class="param_value">
-
-					<div id="OrderSumDiscountDisabled" class="accent"></div>
-					руб.
-					</td>
-				</tr>
-				<tr>
-					<td colspan="2" align="center">
-					<?php 	echo $this->Form->input('Server.id', array(
-
-									'div' => false,
-									'label' => false)); ?>
-					<?php
-
-						echo $this->Js->submit('Продлить аренду',
-													array(
-														'url'=> array(
-																		'controller'=>'Orders',
-																		'action'=>'prolongate', $this->data['ServerTemplateUser']['id']
-														 ),
-														'update' => '#prolongate_server',
-														'class' => 'btn btn-primary',
-														'before' =>$loadingShow,
-														'complete'=>$loadingHide,
-														'buffer' => false));
-
-						echo $this->Form->end();
-					?>
-					</td>
-				</tr>
-
-</table>
-<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;">
-<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-<small>
-Чтобы изменить список подключенных услуг, обратитесь в техподдержку.
-</small>
-</p>
-</div>
-
+    <button class="ui fluid primary button">Продлить</button>
+    <?php echo $this->Form->end(); ?>
 
 <script type="text/javascript">
-	$(function() {
+    var prolongateViewModel = function(){
 
-		var price = $('#slotPrice').val();
-		var serviceSum = $('#ServiceSum').val();
-		var balance = <?php echo floatval($this->data['User'][0]['money']); ?>;
+        var self = this;
 
+        this.loading = ko.observable(false);
+        this.errors  = ko.observableArray();
 
-		function MonthsSlider () {
+        this.server   = <?php echo @json_encode($this->data['ServerTemplateUser']);?>;
+        this.template = <?php echo @json_encode($this->data['GameTemplate'][0]);?>;
+        this.user     = <?php echo @json_encode($this->data['User'][0]);?>;
+        this.services = ko.observableArray(<?php echo @json_encode($this->data['Service']);?>)
 
-			$("#sliderMonthProlongate").slider({
-				range: "max",
-				value: 1,
-				min: 1,
-				max: 9,
-				step: 1,
-				slide: function(event, ui) {
-					$("#OrderMonth").val(ui.value);
-					$("#OrderMonthDisabled").text(monthText(ui.value));
-					Discount();
-					Sum();
-				}
-			});
+        this.discounts = <?php echo @json_encode($discount);?>;
+        this.promoDiscount  = ko.observable(0);
+        this.clientDiscount = ko.observable(<?php echo $userDiscount; ?>);
+        this.discountSum    = ko.observable(0);
+        this.balance        = ko.observable(Number(<?php echo $this->data['User'][0]['money']; ?>));
+        this.personalAcc    = ko.observable('out');
 
-			$("#OrderMonth").val($("#sliderMonthProlongate").slider("value"));
-			$("#OrderMonthDisabled").text(monthText($("#sliderMonthProlongate").slider("value")));
+        this.slots       = ko.observable(Number(this.server.slots));
+        this.privateType = ko.observable(Number(this.server.privateType));
+        this.selectedMonths    = ko.observable();
 
-		};
+        this.slotCost = ko.pureComputed(function() {
+            if (this.privateType() == 0){
+                return this.template.price;
+            } else if (this.privateType() == 1){
+                return this.template.pricePrivatePassword;
+            } else if (this.privateType() == 2){
+                return this.template.pricePrivatePower;
+            }
 
-		function monthText(monthValue){
-			if (monthValue == 1){
-				var monthText = '1 месяц';
-			}
-			else
-			if (monthValue > 1 && monthValue < 5)
-			{
-				var monthText = monthValue + ' месяца';
-			}
-			else
-			if (monthValue >= 5 && monthValue < 21)
-			{
-				var monthText = monthValue + ' месяцев';
-			}
-			return monthText;
-		}
+        }, this);
 
-		function Sum () {
+        this.serverCost = ko.pureComputed(function() {
+            return Number(this.slots()) *
+                   Number(this.slotCost()) *
+                   Number(this.selectedMonths());
+        }, this);
 
-			var month = $("#OrderMonth").val();
-			var slots = $("#OrderSlotsDisabled").val();
-			var discount = $("#OrderDiscountDisabled").val();
-			var payPart = $("#personalAccPartAmount").val();
+        this.servicesCost = ko.pureComputed(function() {
+            var self = this;
+            var serviceTotal = 0;
 
-			var sumNoDiscount = month*( eval(serviceSum) + eval(price*slots) );
-			var sumDiscount = sumNoDiscount - Math.round(sumNoDiscount*((100-discount)/100));
+            $.each(self.services(), function(id, item){
+                serviceTotal += Number(item.price);
+            });
 
-			var sum = sumNoDiscount - sumDiscount;
+            return serviceTotal * Number(this.selectedMonths());
+        }, this);
 
-			if (payPart > balance)
-			{
-				payPart = balance;
-			}
+        this.monthList = ko.pureComputed(function() {
+            var monthList = [];
 
-			if ($("#personalAccPart").attr('checked') || $("#personalAccFull").attr('checked')){
-				if (balance > 0 && balance < sum){
-					$("#personalAccFull").removeAttr('checked').attr('disabled','disabled');
-					$("#personalAccPart").removeAttr('disabled').attr('checked','checked');
-					$('#personalAccPartPay').show();
-					$('#zonePart').addClass('tbl_hover_green');
-					$('#zoneFull').removeClass('tbl_hover_green');
-				}
-				else
-				if (balance >= sum)
-				{
-					$("#personalAccFull").removeAttr('disabled');
+            for (var i = 1; i <= 9; i++) {
+                if (i < 3){
+                    discount = '';
+                }
+                else if (i >= 3 && i < 6){
+                    discount = ' (скидка ' + this.discounts['3'] + '%)';
+                }
+                else if (i >= 6 && i < 9){
+                    discount = ' (скидка ' + this.discounts['6'] + '%)';
+                }
+                else if (i >= 9){
+                    discount = ' (скидка ' + this.discounts['9'] + '%)';
+                }
 
-				}
+                monthList.push({'number': i, 'name': i + ' ' + getNumEnding(i, ['месяц', 'месяца', 'месяцев']) + discount});
+            };
 
-				if ($("#personalAccPart").attr('checked'))
-				{
+            return monthList;
 
-					if (payPart >= sum)
-					{
-						payPart = 0;
-						$('#personalAccPartPay').hide();
-						$("#personalAccPartAmount").val('');
-						$("#personalAccFull").attr('checked','checked');
-						$('#zonePart').removeClass('tbl_hover_green');
-						$('#zoneFull').addClass('tbl_hover_green');
-					}
-					else
-					if (payPart > 0 && payPart < sum)
-					{
-						sum = eval(sum) - eval(payPart);
-						$("#personalAccPartAmount").val(payPart);
-						$('#zonePart').addClass('tbl_hover_green');
-						$('#zoneFull').removeClass('tbl_hover_green');
-					}
-				}
-			}
+        }, this);
 
-			$("#OrderSum").val(sum);
-			$("#OrderSumDisabled").text(sum);
-			$("#OrderSumDiscountDisabled").text(sumDiscount);
+        this.totalDiscount  = ko.pureComputed(function() {
+            var month = this.selectedMonths();
 
-		}
+            if (month < 3){
+                monthDiscount = 0;
+            }
+            else if (month >= 3 && month < 6){
+                monthDiscount = Number(this.discounts['3']);
+            }
+            else if (month >= 6 && month < 9){
+                monthDiscount = Number(this.discounts['6']);
+            }
+            else if (month >= 9){
+                monthDiscount = Number(this.discounts['9']);
+            }
 
-		function Discount (){
-				var month = $("#OrderMonth").val();
-				var clientDiscount = <?php echo $userDiscount; ?>;
+            return this.clientDiscount() + monthDiscount + self.promoDiscount();
 
-				var promoDiscount = $('#promoDiscount').val();
+        }, this);
 
-				clientDiscount = eval(clientDiscount) + eval(promoDiscount);
+        this.totalCost = ko.pureComputed(function() {
+            var total = (this.serverCost() + this.servicesCost());
+            var totalWithDiscount = (this.serverCost() + this.servicesCost()) * ((100 - this.totalDiscount())/100);
 
-				if (month < 3){
-					discount = clientDiscount;
-				}
-				else if (month >= 3 && month < 6){
-					discount = <?php echo @$discount[3];?> + clientDiscount;
-				}
-				else if (month >= 6 && month < 9){
-					discount = <?php echo @$discount[6];?>+ clientDiscount;
-				}
-				else if (month >= 9){
-					discount = <?php echo @$discount[9];?>+ clientDiscount;
-				}
+            this.discountSum((total - totalWithDiscount).toFixed(2));
 
-				if (discount == 0){
-					discountText = '<div class="accent_lower">(без скидки)</div>';
-				}
-				else
-				{
-					discountText = '<div class="accent">со скидкой ' + discount + '%</div>';
-				}
+            return totalWithDiscount.toFixed(2);
 
-				$("#OrderDiscountDisabled").val(discount);
-				$("#OrderDiscount").html(discountText);
+        }, this);
 
-			}
+        this.checkPromo = function() {
+            var self = this;
+            var code = $('#promoCode').val();
 
-		function CheckPromo () {
-          var code = $('#promoCode').val();
-
-	      $.getJSON('/promos/checkCode/' + code, {},
-	      		function(promo) {
-                    if(promo !== null) {
-                      $('#promoDiscount').val(promo.discount);
-                      $('#promoCode').attr('style','display:none');
-                      $('#checkCode').hide();
-                      $('#PromoCodeDisabled').text('По коду ' + code + ' вам дана cкидка ' + promo.discount + '%');
-                      Discount();
-          			  Sum();
+            $.getJSON('/promos/checkCode/' + code + '.json', {},
+                function(data) {
+                    answer = data.result;
+                    if(answer.discount !== undefined) {
+                        self.promoDiscount(Number(answer.discount));
+                        $('#promoCodeText').text('По коду ' + code + ' вам дана cкидка ' + answer.discount + '%');
+                    } else {
+                        $('#promoCodeText').text('Код недействителен');
                     }
+                  })
+             .fail( function(data, status, statusText) {
+                if (data.status == 401){
+                    window.location.href = "/users/login";
+                } else {
+                    answer = "HTTP Error: " + statusText;
+                    self.errors.push(answer);
+                    self.loading(false);
+                }
+             })
+             .always(function(){
 
-        		  });
+            });
+        }
 
+        this.typeIcon = ko.pureComputed(function() {
+            var typeIcons = {"1": "/img/icons/steam.png",
+                             "2": "/img/icons/headphones.png",
+                             "5": "/img/icons/steam.png",
+                             "6": "/img/icons/punkbuster.png"};
+            return typeIcons[this.selectedType()];
+        }, this);
 
-		}
+        this.templateIcon = ko.pureComputed(function() {
+            var template = this.gameTemplatesById[this.selectedTemplate()];
 
-		$("#checkCode").ajaxStart(function() {
-			$('#promoCode').attr('class','ui-autocomplete-loading');
-		});
+            if (template !== undefined){
+                return '/img/icons/servers/' + template.name + '.png';
+            }
+        }, this);
 
-		$("#checkCode").ajaxStop(function(){
-			$('#promoCode').removeAttr('class');
-		});
+    };
 
-		$("#checkCode").click(function() {
-			CheckPromo();
-		});
+    ko.cleanNode(document.getElementById("prolongate"));
+    ko.applyBindings(new prolongateViewModel(), document.getElementById("prolongate"));
 
-		$("#promoCode").keyup(function() {
-			$('#checkCode').addClass('btn-warning');
-		});
+    /**
+     * Функция возвращает окончание для множественного числа слова на основании числа и массива окончаний
+     * @param  iNumber Integer Число на основе которого нужно сформировать окончание
+     * @param  aEndings Array Массив слов или окончаний для чисел (1, 4, 5),
+     *         например ['яблоко', 'яблока', 'яблок']
+     * @return String
+     */
+    function getNumEnding(iNumber, aEndings)
+    {
+        var sEnding, i;
+        iNumber = iNumber % 100;
+        if (iNumber>=11 && iNumber<=19) {
+            sEnding=aEndings[2];
+        }
+        else {
+            i = iNumber % 10;
+            switch (i)
+            {
+                case (1): sEnding = aEndings[0]; break;
+                case (2):
+                case (3):
+                case (4): sEnding = aEndings[1]; break;
+                default: sEnding = aEndings[2];
+            }
+        }
+        return sEnding;
+    }
 
-		$("#personalAccPartAmount").keyup(function() {
-							Sum();
-						});
-
-		$("#personalAccPart").click(function() {
-											Sum();
-											$('#personalAccPartPay').show('highlight');
-											$('#zoneFull').removeClass('tbl_hover_green');
-										});
-
-		$("#personalAccFull").click(function() {
-											$('#personalAccPartPay').hide();
-											$('#zonePart').removeClass('tbl_hover_green');
-											$('#zoneFull').addClass('tbl_hover_green');
-											Sum();
-										});
-		$("#personalAccNo").click(function() {
-											$('#personalAccPartPay').hide();
-											$('#zonePart').removeClass('tbl_hover_green');
-											$('#zoneFull').removeClass('tbl_hover_green');
-											Sum();
-														});
-
-		MonthsSlider();
-		Discount();
-		Sum();
-
-
-
-	});
-	</script>
-<?php
-
-			echo $this->Js->writeBuffer(); // Write cached scripts
-?>
+</script>

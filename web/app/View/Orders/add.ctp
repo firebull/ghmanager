@@ -1,5 +1,10 @@
 <?php
-
+/*
+ * Created on 09.04.2015
+ *
+ * Made for project GH Manager
+ * by Nikita Bulaev
+ */
 ?>
 <div id="orderCreate">
 <div class="ui ordered three steps" style="margin-bottom: 10px;">
@@ -21,6 +26,7 @@
         </div>
     </div>
 </div>
+<div id="flash"><?php echo $this->Session->flash(); ?></div>
 <?php
     echo $this->Form->create('Order', array('class' => 'ui form'));
 ?>
@@ -152,7 +158,7 @@
                 </td>
             </tr>
             <tr>
-                <td>Стоимость сервера в месяц:</td>
+                <td>Стоимость сервера:</td>
                 <td>
                     <span data-bind="text: serverCost"></span><i class="ruble icon"></i>
                     <span data-bind="visible: servicesCost() > 0">
@@ -174,13 +180,13 @@
             </div>
             <div class="field">
                 <div class="ui radio checkbox">
-                  <input type="radio" name="data[Order][payFrom]" value="full" id="personalAccFull" data-bind="checked: personalAcc">
+                  <input type="radio" name="data[Order][payFrom]" value="full" id="personalAccFull" data-bind="checked: personalAcc, attr: {'disabled': balance() < totalCost()}">
                   <label for="personalAccFull">Полностью</label>
                 </div>
             </div>
             <div class="field">
                 <div class="ui radio checkbox">
-                  <input type="radio" name="data[Order][payFrom]" value="part" id="personalAccPart" data-bind="checked: personalAcc">
+                  <input type="radio" name="data[Order][payFrom]" value="part" id="personalAccPart" data-bind="checked: personalAcc,  attr: {'disabled': balance() <= 0}">
                   <label for="personalAccPart">Частично</label>
                 </div>
             </div>
@@ -354,8 +360,6 @@
              .always(function(){
 
             });
-
-
         }
 
         this.totalDiscount  = ko.pureComputed(function() {
@@ -379,7 +383,6 @@
         }, this);
 
         this.serverCost = ko.pureComputed(function() {
-            console.log(this.selectedServices());
             return Number(this.selectedSlots()) *
                    Number(this.slotPrice()) *
                    Number(this.selectedMonths());
@@ -393,7 +396,7 @@
                 serviceTotal += Number(self.servicesList()[id].price);
             });
 
-            return serviceTotal;
+            return serviceTotal * Number(this.selectedMonths());
         }, this);
 
         this.totalCost = ko.pureComputed(function() {

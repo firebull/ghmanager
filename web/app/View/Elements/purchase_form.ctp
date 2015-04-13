@@ -140,37 +140,29 @@
 	else
 	if (@$system == 'qiwi') {
 ?>
-		<div style="display: none; padding: .3em; margin-top: 5px; width: 318px;" class="flash ui-state-highlight ui-corner-all" id="qiwiForm<?php echo $formId.'_'.$order['Order']['id']?>">
-			<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				<small>Пожалуйста, введите номер своего мобильного телефона, на который привязан кошелёк Qiwi (последние 10 цифр).
-				</small>
-			<form name="order_<?php echo $order['Order']['id'].'_qiwi_'.@$using;?>" action="https://w.qiwi.ru/setInetBill_utf.do" method="POST" >
+		<div style="display: none;" class="ui segment" id="qiwiForm<?php echo $formId.'_'.$order['Order']['id']?>">
+			<form name="order_<?php echo $order['Order']['id'].'_qiwi_'.@$using;?>" action="https://w.qiwi.ru/setInetBill_utf.do" method="POST" class="ui form">
+			<div class="ui small message">
+				Пожалуйста, введите номер своего мобильного телефона, на который привязан кошелёк Qiwi (последние 10 цифр).
+			</div>
 			<input type="hidden" name="from" value="<?php echo $paymentParams['qiwi']['login'];?>">
 			<input type="hidden" name="summ" value="<?php echo number_format($order['Order']['sumToPay'], 2, '.', '');?>">
 			<input type="hidden" name="com" value="<?php echo $orderMessage; ?>">
 			<input type="hidden" name="lifetime" value="336">
 			<input type="hidden" name="txn_id" value="<?php echo $order['Order']['id']?>">
-			<table cellpadding="0" cellspacing="0" border="0" style="margin-top: 4px; width: 316px;">
-				<tr>
-					<td>
-						<?php
+			<?php
 						echo $this->Form->input('to',array (	'size' => '25',
 														'name' => 'to',
 														'id'=>'qiwiPhoneNum',
-														'div' => true,
-														'style' => 'padding-left: 5px; width: 90%;',
-														'class' => 'input_bold',
+														'div' => 'field',
 														'label' => false));
 						?>
-					</td>
-					<td>
+
 						<?php
 						echo $this->Form->submit( 'Оплатить',
-											array('class' => 'ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'));
+											array('class' => 'ui fluid orange button'));
 						?>
-					</td>
-				</tr>
-			</table>
+
 			<small><i>Мы не сохраняем номер у себя, он нужен только для создания счёта в системе Qiwi.</i> </small>
 		<script type="text/javascript">
 			$(function() {

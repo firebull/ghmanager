@@ -105,6 +105,14 @@ else
                                         </div>
                                     </div>
                                 </div>
+                                <div class="item" style="color: #222 !important;">
+                                    <i class='money icon'></i>
+                                    <div class="content">
+                                        <div class="desription">
+                                            <?php echo 'Баланс: '.round(floatval($userinfo['User']['money']), 2).'<i class="ruble icon"></i>';?>
+                                        </div>
+                                    </div>
+                                </div>
                                 <?php if (@$userinfo['User']['discount'] > 0){ ?>
                                 <div class="item" style="color: #222 !important;">
                                     <i class='money icon'></i>
@@ -147,6 +155,9 @@ else
                         <a data-bind="event: {click: showModal.bind(true, '', 'Изменить профиль', '/users/edit/ver:2')}" class="item">
                             <i class="blue user icon"></i>Изменить профиль
                         </a>
+                        <a data-bind="event: {click: showModal.bind(true, 'small', 'Пополнить баланс', '/orders/makeDeposit/ver:2')}" class="item">
+                            <i class="blue money icon"></i>Пополнить баланс
+                        </a>
                         <a data-bind="event: {click: showModal.bind(true, 'small', 'Изменить пароль FTP', '/users/changeFtpPass/ver:2')}" class="item">
                             <i class="blue lock icon"></i>Пароль FTP
                         </a>
@@ -169,7 +180,7 @@ else
                     </div>
                 </div>
                 <div class="column">
-                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, 'small', 'Заказать голосовой сервер', '/orders/add/2')}">
+                    <div style="cursor: pointer;" data-bind="event: {click: showModal.bind(false, '', 'Заказать голосовой сервер', '/orders/add/2')}">
                         <img class="ui centered image" src="/img/bigicons/ico-voice.png"/>
                         <br/>
                         <div class="ui blue label"><nobr>Голосовой сервер</nobr></div>
