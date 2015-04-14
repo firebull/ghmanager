@@ -23,34 +23,27 @@ class SupportsController extends AppController {
     public $name = 'Supports';
     public $layout = 'client';
     public $_DarkAuth;
-    public $helpers = array('Time', 'Js');
-    public $components = array('RequestHandler', 'Session', 'DarkAuth');
+    public $helpers = array('Time', 'Js', 'Markdown.Markdown');
+    public $components = array('RequestHandler', 'Session', 'DarkAuth', 'TeamServer');
 
     public function beforeRender() {
         $userInfo = $this->DarkAuth->getAllUserInfo();
 
-        // Убрать все теги, xss-уязвимость
-        foreach ( $userInfo['User'] as $key => $value ) {
+        if (!empty($userInfo)){
+            // Убрать все теги, xss-уязвимость
+            foreach ( $userInfo['User'] as $key => $value ) {
                 $userInfo['User'][$key] = strip_tags($value);
+                // Вычислить имя пользователя
+                $userInfo['User']['fullName'] = $this->TeamServer->countUserName($userInfo);
+                $this->set('userinfo', $userInfo);
+            }
         }
 
-        $this->set('userinfo', $userInfo);
-    }
-
-    public function index() {
-        $this->Support->recursive = 0;
-        $this->set('supports', $this->paginate());
-    }
-
-    public function view($id = null) {
-        if (!$id) {
-            $this->Session->setFlash(__('Invalid support'));
-            $this->redirect(array('action' => 'index'));
-        }
-        $this->set('support', $this->Support->read(null, $id));
+        $this->TeamServer->setLang();
     }
 
     public function add( $ticketId = null) {
+        $this->DarkAuth->requiresAuth();
         /*
          * Предварительно необходимо пометить все сообщения в тикете, как прочитанные
          */
@@ -157,6 +150,29 @@ class SupportsController extends AppController {
         } else {
             $this->request->data['SupportTicket']['id'] = $ticketId;
         }
+    }
+
+    public function faq() {
+        $this->DarkAuth->requiresAuth();
+        $this->layout = 'v2/client';
+    }
+
+    public function help() {
+        $this->DarkAuth->requiresAuth();
+        $this->layout = 'v2/client';
+
+        Cache::set(array('duration' => '+1 days'));
+
+        if (($helps = Cache::read('help')) === false) {
+
+            $this->loadModel('Help');
+            $helps = $this->Help->find('all');
+
+            Cache::set(array('duration' => '+1 days'));
+            Cache::write('help', $helps);
+        }
+
+        $this->set('helps', $helps);
     }
 
 /*  public function edit($id = null) {

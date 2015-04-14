@@ -512,9 +512,10 @@ class ServersController extends AppController {
 
             // Вычислить имя пользователя
             $userInfo['User']['fullName'] = $this->TeamServer->countUserName($userInfo);
-
             $this->set('userinfo', $userInfo);
         }
+
+        $this->TeamServer->setLang();
 
         Cache::set(array('duration' => '+1 days'));
 

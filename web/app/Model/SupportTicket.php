@@ -2,6 +2,8 @@
 class SupportTicket extends AppModel {
 	public $name = 'SupportTicket';
 	public $displayField = 'title';
+	public $actsAs = ['Containable'];
+
 	public $validate = array(
 		'status' => array(
 			'notempty' => array(
@@ -63,7 +65,7 @@ class SupportTicket extends AppModel {
 			'insertQuery' => ''
 		)
 	);
-	
+
 }
 /*
  * Эта модель для получения только непрочитанных сообщений
@@ -72,7 +74,7 @@ class SupportTicketUnread extends AppModel {
 	public $name = 'SupportTicketUnread';
 	public $displayField = 'title';
 	public $useTable = 'support_tickets';
-	
+
 	public $hasAndBelongsToMany = array(
 
 		'Support' => array(
@@ -101,7 +103,7 @@ class SupportTicketFiveLast extends AppModel {
 	public $name = 'SupportTicketFiveLast';
 	public $displayField = 'title';
 	public $useTable = 'support_tickets';
-	
+
 	public $hasAndBelongsToMany = array(
 
 		'Support' => array(
@@ -130,7 +132,7 @@ class SupportTicketUnreadId extends AppModel {
 	public $name = 'SupportTicketUnreadId';
 //	public $displayField = 'id';
 	public $useTable = 'support_tickets';
-	
+
 	public $hasAndBelongsToMany = array(
 
 		'Support' => array(

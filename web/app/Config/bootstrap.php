@@ -86,6 +86,8 @@ spl_autoload_register(function ($class) {
 	}
 });
 
+CakePlugin::load('Markdown');
+
 // Common params for vendoring
 App::uses('IniReader', 'Configure');
 

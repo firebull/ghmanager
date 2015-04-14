@@ -68,6 +68,8 @@ class OrdersController extends AppController {
             $this->set('userinfo', $userInfo);
         }
 
+        $this->TeamServer->setLang();
+
         Cache::set(array('duration' => '+1 days'));
 
         if (($helpers = Cache::read('helpers')) === false) {

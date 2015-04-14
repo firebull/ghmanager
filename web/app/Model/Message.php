@@ -2,12 +2,12 @@
 class Message extends AppModel {
 	public $name = 'Message';
 	public $displayField = 'title';
-	
+
 	public $validate = array(
 				'title' => array(
 					'notempty' => array(
 						'rule' => array('notempty'),
-						'message' => 'Заголовок не может быть пустым',
+						'message' => 'Header cannot be empty',
 						//'allowEmpty' => false,
 						//'required' => false,
 						//'last' => false, // Stop validation after this rule
@@ -15,7 +15,7 @@ class Message extends AppModel {
 					),
 				),
 	);
-	
+
 //	public $hasAndBelongsToMany = array (
 //
 //			'User' => array (

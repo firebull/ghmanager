@@ -9,7 +9,7 @@ class RootServerIp extends AppModel {
     public $name = 'RootServerIp';
 
     public $useTable = 'root_server_ips';
-    
+
     public $hasAndBelongsToMany = array (
 		'RootServer' => array (
 			'className' => 'RootServer',
@@ -19,21 +19,21 @@ class RootServerIp extends AppModel {
 			'unique' => true
 		)
 	);
-    
+
     public $validate = array(
 							'ip' => array(
 									        'ip' => array(
 									            'rule' => 'ip',
-									            'message' => 'Введите корректный IP.'
+									            'message' => 'Incorrect IP'
 									        ),
 									        'unique' => array(
 									            'rule' => 'isUnique',
-									            'message' => 'Такой IP уже существует.'
+									            'message' => 'Such IP is already exists'
 									        )
 									)
 	);
-	
-	
+
+
 
 }
 

@@ -29,6 +29,7 @@ class User extends AppModel {
 			'unique' => true,
 			'fields'=> array('id','initialised')
 		),
+		#TODO: Remove SupportTicket model from user query
 		'SupportTicket' => array(
 			'className' => 'SupportTicket',
 			'joinTable' => 'support_tickets_users',
@@ -68,24 +69,24 @@ class User extends AppModel {
 
 									'username-rule-1' => array (
 														'rule' => 'alphaNumeric',
-														'message' => 'Логин может содержать только буквы и цифры.'
+														'message' => 'Login can contain only letters and digits'
 														),
 
 									'username-rule-2' => array (
 														'rule' => array ('minLength', 5),
-														'message' => 'Минимальная длина логина 5 символов.'
+														'message' => 'Username must be more then 5 symbols long'
 														),
 
 									'username-rule-3' => array (
 														'rule' => 'isUnique',
-														'message' => 'Такой логин уже существует.'
+														'message' => 'This login already exists'
 														)
 											),
 
 						'passwd' => array (
 									'password-rule-1' => array (
 														'rule' => array('between', 7, 32),
-														'message' => 'Длина пароля должна быть от 7 до 32 символов.'
+														'message' => 'Password length must be between 7 and 32 symbols long'
 														),
 //									 'password-rule-2' => array (
 //														'rule' => array('validatePassword'),
@@ -96,26 +97,26 @@ class User extends AppModel {
 						'email' => array(
 								   'email-rule-1' => array (
 												     'rule' => array('email', true),
-												     'message' => 'Введите корректный e-mail.'
+												     'message' => 'Incorrect email'
 											),
 									'email-rule-2' => array (
 														'rule' => 'isUnique',
-														'message' => 'Такой e-mail уже существует. Попробуйте восстановить пароль существующего пользователя.'
+														'message' => 'Email already exists. Try to recover password for this user.'
 														)
 										),
 						'phone' => array(
 								    'phone-rule-1' => array (
 												     'rule' => array('phone', '/^((\+?7|8)(?!95[4-79]|99[^2457]|907|94[^0]|336)([348]\d|9[0-689]|7[07])\d{8}|\+?(99[^456]\d{7,11}|994\d{9}|9955\d{8}|996[57]\d{8}|380[34569]\d{8}|375[234]\d{8}|372\d{7,8}|37[0-4]\d{8}))$/'),
-												     'message' => 'Введите корректный номер телефона: только цифры с кодом страны. Допустимы только страны СНГ.'
+												     'message' => 'Incorrect phone number. Only digits with country code allowed.'
 											),
 									'phone-rule-2' => array (
 														'rule' => 'isUnique',
-														'message' => 'Такой номер телефона уже привязан к другому логину. Попробуйте восстановить пароль существующего пользователя.'
+														'message' => 'Phone number already exists. Try to recover password for this user.'
 														)
 										),
 						'steam_id' => array(
 									        'rule' => '/^STEAM_[0-9]:[0-9]:[0-9]{3,18}$/',
-									        'message' => 'Steam ID должен быть вида STEAM_0:0:123456',
+									        'message' => 'Steam ID must be like STEAM_0:0:123456',
 									        'allowEmpty' => true
 									    )
 

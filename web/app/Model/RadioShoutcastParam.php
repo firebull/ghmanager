@@ -6,7 +6,7 @@ class RadioShoutcastParam extends AppModel {
 		'RealTime' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -16,7 +16,7 @@ class RadioShoutcastParam extends AppModel {
 		'W3CEnable' => array(
 			'inList' => array(
 				'rule' => array('inlist', array('Yes','No')),
-				'message' => 'Может быть лишь Yes или No',
+				'message' => 'Only Yes or No allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -26,7 +26,7 @@ class RadioShoutcastParam extends AppModel {
 		'NameLookups' => array(
 			'boolean' => array(
 				'rule' => array('boolean'),
-				'message' => 'Может быть лишь 0 или 1',
+				'message' => 'Only 0 or 1 allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -36,7 +36,7 @@ class RadioShoutcastParam extends AppModel {
 		'RelayPort' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -46,7 +46,7 @@ class RadioShoutcastParam extends AppModel {
 		'RelayServer' => array(
 			'alphanumeric' => array(
 				'rule' => array('alphanumeric'),
-				'message' => 'Могут быть только цифры, буквы.',
+				'message' => 'Only digits and letters allowed',
 				'allowEmpty' => true,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -56,7 +56,7 @@ class RadioShoutcastParam extends AppModel {
 		'AutoDumpUsers' => array(
 			'boolean' => array(
 				'rule' => array('boolean'),
-				'message' => 'Может быть лишь 0 или 1',
+				'message' => 'Only 0 or 1 allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -66,7 +66,7 @@ class RadioShoutcastParam extends AppModel {
 		'AutoDumpSourceTime' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -76,7 +76,7 @@ class RadioShoutcastParam extends AppModel {
 		'ContentDir' => array(
 			'alphanumeric' => array(
 				'rule' => array('alphanumeric'),
-				'message' => 'Могут быть только цифры и буквы.',
+				'message' => 'Only digits and letters allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -106,7 +106,7 @@ class RadioShoutcastParam extends AppModel {
 		'TitleFormat' => array(
 			'alphanumeric' => array(
 				'rule' => 'notEmpty',
-				'message' => 'Поле не может быть пустым.',
+				'message' => 'Can not be empty',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -116,7 +116,7 @@ class RadioShoutcastParam extends AppModel {
 		'PublicServer' => array(
 			'inList' => array(
 				'rule' => array('inlist', array('always','never','default')),
-				'message' => 'Может быть лишь Always, Never или Default',
+				'message' => 'Can be Always, Never or Default',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -126,7 +126,7 @@ class RadioShoutcastParam extends AppModel {
 		'AllowRelay' => array(
 			'inList' => array(
 				'rule' => array('inlist', array('Yes','No')),
-				'message' => 'Может быть лишь Yes или No',
+				'message' => 'Only Yes or No allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -136,7 +136,7 @@ class RadioShoutcastParam extends AppModel {
 		'AllowPublicRelay' => array(
 			'inList' => array(
 				'rule' => array('inlist', array('Yes','No')),
-				'message' => 'Может быть лишь Yes или No',
+				'message' => 'Only Yes or No allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -146,7 +146,7 @@ class RadioShoutcastParam extends AppModel {
 		'MetaInterval' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -156,7 +156,7 @@ class RadioShoutcastParam extends AppModel {
 		'ListenerTimer' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -186,7 +186,7 @@ class RadioShoutcastParam extends AppModel {
 		'RIPOnly' => array(
 			'inlist' => array(
 				'rule' => array('inlist', array('Yes','No')),
-				'message' => 'Может быть лишь Yes или No',
+				'message' => 'Only Yes or No allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -196,25 +196,25 @@ class RadioShoutcastParam extends AppModel {
 		'Sleep' => array(
 //			'numeric' => array(
 //				'rule' => array('numeric'),
-//				'message' => 'Могут быть только цифры',
+//				'message' => 'Only digits allowed',
 //				//'allowEmpty' => false,
 //				//'required' => false,
 //				//'last' => false, // Stop validation after this rule
 //				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 //			),
 			'rule-2' => array(
-	            'rule' => array('comparison', '>=', 100), 
-	            'message' => 'Минимальное значение 100'
+	            'rule' => array('comparison', '>=', 100),
+	            'message' => '100 minimum'
 	        ),
 			'rule-3' => array(
-	            'rule' => array('comparison', '<=', 1024), 
-	            'message' => 'Максимальное значение 1024'
+	            'rule' => array('comparison', '<=', 1024),
+	            'message' => '1024 maximum'
 	        )
 		),
 		'CleanXML' => array(
 			'inlist' => array(
 				'rule' => array('inlist', array('Yes','No')),
-				'message' => 'Может быть лишь Yes или No',
+				'message' => 'Only Yes or No allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -224,26 +224,26 @@ class RadioShoutcastParam extends AppModel {
 		'ShowLastSongs' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 			'rule-2' => array(
-	            'rule' => array('comparison', '>=', 1), 
-	            'message' => 'Минимальное значение 1'
+	            'rule' => array('comparison', '>=', 1),
+	            'message' => 'Minimum 1'
 	        ),
 			'rule-3' => array(
-	            'rule' => array('comparison', '<=', 20), 
-	            'message' => 'Максимальное значение 20'
-	        ) 
-	        	
+	            'rule' => array('comparison', '<=', 20),
+	            'message' => 'Maximum 20'
+	        )
+
 		),
 		'bitrate' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule

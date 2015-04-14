@@ -38,24 +38,24 @@
 
 									'more-then-0' => array (
 														'rule' => array('comparison', '>', 0),
-														'message' => 'Сумма должна быть больше нуля.'
+														'message' => 'Sum must be more then 0'
 														),
 
 									'less-then-1000000' => array (
 														'rule' => array('comparison', '<', 1000000),
-														'message' => 'Больше мильона? Ого!'
+														'message' => 'Can not be more then 1.000.000'
 														)
 											) ,
 						'month' => array (
 
 									'more-then-1' => array (
 														'rule' => array('comparison', '>=', 1),
-														'message' => 'Аренда сервера от 1 месяца.'
+														'message' => 'Rent must be more then one month'
 														),
 
-									'less-then-6' => array (
+									'less-then-12' => array (
 														'rule' => array('comparison', '<=', 12),
-														'message' => 'Аренда сервера только до 12 месяцев.'
+														'message' => 'Rent can be be less then 12 month'
 														)
 											)
 

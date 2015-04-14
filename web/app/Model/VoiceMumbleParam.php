@@ -6,7 +6,7 @@ class VoiceMumbleParam extends AppModel {
 		'autobanAttempts' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => true,
 				//'last' => false, // Stop validation after this rule
@@ -16,7 +16,7 @@ class VoiceMumbleParam extends AppModel {
 		'autobanTimeframe' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => true,
 				//'last' => false, // Stop validation after this rule
@@ -26,7 +26,7 @@ class VoiceMumbleParam extends AppModel {
 		'autobanTime' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -36,7 +36,7 @@ class VoiceMumbleParam extends AppModel {
 		'serverpassword' => array(
 			'alphanumeric' => array(
 				'rule' => array('alphanumeric'),
-				'message' => 'Могут быть только цифры и буквы',
+				'message' => 'Only digits and letters allowed',
 				'allowEmpty' => true,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -46,7 +46,7 @@ class VoiceMumbleParam extends AppModel {
 		'bandwidth' => array(
 			'numeric' => array(
 				'rule' => array('comparison', 'less or equal', 131072),
-				'message' => 'Максимум 128Кбит',
+				'message' => 'Maximum 128Kbit',
 				//'allowEmpty' => false,
 				'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -56,7 +56,7 @@ class VoiceMumbleParam extends AppModel {
 		'textmessagelength' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -66,7 +66,7 @@ class VoiceMumbleParam extends AppModel {
 		'imagemessagelength' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -76,7 +76,7 @@ class VoiceMumbleParam extends AppModel {
 		'allowhtml' => array(
 			'boolean' => array(
 				'rule' => array('inList', array('true','false')),
-				'message' => 'Может быть только true или false',
+				'message' => 'Only true or false allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -86,7 +86,7 @@ class VoiceMumbleParam extends AppModel {
 		'logdays' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				'message' => 'Могут быть только цифры',
+				'message' => 'Only digits allowed',
 				//'allowEmpty' => true,
 				'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -96,7 +96,7 @@ class VoiceMumbleParam extends AppModel {
 		'registerPassword' => array(
 			'alphanumeric' => array(
 				'rule' => array('alphanumeric'),
-				'message' => 'Могут быть только цифры и буквы',
+				'message' => 'Only digits and letters allowed',
 				'allowEmpty' => true,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -106,7 +106,7 @@ class VoiceMumbleParam extends AppModel {
 		'registerUrl' => array(
 			'url' => array(
 				'rule' => array('url'),
-				'message' => 'Может быть только ссылка',
+				'message' => 'Must be hyperlink',
 				'allowEmpty' => true,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -116,7 +116,7 @@ class VoiceMumbleParam extends AppModel {
 		'registerHostname' => array(
 			'alphanumeric' => array(
 				'rule' => array('alphanumeric'),
-				'message' => 'Могут быть только цифры и буквы',
+				'message' => 'Only digits and letters allowed',
 				'allowEmpty' => true,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -126,7 +126,7 @@ class VoiceMumbleParam extends AppModel {
 		'certrequired' => array(
 			'boolean' => array(
 				'rule' => array('inList', array('true','false')),
-				'message' => 'Может быть только true или false',
+				'message' => 'Only true or false allowed',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule

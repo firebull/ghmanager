@@ -4,8 +4,11 @@ vendor.name = GHManager
 vendor.logo = icons/personage01_32px.png
 vendor.wideLogo = ghmanager_272x42.png
 vendor.meta = Game Hosting Manager - control panel for full control of Game hosting provider.
+language = rus
 
 [Links]
+site   = http://www.example.com
+blog   = http://blog.example.com
 oferta = http://www.example.com/aboutus/dogovor
 
 [Redis]

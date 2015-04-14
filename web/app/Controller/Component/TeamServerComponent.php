@@ -96,6 +96,20 @@ class TeamServerComponent extends Component {
 		$this->controller->Action->save($log);
 	}
 
+	// Set Panel language.
+	// For now func is very simple - get it from ghmanager.ini.php
+	function setLang() {
+
+		if (!$currentLang = Configure::read('Panel.language'))
+		{
+			$currentLang = 'eng';
+		}
+
+		Configure::write('Config.language', $currentLang);
+
+		return true;
+	}
+
 	// Генерирование нломера личного счёта по ID клиента
 	function getUserBill($userId = null) {
 		if ($userId === null) {

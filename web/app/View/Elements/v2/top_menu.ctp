@@ -16,10 +16,13 @@ if ($this->params['action'] == 'control')
 else
 {
     $class[$this->params['controller']] = 'ui red item active';
+
+    if ($this->params['controller'] == 'supports'){
+        $class['supportTickets'] = 'ui red item active';
+    }
 }
 
 ?>
-
 
     <div class="ui fixed main menu menu-shadow" style="margin-bottom: 40px; !important;" id="topMenu">
         <div class="container">
