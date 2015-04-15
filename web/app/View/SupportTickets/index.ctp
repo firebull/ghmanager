@@ -5,26 +5,44 @@
  * Made fot project GH Mananger
  * by Nikita Bulaev
  */
- include('loading_params.php');
 ?>
-<div class="ui padded grid" id="tickets">
-	<div class="twelve wide column">
-		<div class="ui segment">
-		<?php echo $this->Session->flash(); ?>
-		<div class="ui dividing header" data-bind="visible: openedTicketsList().length > 0"><?php echo __('Opened tickets');?></div>
+<div class="ui horizontally padded grid" id="tickets">
+    <div class="row">
+    <div class="three wide column">
+        <?php
+            echo $this->element('support_menu', []);
+        ?>
+        <button data-bind="event: {click: showModal.bind(false, 'fullscreen', '<?php echo __("Create new ticket");?>', '/SupportTickets/add')}" class="ui fluid orange button">
+            <i class="help circle icon"></i>
+            <?php echo __("Create new ticket");?>
+        </button>
+    </div>
+	<div class="thirteen wide column">
+        <div class="ui segment">
+    		<?php echo $this->Session->flash(); ?>
+            <div class="ui grid">
+    		    <div class="six wide column">
+                    <div class="ui small dividing header" data-bind="visible: openedTicketsList().length > 0"><?php echo __('Opened tickets');?></div>
+                    <div class="ui divided selection list" data-bind="visible: openedTicketsList().length > 0">
+                        <!-- ko template: { name: 'tickets-list-item-template', foreach: openedTicketsList }-->
 
-		<div class="ui dividing header" data-bind="visible: closedTicketsList().length > 0"><?php echo __('Closed tickets');?></div>
-		</div>
+                        <!-- /ko -->
+                    </div>
+
+                    <div class="ui small dividing header" data-bind="visible: closedTicketsList().length > 0"><?php echo __('Closed tickets');?></div>
+                    <div class="ui divided selection list" data-bind="visible: closedTicketsList().length > 0">
+                        <!-- ko template: { name: 'tickets-list-item-template', foreach: closedTicketsList }-->
+
+                        <!-- /ko -->
+                    </div>
+                </div>
+                <div class="ten wide column">
+
+                </div>
+            </div>
+        </div>
 	</div>
-	<div class="four wide column">
-		<?php
-			echo $this->element('support_menu', []);
-		?>
-		<button data-bind="event: {click: showModal.bind(false, 'fullscreen', '<?php echo __("Create new ticket");?>', '/SupportTickets/add')}" class="ui fluid orange button">
-			<i class="help circle icon"></i>
-			<?php echo __("Create new ticket");?>
-		</button>
-	</div>
+    </div>
 </div>
 <div class="ui small modal" id="ticketsModal">
     <i class="close icon"></i>
@@ -34,7 +52,25 @@
         <div class="ui button"><?php echo __('Cancel');?></div>
     </div>
 </div>
+<script type="text/html" id="tickets-list-item-template">
+    <div class=" item">
+        <div class="ui right floated label" data-bind="css: {'red': Number(SupportTicket.unread_user_count) > 0}">
+            <i class="mail icon"></i>
+            <span data-bind="text: SupportTicket.unread_user_count"></span>
+        </div>
+        <div class="content">
+            <div class="header">
+                #<span data-bind="text: SupportTicket.id"></span>:
+                <span data-bind="text: SupportTicket.title"></span>
+            </div>
+            <div class="description">
+                <span  data-bind="text: moment(SupportTicket.modified).fromNow()"></span>
+            </div>
+        </div>
+    </div>
+</script>
 <script type="text/javascript" language="javascript">
+        moment.locale('ru');
 
 		var ticketsViewModel = function(){
 

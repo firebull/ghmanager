@@ -1,5 +1,10 @@
 <div class="ui padded grid">
-    <div class="twelve wide column">
+    <div class="three wide column">
+        <?php
+            echo $this->element('support_menu', []);
+        ?>
+    </div>
+    <div class="thirteen wide column">
         <div class="ui segment">
             <div class="ui dividing header">Финансовые вопросы</div>
             <div class="ui fluid items">
@@ -152,10 +157,5 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="four wide column">
-        <?php
-            echo $this->element('support_menu', []);
-        ?>
     </div>
 </div>
