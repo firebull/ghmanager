@@ -75,3 +75,7 @@ body {
 }
 
 a {cursor: pointer;}
+
+.fluid {
+	width: 100%;
+}

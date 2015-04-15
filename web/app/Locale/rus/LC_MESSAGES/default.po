@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GH Manager\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2015-04-14 12:34+0300\n"
+"PO-Revision-Date: 2015-04-15 17:49+0300\n"
 "Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
 "Language-Team: RUS <djfirebull@gmail.com>\n"
 "Language: ru\n"
@@ -41,21 +41,21 @@ msgstr ""
 msgid "News was not deleted"
 msgstr ""
 
-#: Controller/SupportsController.php:47
-msgid "Invalid support"
-msgstr ""
+#: Controller/SupportTicketsController.php:393
+msgid "This is not your server"
+msgstr "Это чужой сервер"
+
+#: Controller/SupportTicketsController.php:464
+msgid "No servers given in ticket"
+msgstr "Вы не указали ни одного сервера"
 
 #: View/Elements/support_menu.ctp:14
 msgid "Tickets"
 msgstr "Тикеты"
 
-#: View/Elements/support_menu.ctp:19
+#: View/Elements/support_menu.ctp:19 View/Supports/help.ctp:4
 msgid "Help"
 msgstr "Помощь"
-
-#: View/Elements/support_menu.ctp:24
-msgid "FAQ"
-msgstr ""
 
 #: View/Elements/support_menu.ctp:29
 msgid "Contacts"
@@ -71,7 +71,35 @@ msgstr ""
 msgid "TeamServer: "
 msgstr ""
 
-#: View/Supports/edit.ctp:4 View/Supports/view.ctp:29
+#: View/SupportTickets/add.ctp:57
+msgid "Send"
+msgstr "Отправить"
+
+#: View/SupportTickets/add.ctp:58 View/SupportTickets/index.ctp:34
+msgid "Cancel"
+msgstr "Отмена"
+
+#: View/SupportTickets/add.ctp:121
+msgid "Please, enter Ticket title"
+msgstr "Пожалуйста, напишите заголовок Тикета"
+
+#: View/SupportTickets/add.ctp:130
+msgid "Please, enter problem description"
+msgstr "Пожалуйста, напишите описание проблемы"
+
+#: View/SupportTickets/index.ctp:14
+msgid "Opened tickets"
+msgstr "Открытые тикеты"
+
+#: View/SupportTickets/index.ctp:16
+msgid "Closed tickets"
+msgstr "Закрытые тикеты"
+
+#: View/SupportTickets/index.ctp:23;25
+msgid "Create new ticket"
+msgstr "Создать новый тикет"
+
+#: View/Supports/edit.ctp:4
 msgid "Edit Support"
 msgstr ""
 
@@ -79,96 +107,29 @@ msgstr ""
 msgid "Submit"
 msgstr "Отправить"
 
-#: View/Supports/edit.ctp:14 View/Supports/index.ctp:9;47
-#: View/Supports/view.ctp:27;46
+#: View/Supports/edit.ctp:14
 msgid "Actions"
 msgstr ""
 
-#: View/Supports/edit.ctp:17 View/Supports/index.ctp:27
-#: View/Supports/view.ctp:64
+#: View/Supports/edit.ctp:17
 msgid "Delete"
 msgstr "Удалить"
 
-#: View/Supports/edit.ctp:17 View/Supports/index.ctp:27
-#: View/Supports/view.ctp:30;64
+#: View/Supports/edit.ctp:17
 msgid "Are you sure you want to delete # %s?"
 msgstr ""
 
-#: View/Supports/edit.ctp:18 View/Supports/view.ctp:31
+#: View/Supports/edit.ctp:18
 msgid "List Supports"
 msgstr ""
 
-#: View/Supports/edit.ctp:19 View/Supports/index.ctp:50
-#: View/Supports/view.ctp:33
+#: View/Supports/edit.ctp:19
 msgid "List Support Tickets"
 msgstr ""
 
-#: View/Supports/edit.ctp:20 View/Supports/index.ctp:51
-#: View/Supports/view.ctp:34;73
+#: View/Supports/edit.ctp:20
 msgid "New Support Ticket"
 msgstr ""
-
-#: View/Supports/index.ctp:2
-msgid "Supports"
-msgstr ""
-
-#: View/Supports/index.ctp:25 View/Supports/view.ctp:62
-msgid "View"
-msgstr ""
-
-#: View/Supports/index.ctp:26 View/Supports/view.ctp:63
-msgid "Edit"
-msgstr ""
-
-#: View/Supports/index.ctp:35
-msgid ""
-"Page %page% of %pages%, showing %current% records out of %count% total, "
-"starting on record %start%, ending on %end%"
-msgstr ""
-
-#: View/Supports/index.ctp:40
-msgid "previous"
-msgstr ""
-
-#: View/Supports/index.ctp:43
-msgid "next"
-msgstr ""
-
-#: View/Supports/index.ctp:49 View/Supports/view.ctp:32
-msgid "New Support"
-msgstr ""
-
-#: View/Supports/view.ctp:2
-msgid "Support"
-msgstr "Техподдержка"
-
-#: View/Supports/view.ctp:4;42
-msgid "Id"
-msgstr ""
-
-#: View/Supports/view.ctp:9
-msgid "Text"
-msgstr ""
-
-#: View/Supports/view.ctp:14;44
-msgid "Created"
-msgstr ""
-
-#: View/Supports/view.ctp:19;45
-msgid "Modified"
-msgstr ""
-
-#: View/Supports/view.ctp:30
-msgid "Delete Support"
-msgstr ""
-
-#: View/Supports/view.ctp:38
-msgid "Related Support Tickets"
-msgstr ""
-
-#: View/Supports/view.ctp:43
-msgid "Status"
-msgstr "Статус"
 
 #: Model/Action.php:validation for field ip
 msgid "ip"
@@ -221,6 +182,8 @@ msgid "Only digits and letters allowed"
 msgstr "Могут быть только цифры, буквы"
 
 #: Model/RadioShoutcastParam.php:validation for field TitleFormat
+#: Model/Support.php:validation text Model/SupportTicket.php:validation
+#: status;validation title
 msgid "Can not be empty"
 msgstr "Поле не может быть пустым"
 
@@ -252,8 +215,11 @@ msgstr "Введите корректный IP"
 msgid "Such IP is already exists"
 msgstr "Такой IP уже существует"
 
-#: Model/Support.php:validation for field text
-#: Model/SupportTicket.php:validation status Model/Tag.php:validation name
+#: Model/SupportTicket.php:validation for field title
+msgid "Title must be at least 6 characters long."
+msgstr "Длина заголовка должна быть как минимум 6 символов"
+
+#: Model/Tag.php:validation for field name
 msgid "notempty"
 msgstr ""
 
@@ -311,3 +277,9 @@ msgstr "Может быть только true или false"
 #: Model/VoiceMumbleParam.php:validation for field registerUrl
 msgid "Must be hyperlink"
 msgstr "Может быть только ссылка"
+
+#~ msgid "Support"
+#~ msgstr "Техподдержка"
+
+#~ msgid "Status"
+#~ msgstr "Статус"

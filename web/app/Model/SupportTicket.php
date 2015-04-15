@@ -8,12 +8,26 @@ class SupportTicket extends AppModel {
 		'status' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
+				'message' => 'Can not be empty',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
+		),
+		'title' => array(
+			'notempty' => [
+				'rule' => ['notempty'],
+				'message' => 'Can not be empty',
+				'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				'on' => 'create', // Limit validation to 'create' or 'update' operations
+			],
+			'length' => [
+				'rule' => ['minLength', 6],
+        		'message' => 'Title must be at least 6 characters long.'
+			]
 		),
 	);
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -33,38 +47,24 @@ class SupportTicket extends AppModel {
 			'finderQuery' => '',
 			'deleteQuery' => '',
 			'insertQuery' => ''
-		),
-		'Support' => array(
-			'className' => 'Support',
-			'joinTable' => 'supports_support_tickets',
-			'foreignKey' => 'support_ticket_id',
-			'associationForeignKey' => 'support_id',
-			'unique' => true,
-			'conditions' => '',
-			'fields' => 'id,readstatus,text,answerBy,answerByName,created',
-			'order' => 'created ASC',
-			'limit' => '100',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
-		),
-		'User' => array(
-			'className' => 'User',
-			'joinTable' => 'support_tickets_users',
-			'foreignKey' => 'support_ticket_id',
-			'associationForeignKey' => 'user_id',
-			'unique' => true,
-			'conditions' => '',
-			'fields' => 'id,first_name,second_name,username,live,email,steam_id,guid,tokenhash,created',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		)
 	);
+
+	public $hasMany = [
+			'Support' => ['className' => 'Support',
+						  'fields'    => 'id,readstatus,text,answerBy,answerByName,created',
+						  'limit'     => 256, // =)
+						  'order'     => 'created ASC'
+						 ]
+					];
+
+	public $belongsTo  = [
+			'User' => ['className' => 'User',
+							'conditions' => [],
+							'fields' => 'id,first_name,second_name,username,live,email,steam_id,guid,tokenhash,created',
+							'order' => '',
+			]
+		];
 
 }
 /*
@@ -75,15 +75,10 @@ class SupportTicketUnread extends AppModel {
 	public $displayField = 'title';
 	public $useTable = 'support_tickets';
 
-	public $hasAndBelongsToMany = array(
+	public $hasMany = array(
 
 		'Support' => array(
-			'className' => 'Support',
-			'joinTable' => 'supports_support_tickets',
-			'foreignKey' => 'support_ticket_id',
-			'associationForeignKey' => 'support_id',
-			'unique' => true,
-			'conditions' => array ('readstatus' => 'unread'),
+			'conditions' => ['readstatus' => 'unread'],
 			'fields' => 'id,readstatus,text,answerBy,answerByName,created',
 			'order' => 'created ASC',
 			'limit' => '100',
@@ -104,14 +99,9 @@ class SupportTicketFiveLast extends AppModel {
 	public $displayField = 'title';
 	public $useTable = 'support_tickets';
 
-	public $hasAndBelongsToMany = array(
+	public $hasMany = array(
 
 		'Support' => array(
-			'className' => 'Support',
-			'joinTable' => 'supports_support_tickets',
-			'foreignKey' => 'support_ticket_id',
-			'associationForeignKey' => 'support_id',
-			'unique' => true,
 			'conditions' => '',
 			'fields' => 'id,readstatus,text,answerBy,answerByName,created',
 			'order' => 'created DESC',
@@ -130,18 +120,14 @@ class SupportTicketFiveLast extends AppModel {
  */
 class SupportTicketUnreadId extends AppModel {
 	public $name = 'SupportTicketUnreadId';
-//	public $displayField = 'id';
+	public $displayField = 'title';
 	public $useTable = 'support_tickets';
 
-	public $hasAndBelongsToMany = array(
+	public $hasMany = array(
 
 		'Support' => array(
 			'className' => 'Support',
-			'joinTable' => 'supports_support_tickets',
-			'foreignKey' => 'support_ticket_id',
-			'associationForeignKey' => 'support_id',
-			'unique' => true,
-			'conditions' => array ('readstatus' => 'unread'),
+			'conditions' => ['readstatus' => 'unread'],
 			'fields' => 'id',
 			'order' => 'created ASC',
 			'limit' => '100',

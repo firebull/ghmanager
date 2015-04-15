@@ -28,23 +28,6 @@ class User extends AppModel {
 			'associationForeignKey' => 'server_id',
 			'unique' => true,
 			'fields'=> array('id','initialised')
-		),
-		#TODO: Remove SupportTicket model from user query
-		'SupportTicket' => array(
-			'className' => 'SupportTicket',
-			'joinTable' => 'support_tickets_users',
-			'foreignKey' => 'user_id',
-			'associationForeignKey' => 'support_ticket_id',
-			'unique' => true,
-			'conditions' => '',
-			'fields' => 'id,status,title,created',
-			'order' => ' status DESC, created DESC',
-			'group' => '',
-			'limit' => '100',
-			'offset' => '',
-			'finderQuery' => '',
-			'deleteQuery' => '',
-			'insertQuery' => ''
 		)
 	);
 

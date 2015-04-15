@@ -114,9 +114,6 @@ class SupportTicketsController extends AppController {
     public function index() {
         $this->layout = 'v2/client';
         $this->set('title_for_layout', 'Техническая поддержка');
-        #TODO: REMOVE THIS!
-        $user = $this->DarkAuth->getAllUserInfo();
-        $this->set('supportTickets', $user['SupportTicket']);
     }
 
     public function loadTickets(){
@@ -130,13 +127,13 @@ class SupportTicketsController extends AppController {
          */
 
         $this->SupportTicket->User->unbindModel(['hasAndBelongsToMany' => ['Server', 'Group'],
-                                                 'hasMany' => ['Eac']]);
+                                                 'hasMany' => ['Eac', 'SupportTicket']]);
 
         $this->SupportTicket
              ->User
-             ->bindModel(['hasAndBelongsToMany' => ['SupportTicket' => ['fields' => ['id','status','created'],
-                                                                        'order' => 'status DESC, created DESC',
-                                                                        'limit' => 1000]]
+             ->bindModel(['hasMany' => ['SupportTicket' => ['fields' => ['id','status','created'],
+                                                            'order' => 'status DESC, created DESC',
+                                                            'limit' => 1000]]
             ]);
 
         $this->SupportTicket->User->id = $this->DarkAuth->getUserId();
@@ -145,7 +142,7 @@ class SupportTicketsController extends AppController {
         $this->SupportTicket->contain(['Server' => ['fields' => ['id', 'status', 'initialised', 'payedTill']]]);
 
         $this->paginate = ['limit'  => 50,
-                           'fields' => ['id', 'status', 'title', 'created'],
+                           'fields' => ['id', 'status', 'title', 'unread_user_count', 'created', 'modified'],
                            'order'  => 'status DESC, created DESC',
                            'conditions' => ['id' => Hash::extract($userTickets, 'SupportTicket.{n}.id')]];
 
@@ -182,45 +179,35 @@ class SupportTicketsController extends AppController {
             }
         }
 
-        $this->SupportTicket->unbindModel(array(
-                                                'hasAndBelongsToMany' => array(
-                                                                                'Support'
-                                                                    )));
+        $this->SupportTicket->unbindModel(['hasMany' => ['Support']]);
 
         if (!empty($tickets)) {
-            $this->paginate = array('limit' => 50,
-                                'order' => ' status DESC, created DESC',
-                                'conditions' => array('id' => $tickets));
+            $this->paginate = [ 'limit'       => 50,
+                                'order'       => 'SupportTicket.status DESC, SupportTicket.created DESC',
+                                'conditions'  => ['id' => $tickets]];
         } else {
-            $this->paginate = array('limit' => 50, 'order' => ' status DESC, created DESC', );
+            $this->paginate = ['limit' => 50,
+                               'order' => 'SupportTicket.status DESC, SupportTicket.created DESC'];
         }
 
         $this->set('supportTickets', $this->paginate());
 
         // Получить состояние ответа на тикеты и количество открытых
-        $this->SupportTicket->unbindModel(array(
-                                                'hasAndBelongsToMany' => array(
-                                                                                'User',
-                                                                                'Server'
-                                                                    )));
-        $this->SupportTicket->bindModel(array(
-                                            'hasAndBelongsToMany' => array(
-                                                                'Support' => array( 'joinTable' => 'supports_support_tickets',
-                                                                                    'fields' => 'readstatus,answerBy,created',
-                                                                                    'order' => 'created DESC',
-                                                                                    'conditions' => array('readstatus' => 'unread')
-                                                                                    )
-                                                    )));
+
+        $this->SupportTicket->contain(['Support' => ['fields' => 'readstatus,answerBy,created',
+                                                     'order'  => 'created DESC',
+                                                     'conditions' => ['Support.readstatus' => 'unread']
+                                                    ]]);
 
         if (!empty($tickets)) {
-            $openedTickets = $this->SupportTicket->find('all', array('conditions' => array('status'=>'open',
-                                                                                           'id' => $tickets),
-                                                                     'order' => ' status DESC, created DESC'));
+            $openedTickets = $this->SupportTicket->find('all', ['conditions' => ['status' => 'open',
+                                                                                 'id'     => $tickets],
+                                                                'order' => 'SupportTicket.status DESC, SupportTicket.created DESC']);
 
         } else {
 
-            $openedTickets = $this->SupportTicket->find('all', array('conditions' => array('status'=>'open'),
-                                                                             'order' => ' status DESC, created DESC'));
+            $openedTickets = $this->SupportTicket->find('all', ['conditions' => ['status'=>'open'],
+                                                                'order' => 'SupportTicket.status DESC, SupportTicket.created DESC']);
         }
 
 
@@ -399,34 +386,40 @@ class SupportTicketsController extends AppController {
         if (!empty($this->data)) {
 
             // Проверка на владение сервером игроком
-            $wrongServer = false;
+            $errors = array();
             if (!empty($this->data['Server']['Server'])) {
                 foreach ( $this->data['Server']['Server'] as $serverId ) {
                     if ($serverId != 0 and !in_array($serverId, $serversId)) {
-                        $wrongServer = true;
-                        break;
+                        throw new ForbiddenException(__("This is not your server"));
                     }
                 }
-            } else {
-                throw new BadRequestException(__('No servers given in ticket'));
-            }
 
-            if ( $wrongServer == false) {   // Нет в переданном списке чужих серверов
+                $support = [    'SupportTicket' => ['user_id' => $userId,
+                                                    'title' => strip_tags($this->data['SupportTicket']['title']),
+                                                    'status' => 'open'
+                                                    ],
+                                'Support' => [
+                                                ['user_id' => $userId,
+                                                 'text'    => strip_tags($this->data['Support']['text']),
+                                                 'readstatus' => 'unread',
+                                                 'answerBy' => 'owner'
+                                                ]
+                                             ],
+                                'Server' => ['Server' => $this->data['Server']['Server']]
+                           ];
 
-                $this->request->data['Support']['answerBy'] = 'owner';
+                if (empty($this->data['Server']) or $this->data['Server']['Server'][0] == 0) {
+                    unset($support['Server']);
+                }
 
-                if ($this->Support->save($this->data['Support'])) {
-                    $this->request->data['Support']['id'] = $this->Support->id;
-                    $this->request->data['User']['id'] = $userId;
+                $this->SupportTicket->set($support);
+                $this->SupportTicket->Support->set($support);
 
-                    if (empty($this->data['Server']) or $this->data['Server']['Server'][0] == 0) {
-                        unset($this->request->data['Server']);
-                    }
-
-                    // Убрать всякие теги. Дабы особо умные не пытались передать скрипт техподдержке.
-                    $this->request->data['Support']['text'] = strip_tags($this->data['Support']['text']);
-                    if ($this->SupportTicket->save($this->request->data)) {
-
+                if ($this->SupportTicket->validates()
+                        and $this->SupportTicket->Support->validates())
+                {
+                    if ($this->SupportTicket->saveAssociated($support))
+                    {
                         $emailTicket['id']    = $this->SupportTicket->id;
                         $emailTicket['title'] = $this->data['SupportTicket']['title'];
                         $emailTicket['text']  = $this->data['Support']['text'];
@@ -435,43 +428,50 @@ class SupportTicketsController extends AppController {
                             //генерация e-mail
                             $Email = new CakeEmail();
                             $Email->config('smtp');
-                            $Email->viewVars(array('ticket' => $emailTicket,
-                                                   'user' => $user['User'],
-                                                   'servers' => @$emailServers));
+                            $Email->viewVars(['ticket'  => $emailTicket,
+                                              'user'    => $user['User'],
+                                              'servers' => @$emailServers]);
                             $Email->template('new_ticket_notify', 'default')
                                   ->emailFormat('text')
-                                  ->from(array('robot-no-answer@ghmanager.local' => 'GHmanager email robot'))
+                                  ->from(['robot-no-answer@ghmanager.local' => 'GHmanager email robot'])
                                   ->to('support@ghmanager.local')
                                   ->subject('Создан тикет #'.$this->SupportTicket->id.": ".$this->data['SupportTicket']['title'])
                                   ->send();
 
-                            $this->Session->setFlash('Тикет создан. Ожидайте ответа в ближайшее время.', 'flash_success');
+                            $this->Session->setFlash('Тикет создан. Ожидайте ответа в ближайшее время.', 'v2/flash_success');
 
                         } catch (Exception $e) {
-                            $this->Session->setFlash(sprintf('Тикет создан, но не удалось отправить уведомление администраторам. Ошибка "%s". Тем не менее, если вы не получите ответа в ближайшее время, свяжитесь с техподдержкой напрямую.', $e->getMessage()), 'flash_error');
+                            $this->Session->setFlash(sprintf('Тикет создан, но не удалось отправить уведомление администраторам. Ошибка "%s". Тем не менее, если вы не получите ответа в ближайшее время, свяжитесь с техподдержкой напрямую.', $e->getMessage()), 'v2/flash_warning');
                         }
 
-                        $this->redirect(array('action' => 'index'));
-                    } else {
-                        $this->Session->setFlash('Возникла ошибка при сохранении тикета, попробуйте позже или ' .
-                                                 'свяжитесь с техподдержкой по e-mail: support@teamserver.ru','flash_error');
+                        $this->set('result', 'ok');
+                        $this->set('_serialize', ['result']);
+                        return $this->render();
                     }
-                } else {
-                    $this->Session->setFlash('Не удалось сохранить сообщение.', 'flash_error');
+                    else
+                    {
+                        $errors[] = 'Возникла ошибка при сохранении тикета, попробуйте позже или ' .
+                                    'свяжитесь с техподдержкой по e-mail: support@ghmanager.local';
+                    }
+                }
+                else
+                {
+                    $errors = Hash::extract(array_merge($this->SupportTicket->validationErrors,
+                                                        $this->SupportTicket->Support->validationErrors), '{s}.{n}');
                 }
 
             } else {
-                throw new ForbiddenException(__("This is not your server"));
+                $errors[] = __('No servers given in ticket');
             }
         }
 
-//      foreach ( $servers as $serverId => $serverName ) {
-//              if (empty($serverName)) {
-//                  $this->ServerTemplate->id = $serverId;
-//                  $serverTemplate = $this->ServerTemplate->read();
-//                  $servers[$serverId] = "#".$serverId." ".$serverTemplate['GameTemplate'][0]['longname'];
-//              }
-//      }
+
+        if (!empty($errors)){
+            $this->set('error', $errors);
+            $this->set('_serialize', ['error']);
+            return $this->render();
+        }
+
         if (!empty($servers))
         {
             asort($servers);
