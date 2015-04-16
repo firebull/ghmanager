@@ -54,7 +54,7 @@ class SupportTicket extends AppModel {
 			'Support' => ['className' => 'Support',
 						  'fields'    => 'id,readstatus,text,answerBy,answerByName,created',
 						  'limit'     => 256, // =)
-						  'order'     => 'created ASC'
+						  'order'     => 'created DESC'
 						 ]
 					];
 
@@ -80,7 +80,7 @@ class SupportTicketUnread extends AppModel {
 		'Support' => array(
 			'conditions' => ['readstatus' => 'unread'],
 			'fields' => 'id,readstatus,text,answerBy,answerByName,created',
-			'order' => 'created ASC',
+			'order' => 'created DESC',
 			'limit' => '100',
 			'offset' => '',
 			'finderQuery' => '',
@@ -94,8 +94,8 @@ class SupportTicketUnread extends AppModel {
 /*
  * Эта модель для получения пяти последних сообщений
  */
-class SupportTicketFiveLast extends AppModel {
-	public $name = 'SupportTicketFiveLast';
+class SupportTicketTenLast extends AppModel {
+	public $name = 'SupportTicketTenLast';
 	public $displayField = 'title';
 	public $useTable = 'support_tickets';
 
@@ -105,7 +105,7 @@ class SupportTicketFiveLast extends AppModel {
 			'conditions' => '',
 			'fields' => 'id,readstatus,text,answerBy,answerByName,created',
 			'order' => 'created DESC',
-			'limit' => '5',
+			'limit' => '10',
 			'offset' => '',
 			'finderQuery' => '',
 			'deleteQuery' => '',

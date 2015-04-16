@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GH Manager\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2015-04-15 17:49+0300\n"
+"PO-Revision-Date: 2015-04-16 17:53+0300\n"
 "Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
 "Language-Team: RUS <djfirebull@gmail.com>\n"
 "Language: ru\n"
@@ -41,19 +41,53 @@ msgstr ""
 msgid "News was not deleted"
 msgstr ""
 
-#: Controller/SupportTicketsController.php:393
+#: Controller/OrdersController.php:101
+msgid "Order not found"
+msgstr "Заказ не найден"
+
+#: Controller/OrdersController.php:111
+msgid "Access to others servers is denied"
+msgstr "Доступ к чужим серверам запрещен"
+
+#: Controller/OrdersController.php:114
+msgid "Order number not given"
+msgstr "Не указан номер заказа"
+
+#: Controller/SupportTicketsController.php:63
+#: Controller/SupportsController.php:183
+msgid "Access to others tickets is denied"
+msgstr "Доступ к чужим тикетам запрещен"
+
+#: Controller/SupportTicketsController.php:67
+msgid "Ticket not found"
+msgstr "Тикет не найден"
+
+#: Controller/SupportTicketsController.php:408
 msgid "This is not your server"
 msgstr "Это чужой сервер"
 
-#: Controller/SupportTicketsController.php:464
+#: Controller/SupportTicketsController.php:479
 msgid "No servers given in ticket"
 msgstr "Вы не указали ни одного сервера"
+
+#: Controller/SupportsController.php:155
+msgid "Reply was sent, unread messages marked as read."
+msgstr "Ваш ответ отправлен, непрочитанные сообщения помечены прочитанными."
+
+#: Controller/SupportsController.php:160
+msgid ""
+"Reply was saved, but could not send message to admins. Error \"%s\". Please, "
+"contact support if you wont recieve a message soon."
+msgstr ""
+"Ответ сохранён, но не удалось отправить уведомление администраторам. Ошибка "
+"\"%s\". Тем не менее, если вы не получите ответа в ближайшее время, "
+"свяжитесь с техподдержкой напрямую."
 
 #: View/Elements/support_menu.ctp:14
 msgid "Tickets"
 msgstr "Тикеты"
 
-#: View/Elements/support_menu.ctp:19 View/Supports/help.ctp:4
+#: View/Elements/support_menu.ctp:19 View/Supports/help.ctp:9
 msgid "Help"
 msgstr "Помощь"
 
@@ -75,7 +109,7 @@ msgstr ""
 msgid "Send"
 msgstr "Отправить"
 
-#: View/SupportTickets/add.ctp:58 View/SupportTickets/index.ctp:34
+#: View/SupportTickets/add.ctp:58 View/SupportTickets/index.ctp:142
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -87,17 +121,65 @@ msgstr "Пожалуйста, напишите заголовок Тикета"
 msgid "Please, enter problem description"
 msgstr "Пожалуйста, напишите описание проблемы"
 
-#: View/SupportTickets/index.ctp:14
+#: View/SupportTickets/index.ctp:15;17
+msgid "Create new ticket"
+msgstr "Создать новый тикет"
+
+#: View/SupportTickets/index.ctp:23
+msgid "No ticket yet"
+msgstr "У вас нет ни одного тикета"
+
+#: View/SupportTickets/index.ctp:38
+msgid "Loading tickets"
+msgstr "Загружаю тикеты"
+
+#: View/SupportTickets/index.ctp:40
 msgid "Opened tickets"
 msgstr "Открытые тикеты"
 
-#: View/SupportTickets/index.ctp:16
+#: View/SupportTickets/index.ctp:47
 msgid "Closed tickets"
 msgstr "Закрытые тикеты"
 
-#: View/SupportTickets/index.ctp:23;25
-msgid "Create new ticket"
-msgstr "Создать новый тикет"
+#: View/SupportTickets/index.ctp:56
+msgid "Loading thread"
+msgstr "Загружаю переписку"
+
+#: View/SupportTickets/index.ctp:75
+msgid "messages"
+msgstr "сообщений"
+
+#: View/SupportTickets/index.ctp:80;85
+msgid "unread"
+msgstr "непрочитанных"
+
+#: View/SupportTickets/index.ctp:103
+msgid "Thread"
+msgstr "Переписка"
+
+#: View/SupportTickets/index.ctp:122
+msgid "Type your message here"
+msgstr "Напишите свой ответ тут"
+
+#: View/SupportTickets/index.ctp:125
+msgid "Add Reply"
+msgstr "Добавить ответ"
+
+#: View/SupportTickets/index.ctp:312
+msgid "Open"
+msgstr "Открытый"
+
+#: View/SupportTickets/index.ctp:312
+msgid "Closed"
+msgstr "Закрытый"
+
+#: View/SupportTickets/index.ctp:333
+msgid "Tech support"
+msgstr "Техподдержка"
+
+#: View/SupportTickets/index.ctp:335
+msgid "You"
+msgstr "Вы"
 
 #: View/Supports/edit.ctp:4
 msgid "Edit Support"
@@ -277,9 +359,6 @@ msgstr "Может быть только true или false"
 #: Model/VoiceMumbleParam.php:validation for field registerUrl
 msgid "Must be hyperlink"
 msgstr "Может быть только ссылка"
-
-#~ msgid "Support"
-#~ msgstr "Техподдержка"
 
 #~ msgid "Status"
 #~ msgstr "Статус"

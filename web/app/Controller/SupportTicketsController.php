@@ -44,7 +44,7 @@ class SupportTicketsController extends AppController {
 
          if ($ticket) {
             // Проверим  - владееет ли пользователь сессии этим сервером?
-            if (  @$ticket['User'][0]['id'] == $sessionUserId // Да, владеет
+            if (  @$ticket['User']['id'] == $sessionUserId // Да, владеет
                     ||
                   in_array($sessionUserGroup, array(1,2)) // Это администратор
                 ) {
@@ -60,13 +60,11 @@ class SupportTicketsController extends AppController {
                 }
                 else // Нет, не владеет
                 {
-                    $this->Session->setFlash('Вы пытаетесь прочесть чужой тикет. Ай-ай-ай!.', 'flash_error');
-                    return false;
+                    throw new ForbiddenException(__("Access to others tickets is denied"));
                 }
 
          } else {
-                $this->Session->setFlash('Тикета не существует.', 'flash_error');
-                return false;
+                throw new NotFoundException(__("Ticket not found"));
          }
 
     }
@@ -142,12 +140,21 @@ class SupportTicketsController extends AppController {
         $this->SupportTicket->contain(['Server' => ['fields' => ['id', 'status', 'initialised', 'payedTill']]]);
 
         $this->paginate = ['limit'  => 50,
-                           'fields' => ['id', 'status', 'title', 'unread_user_count', 'created', 'modified'],
+                           'fields' => ['id', 'status', 'title', 'supports_count', 'unread_user_count', 'created', 'modified'],
                            'order'  => 'status DESC, created DESC',
                            'conditions' => ['id' => Hash::extract($userTickets, 'SupportTicket.{n}.id')]];
 
-        $this->set('tickets', $this->paginate());
-        $this->set('_serialize', ['tickets']);
+        $tickets = $this->paginate();
+        $serversIds = array_unique(Hash::extract($tickets, '{n}.Server.{n}.id'));
+
+        $this->SupportTicket->Server->contain(['GameTemplate' => ['name', 'longname']]);
+        $serversTemplates = $this->SupportTicket->Server->find('all', ['conditions' => ['id' => $serversIds],
+                                                                       'fields' => 'id']);
+
+        $this->set('serversTemplates', Hash::combine($serversTemplates, '{n}.Server.id', '{n}.GameTemplate.{n}'));
+
+        $this->set('tickets', $tickets);
+        $this->set('_serialize', ['tickets', 'serversTemplates']);
     }
 
     public function control() {
@@ -283,16 +290,16 @@ class SupportTicketsController extends AppController {
      * Изначально загружать только непрочитанные сообщения.
      * Если пользователь захочет, то по запросу загрузить все.
      */
-    public function view($id = null, $type = 'unread') {
+    public function view($id = null, $type = 'last') {
 
         if ($this->checkRights($id)) {
 
-            if ($type === 'unread') {
-                $this->loadModel('SupportTicketFiveLast');
-                $ticket = $this->SupportTicketFiveLast->read(null, $id);
+            if ($type === 'last') {
+                $this->loadModel('SupportTicketTenLast');
+                $ticket = $this->SupportTicketTenLast->read(null, $id);
                 asort($ticket['Support']);
-                $ticketStatus = $ticket['SupportTicketFiveLast']['status'];
-                $comment = @$ticket['SupportTicketFiveLast']['internal_comment'];
+                $ticketStatus = $ticket['SupportTicketTenLast']['status'];
+                $comment = @$ticket['SupportTicketTenLast']['internal_comment'];
             } elseif ($type === 'all') {
                 $ticket = $this->SupportTicket->read(null, $id);
                 $ticketStatus = $ticket['SupportTicket']['status'];
@@ -300,11 +307,12 @@ class SupportTicketsController extends AppController {
             }
 
             $thread = $ticket['Support'];
-            $this->set('thread', $thread);
+
             $this->set('id', $id);
             $this->set('ticketStatus', $ticketStatus);
 
             if ($this->isAdmin === true) {
+                $this->set('thread', $thread);
                 $this->set('int_comments', @json_decode($comment, true));
 
                 // Получить список админов
@@ -342,6 +350,13 @@ class SupportTicketsController extends AppController {
                 $this->set('admins', $admins);
 
             }
+            else
+            {
+                $thread = Hash::sort($thread, '{n}.created', 'ASC');
+                $this->set('thread', Hash::remove($thread, '{n}.answerByName'));
+            }
+
+            $this->set('_serialize', ['ticketStatus', 'thread', 'int_comments', 'admins']);
 
         }
     }

@@ -115,20 +115,23 @@ class UsersController extends AppController {
         if (!empty($this->data)) {
             // Сначала проверить капчу
             if ($this->data['User']['ver_code']==$this->Session->read('ver_code')) {
-                $this->User->data = $this->data;
                 // Генерация токена, по которому будет подтвержден e-mail
                 $hash = md5($this->data['User']['username'].rand(23658,8000064000).time());
-                $this->User->data['User']['tokenhash'] = $hash;
-                /*
-                 * Валидация введённых данных. Повторная.
-                 * Хоть и проверяются данные скриптом в форме,
-                 * но псевдохакеров полно, да и скриптов тоже.
-                 */
+
+                // TODO: Add individual salt to password and Hasher
+                $user['User']['username'] = $this->data['User']['username'];
+                $user['User']['tokenhash'] = $hash;
+                $user['User']['email'] = $this->data['User']['email'];
+                $user['Group']['id'] = 3;
+
+                $this->User->set($user);
+
+                // Validate data
                 if ( $this->User->validates())
                 {
-                    $this->data['User']['passwd'] = $this->DarkAuth->hasher($this->data['User']['passwd']);
+                    $user['User']['passwd'] = $this->DarkAuth->hasher($this->data['User']['passwd']);
 
-                    if ($this->User->save($this->data))
+                    if ($this->User->save($user))
                     {
                         try {
                             //генерация e-mail

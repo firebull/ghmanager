@@ -76,6 +76,10 @@ body {
 
 a {cursor: pointer;}
 
+.clear {
+	clear: both;
+}
+
 .fluid {
 	width: 100%;
 }

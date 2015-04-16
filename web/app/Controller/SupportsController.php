@@ -52,75 +52,91 @@ class SupportsController extends AppController {
             if (!$ticketId) {
                 $ticketId = $this->data['SupportTicket']['id'];
             }
-
-            $this->loadModel('SupportTicketUnreadId');
-            $this->SupportTicketUnreadId->bindModel(array(
-                                    'hasAndBelongsToMany' => array(
-                                                                    'Server' => array(),
-                                                                    'User'   => array( 'fields' => 'id, username, email' )
-                                                                   )));
-            $this->SupportTicketUnreadId->id = $ticketId;
-            $ticket = $this->SupportTicketUnreadId->read();
+            $this->Support->SupportTicket->contain(['Server' => [],
+                                                   'User'   => ['fields' => ['id', 'username', 'email']],
+                                                   'Support' => ['conditions' => ['readstatus' => 'unread'],
+                                                                 'fields' => ['id']]
+                                                   ]);
+            $this->Support->SupportTicket->id = $ticketId;
+            $ticket = $this->Support->SupportTicket->read();
 
             $user = $this->DarkAuth->getAllUserInfo();
 
-            /*
-             * Создать массив из ID непрочтённых сообщений
-             */
-            // Сначала проверить права
-            if ($ticket['User'][0]['id'] == $user['User']['id'] // Да, владеет
-                    ||
-                $user['Group'][0]['id'] == 1                        // Это администратор
-                    ||
-                $user['Group'][0]['id'] == 2
-                    ) {
+            if (in_array($user['Group'][0]['id'], [1,2,6])){
+                $isAdmin = true;
+            } else {
+                $isAdmin = false;
+            }
 
-                foreach ( $ticket['Support'] as $unreadMessage ) {
-                    $unreadMessagesIds[] = $unreadMessage['id'];
-                }
+            // Check rights
+            if ($ticket['User']['id'] == $user['User']['id']  or $isAdmin )
+            {
+                $unreadMessagesIds = Hash::extract($ticket['Support'], '{n}.id');
 
-                $this->Support->updateAll(
-                                            array('readstatus' => "'read'"),
-                                            array('id' => $unreadMessagesIds)
+                // Set read status
+                if ($isAdmin){ // For admin
+                    $this->Support->updateAll(['Support.readstatus' => "'read'"],
+                                              ['AND' => ['Support.id' => $unreadMessagesIds,
+                                                         'Support.answerBy' => 'owner']]
                                         );
-                $this->Support->create();
-                $this->request->data['Support']['readstatus'] = 'unread';
-
-                // Убрать всякие теги. Дабы особо умные не пытались передать скрипт техподдержке.
-                $this->request->data['Support']['text'] = strip_tags($this->data['Support']['text']);
+                } else { // For user
+                    $this->Support->updateAll(['Support.readstatus' => "'read'"],
+                                              ['AND' => ['Support.id' => $unreadMessagesIds,
+                                                         'Support.answerBy' => 'support']]
+                                        );
+                }
 
                 // Сохранять напрямую $this->data, полученную от клиента, было глупо =)
-                $supportTicket = array( 'Support' => $this->request->data['Support'],
-                                        'SupportTicket' => array( 'id' => $this->request->data['SupportTicket']['id']));
+                $this->Support->create();
+                $supportMessage['Support']['readstatus'] = 'unread';
+                $supportMessage['Support']['user_id']    = $ticket['User']['id'];
+                $supportMessage['Support']['support_ticket_id'] = $ticketId;
 
-                if ($ticket['User'][0]['id'] == $user['User']['id']) {
-                    $supportTicket['Support']['answerBy'] = 'owner';
+                // Убрать всякие теги. Дабы особо умные не пытались передать скрипт техподдержке.
+                $supportMessage['Support']['text'] = strip_tags($this->data['Support']['text']);
+
+
+                if ($ticket['User']['id'] == $user['User']['id']) {
+                    $supportMessage['Support']['answerBy'] = 'owner';
                 } elseif (in_array($user['Group'][0]['id'], array(1, 2, 6))) {
-                    $supportTicket['Support']['answerBy'] = 'support';
-                    $supportTicket['Support']['answerByName'] = $user['User']['username'];
+                    $supportMessage['Support']['answerBy'] = 'support';
+                    $supportMessage['Support']['answerByName'] = $user['User']['username'];
                 } else {
-                    $supportTicket['Support']['answerBy'] = 'unknown_'.$user['User']['id'];
-                    $supportTicket['Support']['answerByName'] = $user['User']['username'];
+                    $supportMessage['Support']['answerBy'] = 'unknown_'.$user['User']['id'];
+                    $supportMessage['Support']['answerByName'] = $user['User']['username'];
                 }
 
-                if ($this->Support->save($supportTicket)) {
+                if ($this->Support->save($supportMessage)) {
+
+                    // We need to return saved message to render it on page without reload
+                    if ($supportMessage['Support']['answerBy'] == 'owner')
+                    {
+                        $support = $this->Support->find('first', ['conditions' => ['Support.id' => $this->Support->id],
+                                                        'fields' => ['id', 'readstatus', 'support_ticket_id', 'answerBy', 'text', 'created']]);
+                    }
+                    else
+                    if ($supportMessage['Support']['answerBy'] == 'support')
+                    {
+                        $support = $this->Support->read();
+                    }
+
+                    $savedTicket = $support['Support'];
+
                     //генерация e-mail
                     $Email = new CakeEmail();
 
                     if (in_array($user['Group'][0]['id'], array(1, 2, 6))) {
-                        $Email->to($ticket['User'][0]['email']);
+                        $Email->to($ticket['User']['email']);
                         $Email->template('new_ticket_message_notify_client', 'default');
                     } else {
                         $Email->to('support@ghmanager.local');
                         $Email->template('new_ticket_message_notify', 'default');
                     }
 
-                    $emailTicket = $ticket['SupportTicketUnreadId'];
-                    $emailTicket['text'] = $this->request->data['Support']['text'];
+                    $emailTicket = $ticket['SupportTicket'];
+                    $emailTicket['text'] = $supportMessage['Support']['text'];
 
                     //send mail
-                    $this->Session->setFlash('Сообщение отправлено. Непрочтённые сообщения помечены, как прочтённые. <br/>Нажмите "Вывести все сообщения", чтобы увидеть весь тикет.', 'flash_success');
-
                     try {
                         //генерация e-mail
 
@@ -131,24 +147,42 @@ class SupportsController extends AppController {
                         $Email->emailFormat('text')
                               ->from(array('robot-no-answer@ghmanager.local' => 'GHmanager email robot'))
                               ->to('support@ghmanager.local')
-                              ->subject('Новый ответ в тикет #'.$ticketId.": ".$ticket['SupportTicketUnreadId']['title'])
+                              ->subject('Новый ответ в тикет #'.$ticketId.": ".$ticket['SupportTicket']['title'])
                               ->send();
 
-                        $this->Session->setFlash('Сообщение отправлено. Непрочтённые сообщения помечены, как прочтённые. <br/>Нажмите "Вывести все сообщения", чтобы увидеть весь тикет.', 'flash_success');
+                        if ($this->params['ext'] == 'json'){
+                            $this->set('result', ['ok', 'message' => $savedTicket]);
+                        } else {
+                            $this->Session->setFlash(__('Reply was sent, unread messages marked as read.'), 'flash_success');
+                        }
 
                     } catch (Exception $e) {
-                        $this->Session->setFlash(sprintf('Ответ сохранён, но не удалось отправить уведомление администраторам. Ошибка "%s". Тем не менее, если вы не получите ответа в ближайшее время, свяжитесь с техподдержкой напрямую.', $e->getMessage()), 'flash_error');
+                        if ($this->params['ext'] == 'json'){
+                            $this->set('result', ['message' => $savedTicket, 'info' => __('Reply was saved, but could not send message to admins. Error "%s". Please, contact support if you wont recieve a message soon.', $e->getMessage())]);
+                        } else {
+                            $this->Session->setFlash(sprintf('Ответ сохранён, но не удалось отправить уведомление администраторам. Ошибка "%s". Тем не менее, если вы не получите ответа в ближайшее время, свяжитесь с техподдержкой напрямую.', $e->getMessage()), 'flash_warning');
+                        }
+                    }
+                    if ($this->params['ext'] == 'json'){
+                        $this->set('_serialize', ['result']);
+                        return $this->render();
+                    } else {
+                        $this->redirect($this->referer());
+                    }
+                } else {
+                    $errors = $this->Support->validationErrors;
+
+                    if ($this->params['ext'] == 'json'){
+                        $this->set('result', ['error' => $errors]);
+                        $this->set('_serialize', ['result']);
+                        return $this->render();
                     }
 
-                    $this->redirect($this->referer());
-                } else {
                     $this->Session->setFlash('The support could not be saved. Please, try again.', 'flash_error');
                 }
             } else {
-                $this->Session->setFlash('Вы пытаетесь записать в чужой тикет. Ай-ай-ай!.', 'flash_error');
+                throw new ForbiddenException(__("Access to others tickets is denied"));
             }
-        } else {
-            $this->request->data['SupportTicket']['id'] = $ticketId;
         }
     }
 

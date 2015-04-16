@@ -30,6 +30,7 @@ class Support extends AppModel {
 						    		 'fields' => 'id, title',
 						    		 'order' => '',
 									 'counterCache' => [
+									 	'supports_count'      => ['Support.text !=' => "''"],
 				                		'unread_user_count'   => ['Support.readstatus' => 'unread',
 				                		                          'Support.answerBy' => 'support'],
 				                		'unread_admin_count'  => ['Support.readstatus' => 'unread',

@@ -95,27 +95,23 @@ class OrdersController extends AppController {
 
             $this->Order->id = $orderId;
             $order = $this->Order->read();
-            //pr($order);
+
             //Сначала проверить наличие заказа вообще
             if (empty($order)) {
-                $this->Session->setFlash('Такого заказа не существует', 'flash_error');
-                return false;
+                throw new NotFoundException(__("Order not found"));
             }
             //Проверить принадлежность заказа пользователю
             elseif ($order['User']['id'] == $sessionUserId // Да, владеет
-                        or
-                     in_array($sessionUserGroup, array(1,6))                        // Это администратор
-                    ) {
-
-                    return true;
+                        or in_array($sessionUserGroup, array(1,6)) // Это администратор
+                    )
+            {
+                return true;
 
             } else {
-                $this->Session->setFlash('Доступ к чужим заказам запрещен. О действии сообщено администратору.', 'flash_error');
-                return false;
+                throw new ForbiddenException(__("Access to others servers is denied"));
             }
         } else {
-            $this->Session->setFlash('Не указан номер заказа.', 'flash_error');
-            return false;
+            throw new NotFoundException(__("Order number not given"));
         }
 
     }
