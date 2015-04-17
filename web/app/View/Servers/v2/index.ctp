@@ -780,7 +780,11 @@
                         function(data){
                             $('#indexModal .content .description').empty();
                             $('#indexModal .content .description').html(data);
-                            $('#indexModal').modal('show').modal('refresh');
+                            $('#indexModal').modal(
+                            {onHide: function(){
+                                    $('#indexModal .content .description').empty();
+                                    }
+                            }).modal('show').modal('refresh');
 
                             self.loadingModal(false);
                         })

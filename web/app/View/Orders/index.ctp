@@ -200,7 +200,8 @@ if (@$orders){
                         $('#topMenuModal .content .description').html(data);
                         $('#topMenuModal').modal(
                             {onHide: function(){
-                                    window.location.href = "/orders";;
+                                    $('#topMenuModal .content .description').empty();
+                                    window.location.href = "/orders";
                                     }
                             })
                         .modal('show').modal('refresh');

@@ -40,7 +40,7 @@
 	<div class="ui divided list" data-bind="if: installedMods">
 		<!-- ko foreach: {data: installedMods, as: 'item'} -->
 		<div class="item">
-			<div class="right floated compact ui orange button" data-bind="event: {click: $root.action.bind($data, 'install', 'mod', false)}"><i class="repeat icon"></i> Переустановить</div>
+			<div class="right floated compact ui orange button" data-bind="event: {click: $root.action.bind($data, 'reinstall', 'mod', false)}"><i class="repeat icon"></i> Переустановить</div>
 			<i class="green toggle on large icon"></i>
 			<div class="content">
 				<div class="header">
@@ -84,7 +84,7 @@
 		<!-- ko foreach: {data: installedPlugins, as: 'item'} -->
 		<div class="item">
 			<div class="right floated compact ui red icon button" title="Удалить плагин" data-bind="event: {click: $root.action.bind($data, 'delete', 'plugin', false)}"><i class="ban icon"></i></div>
-			<div class="right floated compact ui orange button" data-bind="event: {click: $root.action.bind($data, 'install', 'plugin', false)}"><i class="repeat icon"></i> Переустановить</div>
+			<div class="right floated compact ui orange button" data-bind="event: {click: $root.action.bind($data, 'reinstall', 'plugin', false)}"><i class="repeat icon"></i> Переустановить</div>
 			<i class="toggle on green large icon"></i>
 			<div class="content">
 				<div class="header">
@@ -192,7 +192,13 @@
         				+ this.serverId()
         				+ '/' + addonId
         				+ '.json';
-        	}else {
+        	} else if (action == 'reinstall'){
+                var url = '/servers/pluginInstall/'
+                        + this.serverId()
+                        + '/' + addonId
+                        + '/' + type
+                        + '.json';
+            } else {
         		var url = '/servers/pluginInstall/'
         				+ this.serverId()
         				+ '/' + addonId
@@ -226,8 +232,8 @@
 				        	} else if (action == 'delete') {
 				        		self.installedPlugins.remove(item);
 				        		self.availiablePlugins.unshift(item);
-				        	}else {
-				        		return false;
+				        	} else if (action != 'reinstall'){
+                                return false;
 				        	}
 	                    }
 
