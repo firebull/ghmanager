@@ -66,13 +66,13 @@
                         <div class="clear"></div>
                         <div class="ui small labels">
                             <div class="ui label" data-bind="css: {green: ticket().SupportTicket.status() == 'open', red: ticket().SupportTicket.status() == 'closed'}">
-                                <i class="unlock alternate icon"></i>
+                                <i class=" icon" data-bind="css: {'unlock alternate': ticket().SupportTicket.status() == 'open', 'lock': ticket().SupportTicket.status() == 'closed'}"></i>
                                 <span data-bind="text: ticketStatus()"></span>
                             </div>
                             <div class="ui label">
                                 <i class="mail outline icon"></i>
                                 <span data-bind="text: ticket().SupportTicket.supports_count()"></span>
-                                <?php echo __('messages');?>
+                                <span data-bind="text: getNumEnding(ticket().SupportTicket.supports_count(), messageEndings())"></span>
                             </div>
                             <div class="ui red label" data-bind="visible: ticket().SupportTicket.unread_user_count() > 0">
                                 <i class="mail icon"></i>
@@ -98,36 +98,42 @@
                         </div>
 
                         <!-- /ko -->
-                        <!-- ko if: $(ticket().Thread()).size() > 0 -->
+
                         <div class="ui comments">
-                            <h3 class="ui dividing header"><?php echo __('Thread');?></h3>
-                            <!-- ko foreach: ticket().Thread() -->
-                            <div class="comment">
-                                <div class="avatar">
-                                    <img data-bind="attr: {'src': $root.messageUserpic($data)}"/>
-                                </div>
-                                <div class="content">
-                                    <a class="author" data-bind="text: $root.messageAuthor($data)"></a>
-                                    <div class="metadata">
-                                        <span class="date" data-bind="text: moment(created).fromNow()"></span>
+                            <!-- ko if: $(ticket().Thread()).size() > 0 -->
+                                <h3 class="ui dividing header"><?php echo __('Thread');?></h3>
+                                <div class="ui small fluid button" data-bind="event: {click: getThread.bind(false, 'all')}, visible: ticket().SupportTicket.supports_count() > 10"><?php echo __('Show all messages');?></div>
+                                <!-- ko foreach: ticket().Thread() -->
+                                <div class="comment">
+                                    <div class="avatar">
+                                        <img data-bind="attr: {'src': $root.messageUserpic($data)}"/>
                                     </div>
-                                    <div class="text" data-bind="text: text">
+                                    <div class="content">
+                                        <a class="author" data-bind="text: $root.messageAuthor($data)"></a>
+                                        <div class="metadata">
+                                            <span class="date" data-bind="text: moment(created).fromNow()"></span>
+                                        </div>
+                                        <div class="text" data-bind="text: text">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                                <!-- /ko -->
                             <!-- /ko -->
-                            <form class="ui reply form" id="replyForm">
-                                <div class="field">
-                                    <input type="hidden" name="data[SupportTicket][id]" id="SupportTicketId" data-bind="attr: {'value': ticket().SupportTicket.id}">
-                                    <textarea name="data[Support][text]" id="replyText" placeholder="<?php echo __('Type your message here');?>"></textarea>
-                                </div>
-                                <div class="ui blue labeled submit icon button" data-bind="event: {click: sendReply.bind(false)}">
-                                  <i class="icon edit"></i> <?php echo __('Add Reply');?>
-                                </div>
-                            </form>
+                                <form class="ui reply form" id="replyForm" data-bind="visible: ticket().SupportTicket.status() == 'open'">
+                                    <div class="field">
+                                        <textarea name="data[Support][text]" id="replyText"></textarea>
+                                    </div>
+                                    <div class="ui blue labeled submit icon button" data-bind="event: {click: sendReply.bind(false)}">
+                                      <i class="icon edit"></i> <?php echo __('Add Reply');?>
+                                    </div>
+                                    <div class="ui red labeled submit icon button" data-bind="event: {click: closeTicket.bind(false)}">
+                                      <i class="icon ban"></i> <?php echo __('Close ticket');?>
+                                    </div>
+                                </form>
                         </div>
-                        <!-- /ko -->
+
                     <!-- /ko -->
+
                     </div>
                 </div>
             </div>
@@ -160,7 +166,7 @@
     </div>
 </script>
 <script type="text/javascript" language="javascript">
-        moment.locale('ru');
+        moment.locale('ru'); // TODO: Set global locale
 
         var ticketsViewModel = function(){
 
@@ -177,6 +183,10 @@
         this.closedTicketsList = ko.observableArray();
         this.serversTemplates = [];
 
+        this.messageEndings = ko.observableArray([  'сообщение',
+                                                    'сообщения',
+                                                    'сообщений' ]);
+
         this.showTicket = function(data){
             var self = this;
             var newData = data;
@@ -185,15 +195,16 @@
 
             self.ticketId(data.SupportTicket.id);
             self.ticket(newData);
-            self.getThread();
+            self.getThread('last');
 
         }.bind(this);
 
-        this.getThread = function(){
+        this.getThread = function(type){
             var self = this;
-            var url = '/SupportTickets/view/' + self.ticket().SupportTicket.id + '/.json';
+            var url = '/SupportTickets/view/' + self.ticket().SupportTicket.id + '/'+ type + '.json';
 
             self.loadingTicket(true);
+            self.ticket().Thread([]);
 
             $.get( url )
              .done(
@@ -203,19 +214,22 @@
                         }
                         else
                         {
-                            if (answer.ticketStatus !== undefined
-                                    && answer.ticketStatus == 'closed'
+                            if (answer.ticketStatus.status !== undefined
+                                    && answer.ticketStatus.status == 'closed'
                                     && self.ticket().SupportTicket.status() == 'open'){
                                 self.openedTicketsList.remove(data);
                                 self.ticket().SupportTicket.status('closed');
                                 self.closedTicketsList.unshift(self.ticket());
                             }
 
+                            if (answer.ticketStatus.status !== undefined) {
+                                self.ticket().SupportTicket.supports_count(answer.ticketStatus.supports_count);
+                                self.ticket().SupportTicket.unread_user_count(answer.ticketStatus.unread_user_count);
+                            }
+
                             $.each(answer.thread, function(id, item){
                                 self.ticket().Thread.push(item);
                             });
-
-
                         }
 
                         self.loadingTicket(false);
@@ -228,6 +242,9 @@
                     self.errors.push(answer);
                     self.loadingTicket(false);
                 }
+             })
+             .always(function(){
+
              });
 
         }.bind(this);
@@ -235,9 +252,13 @@
         this.sendReply = function(){
             var self = this;
 
+            if ($('#replyText').val().length <= 0){
+                return false;
+            }
+
             self.loadingTicket(true);
 
-            $.post('/supports/add.json', $('#replyForm').serialize() )
+            $.post('/supports/add/'+ self.ticketId() +'.json', $('#replyForm').serialize() )
              .done(
                     function(data){
                         answer = data.result;
@@ -250,15 +271,20 @@
                                 if ($.isArray(answer.info)){
                                     self.infos(answer.info);
                                 } else {
+                                    self.infos([]);
                                     self.infos.push(answer.info);
                                 }
                             }
 
                             if (answer.message !== undefined){
                                 self.ticket().Thread.push(answer.message);
+                                self.ticket().SupportTicket.supports_count(answer.message.supports_count);
+                                self.ticket().SupportTicket.unread_user_count(answer.message.unread_user_count);
+
                             }
 
                             $('#replyText').val('');
+
                         }
 
                         self.loadingTicket(false);
@@ -267,7 +293,11 @@
                 if (data.status == 401){
                     window.location.href = "/users/login";
                 } else {
-                    answer = "HTTP Error: " + statusText;
+                    if (data.responseJSON.message !== undefined){
+                        answer = "HTTP Error " + data.status + ' ' + statusText + ': ' + data.responseJSON.message;
+                    } else {
+                        answer = "HTTP Error: " + statusText;
+                    }
                     self.errors.push(answer);
                     self.loadingTicket(false);
                 }
@@ -275,12 +305,38 @@
 
         }.bind(this);
 
+        this.closeTicket = function(){
+            var self = this;
+
+            swal({
+              title: "<?php echo __('Are you sure?');?>",
+              text: "<?php echo __('If you close the ticket you wont be able to write answers in the ticket and Support wont be able to answer you too!');?>",
+              type: "warning",
+              showCancelButton: true,
+              closeOnConfirm: false,
+              confirmButtonText: "<?php echo __('Yes, close the ticket');?>",
+              cancelButtonText: "<?php echo __('No');?>",
+              confirmButtonColor: "#ec6c62"
+            }, function() {
+              $.ajax({
+                url: "/SupportTickets/closeTicket/" + self.ticketId(),
+                type: "PUT"
+              })
+              .done(function(data) {
+                swal("<?php echo __('Closed!');?>", "<?php echo __('Ticket closed successfully');?>", "success");
+                window.location.href = "/SupportTickets";
+              })
+              .error(function(data) {
+                swal("<?php echo __('Error!');?>", "<?php echo __('Could not connect to the server!');?>", "error");
+              });
+            });
+        }.bind(this);
+
         this.showModal = function(size, title, bodyUrl, data){
             var self = this;
 
             $('#ticketsModal').removeClass('small large fullscreen').addClass(size);
             $('#ticketsModal .header').html(title);
-
 
             self.loading(true);
 
@@ -380,7 +436,7 @@
                 self.loading(false);
                 $('#maps').attr('style', '')
                 $('#indexModal').modal('show');
-                //$('.popup-titles').popup({inline: true, position: 'bottom left'});
+
              });
         }.bind(this);
 
@@ -390,7 +446,33 @@
 
     ko.applyBindings(new ticketsViewModel(), document.getElementById("tickets"));
 
+        /**
+     * Функция возвращает окончание для множественного числа слова на основании числа и массива окончаний
+     * @param  iNumber Integer Число на основе которого нужно сформировать окончание
+     * @param  aEndings Array Массив слов или окончаний для чисел (1, 4, 5),
+     *         например ['яблоко', 'яблока', 'яблок']
+     * @return String
+     */
+    function getNumEnding(iNumber, aEndings)
+    {
+        var sEnding, i;
+        iNumber = iNumber % 100;
+        if (iNumber>=11 && iNumber<=19) {
+            sEnding=aEndings[2];
+        }
+        else {
+            i = iNumber % 10;
+            switch (i)
+            {
+                case (1): sEnding = aEndings[0]; break;
+                case (2):
+                case (3):
+                case (4): sEnding = aEndings[1]; break;
+                default: sEnding = aEndings[2];
+            }
+        }
+        return sEnding;
+    }
+
 </script>
-<?php
-            echo $this->Js->writeBuffer(); // Write cached scripts
-?>
+

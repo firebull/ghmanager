@@ -95,7 +95,7 @@ class SupportTicketUnread extends AppModel {
  * Эта модель для получения пяти последних сообщений
  */
 class SupportTicketTenLast extends AppModel {
-	public $name = 'SupportTicketTenLast';
+	public $name = 'SupportTicket';
 	public $displayField = 'title';
 	public $useTable = 'support_tickets';
 

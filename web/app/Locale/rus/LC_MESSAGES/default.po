@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GH Manager\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2015-04-16 17:53+0300\n"
+"PO-Revision-Date: 2015-04-17 15:56+0300\n"
 "Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
 "Language-Team: RUS <djfirebull@gmail.com>\n"
 "Language: ru\n"
@@ -54,7 +54,7 @@ msgid "Order number not given"
 msgstr "Не указан номер заказа"
 
 #: Controller/SupportTicketsController.php:63
-#: Controller/SupportsController.php:183
+#: Controller/SupportsController.php:212
 msgid "Access to others tickets is denied"
 msgstr "Доступ к чужим тикетам запрещен"
 
@@ -62,19 +62,35 @@ msgstr "Доступ к чужим тикетам запрещен"
 msgid "Ticket not found"
 msgstr "Тикет не найден"
 
-#: Controller/SupportTicketsController.php:408
+#: Controller/SupportTicketsController.php:418
 msgid "This is not your server"
 msgstr "Это чужой сервер"
 
-#: Controller/SupportTicketsController.php:479
+#: Controller/SupportTicketsController.php:489
 msgid "No servers given in ticket"
 msgstr "Вы не указали ни одного сервера"
 
-#: Controller/SupportsController.php:155
+#: Controller/SupportTicketsController.php:534
+msgid "Could not close the ticket. Try again later."
+msgstr "Не удалось закрыть тикет. Попробуйте позднее."
+
+#: Controller/SupportsController.php:56
+msgid "No Ticket id"
+msgstr "Не задан ID тикета"
+
+#: Controller/SupportsController.php:64
+msgid "Message is empty"
+msgstr "В сообщении отсутствует текст"
+
+#: Controller/SupportsController.php:77
+msgid "Ticket is closed"
+msgstr "Тикет закрыт"
+
+#: Controller/SupportsController.php:182
 msgid "Reply was sent, unread messages marked as read."
 msgstr "Ваш ответ отправлен, непрочитанные сообщения помечены прочитанными."
 
-#: Controller/SupportsController.php:160
+#: Controller/SupportsController.php:187
 msgid ""
 "Reply was saved, but could not send message to admins. Error \"%s\". Please, "
 "contact support if you wont recieve a message soon."
@@ -82,6 +98,18 @@ msgstr ""
 "Ответ сохранён, но не удалось отправить уведомление администраторам. Ошибка "
 "\"%s\". Тем не менее, если вы не получите ответа в ближайшее время, "
 "свяжитесь с техподдержкой напрямую."
+
+#: Plugin/HtmlPurifier/Lib/Purifier.php:48
+msgid "Configuration %s does not exist!"
+msgstr ""
+
+#: Plugin/HtmlPurifier/Lib/Purifier.php:78
+msgid "Configuration and instance %s does not exist!"
+msgstr ""
+
+#: Plugin/HtmlPurifier/Lib/Purifier.php:96
+msgid "Invalid configuration %s!"
+msgstr ""
 
 #: View/Elements/support_menu.ctp:14
 msgid "Tickets"
@@ -109,7 +137,7 @@ msgstr ""
 msgid "Send"
 msgstr "Отправить"
 
-#: View/SupportTickets/add.ctp:58 View/SupportTickets/index.ctp:142
+#: View/SupportTickets/add.ctp:58 View/SupportTickets/index.ctp:148
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -145,39 +173,75 @@ msgstr "Закрытые тикеты"
 msgid "Loading thread"
 msgstr "Загружаю переписку"
 
-#: View/SupportTickets/index.ctp:75
-msgid "messages"
-msgstr "сообщений"
-
 #: View/SupportTickets/index.ctp:80;85
 msgid "unread"
 msgstr "непрочитанных"
 
-#: View/SupportTickets/index.ctp:103
+#: View/SupportTickets/index.ctp:104
 msgid "Thread"
 msgstr "Переписка"
 
-#: View/SupportTickets/index.ctp:122
-msgid "Type your message here"
-msgstr "Напишите свой ответ тут"
+#: View/SupportTickets/index.ctp:105
+msgid "Show all messages"
+msgstr "Показать все сообщения"
 
-#: View/SupportTickets/index.ctp:125
+#: View/SupportTickets/index.ctp:127
 msgid "Add Reply"
 msgstr "Добавить ответ"
 
+#: View/SupportTickets/index.ctp:130
+msgid "Close ticket"
+msgstr "Закрыть тикеты"
+
 #: View/SupportTickets/index.ctp:312
+msgid "Are you sure?"
+msgstr "Вы уверены?"
+
+#: View/SupportTickets/index.ctp:313
+msgid ""
+"If you close the ticket you wont be able to write answers in the ticket and "
+"Support wont be able to answer you too!"
+msgstr ""
+"Если вы закроете тикет, в него нельзя будет писать сообщения никому и даже "
+"Техподдержка не сможет вам ответить!"
+
+#: View/SupportTickets/index.ctp:317
+msgid "Yes, close the ticket"
+msgstr "Да, закрыть тикет"
+
+#: View/SupportTickets/index.ctp:318
+msgid "No"
+msgstr "Нет"
+
+#: View/SupportTickets/index.ctp:326
+msgid "Closed!"
+msgstr "Закрыт!"
+
+#: View/SupportTickets/index.ctp:326
+msgid "Ticket closed successfully"
+msgstr "Тикет закрыт успешно"
+
+#: View/SupportTickets/index.ctp:330
+msgid "Error!"
+msgstr "Ошибка!"
+
+#: View/SupportTickets/index.ctp:330
+msgid "Could not connect to the server!"
+msgstr "Не уадлось соединиться с сервером!"
+
+#: View/SupportTickets/index.ctp:368
 msgid "Open"
 msgstr "Открытый"
 
-#: View/SupportTickets/index.ctp:312
+#: View/SupportTickets/index.ctp:368
 msgid "Closed"
 msgstr "Закрытый"
 
-#: View/SupportTickets/index.ctp:333
+#: View/SupportTickets/index.ctp:389
 msgid "Tech support"
 msgstr "Техподдержка"
 
-#: View/SupportTickets/index.ctp:335
+#: View/SupportTickets/index.ctp:391
 msgid "You"
 msgstr "Вы"
 
@@ -359,6 +423,9 @@ msgstr "Может быть только true или false"
 #: Model/VoiceMumbleParam.php:validation for field registerUrl
 msgid "Must be hyperlink"
 msgstr "Может быть только ссылка"
+
+#~ msgid "Type your message here"
+#~ msgstr "Напишите свой ответ тут"
 
 #~ msgid "Status"
 #~ msgstr "Статус"

@@ -88,6 +88,17 @@ spl_autoload_register(function ($class) {
 
 CakePlugin::load('Markdown');
 
+CakePlugin::load('HtmlPurifier', array('bootstrap' => true));
+
+Purifier::config('basic', array(
+        'HTML.AllowedElements' => 'blockquote, p, strong, code, ul, ol, li, hr, br',
+        'HTML.AllowedAttributes' => 'a.href, a.title'
+    )
+);
+
+Purifier::config('cleanup', ['HTML.AllowedElements' => []]);
+
+
 // Common params for vendoring
 App::uses('IniReader', 'Configure');
 

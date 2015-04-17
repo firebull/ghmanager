@@ -294,24 +294,32 @@ class SupportTicketsController extends AppController {
 
         if ($this->checkRights($id)) {
 
+            $this->SupportTicket->id = $id;
+
             if ($type === 'last') {
-                $this->loadModel('SupportTicketTenLast');
-                $ticket = $this->SupportTicketTenLast->read(null, $id);
-                asort($ticket['Support']);
-                $ticketStatus = $ticket['SupportTicketTenLast']['status'];
-                $comment = @$ticket['SupportTicketTenLast']['internal_comment'];
+                $this->SupportTicket->contain(['Support' => ['fields' => ['id','readstatus','text','answerBy','answerByName','created'],
+                                                             'order' => 'created DESC',
+                                                             'limit' => 10]]);
+
             } elseif ($type === 'all') {
-                $ticket = $this->SupportTicket->read(null, $id);
-                $ticketStatus = $ticket['SupportTicket']['status'];
-                $comment = @$ticket['SupportTicket']['internal_comment'];
+                $this->SupportTicket->contain(['Support' => ['fields' => ['id','readstatus','text','answerBy','answerByName','created'],
+                                                             'order' => 'created DESC',
+                                                             'limit' => 1000]]);
             }
+
+            $ticket = $this->SupportTicket->read();
 
             $thread = $ticket['Support'];
 
+            $ticketStatus['status'] = $ticket['SupportTicket']['status'];
+            $comment = @$ticket['SupportTicket']['internal_comment'];
+
             $this->set('id', $id);
-            $this->set('ticketStatus', $ticketStatus);
+            $ticketStatus['supports_count'] = $ticket['SupportTicket']['supports_count'];
+            $ticketStatus['unread_user_count'] = $ticket['SupportTicket']['unread_user_count'];
 
             if ($this->isAdmin === true) {
+                $ticketStatus['unread_admin_count'] = $ticket['SupportTicket']['unread_admin_count'];
                 $this->set('thread', $thread);
                 $this->set('int_comments', @json_decode($comment, true));
 
@@ -355,6 +363,8 @@ class SupportTicketsController extends AppController {
                 $thread = Hash::sort($thread, '{n}.created', 'ASC');
                 $this->set('thread', Hash::remove($thread, '{n}.answerByName'));
             }
+
+            $this->set('ticketStatus', $ticketStatus);
 
             $this->set('_serialize', ['ticketStatus', 'thread', 'int_comments', 'admins']);
 
@@ -513,17 +523,25 @@ class SupportTicketsController extends AppController {
                 }
 
                 $this->Support->updateAll(
-                                            array('readstatus' => "'read'"),
-                                            array('id' => $unreadMessagesIds)
+                                            array('Support.readstatus' => "'read'"),
+                                            array('Support.id' => $unreadMessagesIds)
                                         );
 
                 $this->Session->setFlash('Тикет закрыт.', 'flash_success');
+                $this->set('result', 'ok');
             } else {
                 $this->Session->setFlash('Возникла ошибка при закрытии тикета. Попробуйте позднее.', 'flash_error');
+                $this->set('result', ['error' => __('Could not close the ticket. Try again later.')]);
             }
 
         // Очистить кэш
         Cache::delete('ticketsHeaders');
+
+        if ($this->params['ext'] == 'json'){
+            $this->set('_serialize', ['result']);
+            return $this->render();
+        }
+
         $this->redirect($this->referer());
 
         }

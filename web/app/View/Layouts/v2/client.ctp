@@ -49,7 +49,7 @@
 
 		echo $this->Html->script(array(
 			'jquery-2.1.3.js',
-			//'jquery-ui.1.11.3.js',
+			'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js',
 			'knockout-3.3.0.js',
 			'semantic.1.11.6.js',
 			'codemirror/codemirror',
@@ -91,7 +91,7 @@
 
 	echo $this->Html->script(array (
 		'pass'
-		,'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js'
+		//,'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js'
 		,'jquery.tipTip.minified'
 		,'jquery.showLoading.min.js'
 		,'jquery.validationEngine.js'

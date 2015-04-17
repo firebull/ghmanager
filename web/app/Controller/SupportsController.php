@@ -47,11 +47,24 @@ class SupportsController extends AppController {
         /*
          * Предварительно необходимо пометить все сообщения в тикете, как прочитанные
          */
-        if (!empty($this->data)) {
+        if ($this->request->is(['post'])) {
 
             if (!$ticketId) {
-                $ticketId = $this->data['SupportTicket']['id'];
+                if (!empty($this->data['SupportTicket']['id'])){
+                    $ticketId = intval($this->data['SupportTicket']['id']);
+                } else {
+                    throw new BadRequestException(__("No Ticket id"));
+                }
             }
+
+            $this->request->data['Support']['text'] = trim(Purifier::clean($this->request->data['Support']['text'], 'cleanup'));
+
+            if (empty($this->request->data['Support']['text']))
+            {
+                throw new BadRequestException(__("Message is empty"));
+            }
+
+
             $this->Support->SupportTicket->contain(['Server' => [],
                                                    'User'   => ['fields' => ['id', 'username', 'email']],
                                                    'Support' => ['conditions' => ['readstatus' => 'unread'],
@@ -59,6 +72,10 @@ class SupportsController extends AppController {
                                                    ]);
             $this->Support->SupportTicket->id = $ticketId;
             $ticket = $this->Support->SupportTicket->read();
+
+            if ($ticket['SupportTicket']['status'] == 'closed'){
+                throw new BadRequestException(__("Ticket is closed"));
+            }
 
             $user = $this->DarkAuth->getAllUserInfo();
 
@@ -93,7 +110,7 @@ class SupportsController extends AppController {
                 $supportMessage['Support']['support_ticket_id'] = $ticketId;
 
                 // Убрать всякие теги. Дабы особо умные не пытались передать скрипт техподдержке.
-                $supportMessage['Support']['text'] = strip_tags($this->data['Support']['text']);
+                $supportMessage['Support']['text'] = $this->request->data['Support']['text'];
 
 
                 if ($ticket['User']['id'] == $user['User']['id']) {
@@ -112,15 +129,24 @@ class SupportsController extends AppController {
                     if ($supportMessage['Support']['answerBy'] == 'owner')
                     {
                         $support = $this->Support->find('first', ['conditions' => ['Support.id' => $this->Support->id],
-                                                        'fields' => ['id', 'readstatus', 'support_ticket_id', 'answerBy', 'text', 'created']]);
+                                                        'fields' => ['id', 'readstatus', 'support_ticket_id', 'answerBy', 'text', 'created',
+                                                                     'SupportTicket.supports_count', 'SupportTicket.unread_user_count']]);
                     }
                     else
                     if ($supportMessage['Support']['answerBy'] == 'support')
                     {
-                        $support = $this->Support->read();
+                        $support = $this->Support->find('first', ['conditions' => ['Support.id' => $this->Support->id],
+                                                        'fields' => ['id', 'readstatus', 'support_ticket_id', 'answerBy', 'answerByName', 'text', 'created',
+                                                                     'SupportTicket.supports_count', 'SupportTicket.unread_user_count', 'SupportTicket.unread_admin_count']]);
                     }
 
                     $savedTicket = $support['Support'];
+                    $savedTicket['supports_count'] = $support['SupportTicket']['supports_count'];
+                    $savedTicket['unread_user_count'] = $support['SupportTicket']['unread_user_count'];
+
+                    if ($supportMessage['Support']['answerBy'] == 'support'){
+                        $savedTicket['unread_admin_count'] = $support['SupportTicket']['unread_admin_count'];
+                    }
 
                     //генерация e-mail
                     $Email = new CakeEmail();
@@ -163,7 +189,9 @@ class SupportsController extends AppController {
                             $this->Session->setFlash(sprintf('Ответ сохранён, но не удалось отправить уведомление администраторам. Ошибка "%s". Тем не менее, если вы не получите ответа в ближайшее время, свяжитесь с техподдержкой напрямую.', $e->getMessage()), 'flash_warning');
                         }
                     }
+
                     if ($this->params['ext'] == 'json'){
+
                         $this->set('_serialize', ['result']);
                         return $this->render();
                     } else {
