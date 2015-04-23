@@ -19,7 +19,7 @@ Lesser General Public License for more details.
 
 class TeamServerComponent extends Component {
 
-	public $components = array('DarkAuth', 'Email');
+	public $components = array('DarkAuth', 'Email', 'Session');
 
 	function initialize(Controller $controller, $settings = array()) {
 		$this->controller = $controller;
@@ -100,14 +100,40 @@ class TeamServerComponent extends Component {
 	// For now func is very simple - get it from ghmanager.ini.php
 	function setLang() {
 
-		if (!$currentLang = Configure::read('Panel.language'))
+		if (!$this->Session->read('Config.language'))
+        {
+			if (!$currentLang = Configure::read('Panel.language'))
+			{
+				$currentLang = 'eng';
+			}
+
+			Configure::write('Config.language', $currentLang);
+			$this->Session->write('Config.language', $currentLang);
+		}
+		else
 		{
-			$currentLang = 'eng';
+			$currentLang = $this->Session->read('Config.language');
+            Configure::write('Config.language', $currentLang);
 		}
 
-		Configure::write('Config.language', $currentLang);
-
 		return true;
+	}
+
+	//Return short of long locale set
+	//Short: ru, en, etc.
+	//Long: rus, eng, etc.
+	function getLang($length = 'short'){
+		if (!$this->Session->read('Config.language')){
+        	$lang = 'eng';
+        } else {
+        	$lang = 'rus';
+        }
+
+		if ($length == 'short'){
+			return substr($lang, 0, 2);
+		} else {
+			return $lang;
+		}
 	}
 
 	// Генерирование нломера личного счёта по ID клиента
@@ -157,6 +183,57 @@ class TeamServerComponent extends Component {
 		} catch (Exception $e) {
 			return false;
 		}
+	}
+
+	// Parse JSON response from HttpSocket Component
+	function parseJsonResponse($address = 'http://localhost:1337', $request = '', $data = array()){
+		try {
+            $HttpSocket = new HttpSocket();
+            $response = $HttpSocket->post('http://' . $address . $request, $data);
+
+            if ($response->code != 200)
+            {
+                if (!empty($response->body())){
+                    $answer = json_decode($response->body(), true);
+
+                    if (!empty($answer['error'])){
+                        $error = $answer['error'];
+                    } else {
+                        $error = $response->reasonPhrase;
+                    }
+                }
+
+                $this->Session->setFlash(__('An HTTP error occured while request: %d %s', $response->code, $error), 'v2/flash_error');
+
+                return false;
+            }
+            else
+            {
+                $response = json_decode($response->body());
+
+                if (!empty($response->error)){
+
+                    if (!empty($response->log)){
+                        $error = implode('<br/>', array_merge($response->error,$response->log));
+                    } else {
+                        $error = $response->error;
+                    }
+
+                     $this->Session->setFlash(__('An error occured while request: %s', $error), 'v2/flash_error');
+                }
+
+                if (!empty($response->data) and empty($response->error)){
+                    return $response->data;
+                } else {
+                    return false;
+                }
+
+            }
+
+        } catch (Exception $e) {
+            $this->Session->setFlash(__('An error occured while request: %s', $e->getMessage()), 'v2/flash_error');
+            return false;
+        }
 	}
 
 	/*

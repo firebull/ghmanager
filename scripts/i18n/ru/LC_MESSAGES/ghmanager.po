@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GH Manager\n"
+"POT-Creation-Date: 2015-04-22 16:54+MSK\n"
+"PO-Revision-Date: 2015-04-22 16:57+0300\n"
+"Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: common/__init__.py:53
+msgid "Trying to read param \"%s\" from config \"%s/%s\""
+msgstr "Пытаюсь прочесть параметр \"%s\" из конфига \"%s/%s\""
+
+#: common/__init__.py:63
+msgid "String with param is found"
+msgstr "Строка с параметром найдена"
+
+#: common/__init__.py:72
+msgid "String is found, but parameter is not set correctly"
+msgstr "Строка найдена, но параметр прописан некорректно"
+
+#: common/__init__.py:84
+msgid "String with param NOT found"
+msgstr "Строка с параметром НЕ найдена"
+
+#: common/__init__.py:89 read_log.py:85 read_log.py:110 read_log.py:117
+msgid "While running the script an error occured: %s"
+msgstr "Во время работы скрипта возникла ошибка: %s"
+
+#: common/__init__.py:90 read_log.py:86 read_log.py:111
+msgid "While running the script an error occured. Read log."
+msgstr "В процессе запуска скрипта возникла ошибка. Читайте лог."
+
+#: common/__init__.py:94
+msgid "Config NOT found"
+msgstr "Конфиг не найден"
+
+#: read_log.py:71
+msgid "Creating list of logs"
+msgstr "Создаю список логов"
+
+#: read_log.py:83
+msgid "List of logs created successfully"
+msgstr "Список логов составлен успешно"
+
+#: read_log.py:92
+msgid "Try to read log %s"
+msgstr "Открываю лог %s"

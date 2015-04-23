@@ -19,11 +19,12 @@
 					<td align="right">IP #1:</td>
 					<td align="left"><?php echo $this->Form->input('IP1', array('size' => '30', 'div' => false, 'label' => false)); ?></td>
 				</tr>
-				<tr>
-					<td align="right">IP #2:</td>
-					<td align="left"><?php echo $this->Form->input('IP2', array('size' => '30', 'div' => false, 'label' => false));?></td>
-				</tr>
 <?php */?>
+				<tr>
+					<td align="right">Auth Key:</td>
+					<td align="left"><?php echo $this->Form->input('authKey', array('size' => '30', 'div' => false, 'label' => false));?></td>
+				</tr>
+
 				<tr>
 					<td align="right">Слотов на сервер:</td>
 					<td align="left"><?php echo $this->Form->input('slotsMax', array('size' => '10', 'div' => false, 'label' => false));?></td>

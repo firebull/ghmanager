@@ -9,7 +9,7 @@
  class RootServer extends AppModel {
 
     public $name = 'RootServer';
-    
+
         public $hasAndBelongsToMany = array (
 		'RootServerIp' => array (
 			'className' => 'RootServerIp',
@@ -19,13 +19,16 @@
 			'unique' => true
 		)
 	);
-    
-    
+
+
     public $validate = array(
 		'slotsMax' => array(
 			'rule' => 'notEmpty'
 		),
 		'slotsBought' => array(
+			'rule' => 'notEmpty'
+		),
+		'authKey' => array(
 			'rule' => 'notEmpty'
 		)
 	);
@@ -36,7 +39,7 @@
 
 	public $useTable = 'root_servers';
     public $name = 'RootServerServers';
-    
+
         public $hasAndBelongsToMany = array (
 		'Server' => array (
 			'className' => 'Server',
@@ -52,7 +55,7 @@
 									)
 		)
 	);
-   
+
 }
 
 ?>

@@ -1,0 +1,12 @@
+{
+	"Welcome": "Добро пожаловать",
+	"A brand new app.": "A brand new app.",
+	"DB error occured. See messages in log": "Ошибка БД. Читайте сообщения в логе",
+	"Requested server is not placed on current RootServer": "Запрашиваемый сервер не обслуживается текущим физическим",
+	"Requested server has no owner defined": "У запрашиваемого сервера не определён пользователь",
+	"Requested server has no type or template defined": "У запрашиваемого сервера не определён Тип или Шаблон",
+	"Ivalid Auth, forbidden access": "Неверный ключ, доступ запрещён",
+	"Got server data": "Данные о сервере получены",
+	"Server ID is not defined": "Не указан Server ID",
+	"Ivalid request": "Некорректный запрос"
+}

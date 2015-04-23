@@ -1,0 +1,9 @@
+{
+	"Ivalid Auth, forbidden access": "Ivalid Auth, forbidden access",
+	"Requested server is not placed on current RootServer": "Requested server is not placed on current RootServer",
+	"Requested server has no owner defined": "Requested server has no owner defined",
+	"Requested server has no type or template defined": "Requested server has no type or template defined",
+	"Got server data": "Got server data",
+	"Server ID is not defined": "Server ID is not defined",
+	"Ivalid request": "Ivalid request"
+}

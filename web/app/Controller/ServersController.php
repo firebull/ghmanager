@@ -2247,13 +2247,16 @@ class ServersController extends AppController {
             $path = '';
         }
 
+        $this->layout = 'ajax';
         $this->DarkAuth->requiresAuth();
         //Проверка прав на сервер
         if ($this->checkRights($id)) {
             $this->Server->id = $id;
             $this->Server->contain(['Type'         => ['fields' => 'id, name'],
                                     'GameTemplate' => ['fields' => 'id, name, rootPath, addonsPath'],
-                                    'User'         => ['fields' => 'id']]);
+                                    'User'         => ['fields' => 'id'],
+                                    'RootServer'   => ['fields' => 'id, authKey']]);
+
             $server = $this->Server->read();
 
             $ip = $server['Server']['address'];
@@ -2261,46 +2264,36 @@ class ServersController extends AppController {
             $serverTemplate = $server['GameTemplate'][0]['name'];
             $serverDebugLogPath = $server['GameTemplate'][0]['rootPath'];
 
+            $this->set('id', $id);
+            $this->set('type', $type);
+            $this->set('gameType', $server['Type'][0]['name']);
+            $this->set('gameTemplate', $serverTemplate);
+
+            $data = ['action'  => 'list',
+                     'lines'   => 0,
+                     'logname' => 'null'];
+
             if ($type == 'debug') {
-                $data = "action=list" .
-                "&id=" . $id .
-                "&pattern=screenlog.[0-9]" .
-                "&lines=0" .
-                "&logpath=servers/" . $serverTemplate . "_" . $id . "/" . $serverDebugLogPath .
-                "&logname=null";
+                $data['pattern'] = 'screenlog.[0-9]';
+                $data['logpath'] = sprintf('servers/%s_%d/%s', $serverTemplate, $id, $serverDebugLogPath);
             } else {
-                $data = "action=list" .
-                "&id=" . $id .
-                "&pattern=*.log" .
-                "&lines=0" .
-                "&logpath=logs/" . $serverTemplate . "_" . $id . "/" . $type .
-                "&logname=null";
+                $data['pattern'] = '*.log';
+                $data['logpath'] = sprintf('logs/%s_%d/%s', $serverTemplate, $id, $type);
             }
 
-            $request = "~configurator/scripts/subscript_read_log.py?" . $data;
+            $request = sprintf("/servers/readLog/%d/?auth=%s&lang=%s",
+                                $id,
+                                $server['RootServer'][0]['authKey'],
+                                $this->TeamServer->getLang());
 
-            $response = $this->TeamServer->webGet($ip, 0, $request);
-
-            if ($response !== false) {
-
-                $var = eregi("<!-- LIST START -->(.*)<!-- LIST END -->", $response, $out);
-                $response = trim($out[1]);
-                $list = array_reverse(explode(";", $response)); // Получить массив из ответа сервера
-                array_shift($list); // Удалить пустой элемент, т.к. изначально получаем строку с ";" в конце
-                $list = array_map('trim', $list); // Удалить пробелы и переносы строки
-                //rsort($list); // Обратная сортировка по элементам
-                $list = array_slice($list, 0, 15); // Обрезка массива до 15 элементов
-
+            if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
+            {
+                $list = array_slice($result->data->list, 0, 15); // Cut array to 15 elements
                 $this->set('logList', $list);
-                $this->set('id', $id);
-                $this->set('type', $type);
-                $this->set('gameType', $server['Type'][0]['name']);
-                $this->set('gameTemplate', $serverTemplate);
-            } else {
-
-                $this->Session->setFlash('Не удалось получить список логов. Сервер недоступен. Попробуйте позже.<br/>' .
-                    'Если ошибка не исчезнет, обратитесь в службу поддержки.', $path . 'flash_error');
-
+            }
+            else
+            {
+                $this->set('logList', array());
             }
 
         }
@@ -2639,7 +2632,9 @@ class ServersController extends AppController {
             $this->Server->id = $id;
             $this->Server->contain(['Type'         => ['fields' => 'id, name'],
                                     'GameTemplate' => ['fields' => 'id, name, rootPath, addonsPath'],
-                                    'User'         => ['fields' => 'id']]);
+                                    'User'         => ['fields' => 'id'],
+                                    'RootServer'   => ['fields' => 'id, authKey']]);
+
             $server = $this->Server->read();
 
             $ip = $server['Server']['address'];
@@ -2647,49 +2642,37 @@ class ServersController extends AppController {
             $serverTemplate = $server['GameTemplate'][0]['name'];
             $serverDebugLogPath = $server['GameTemplate'][0]['rootPath'];
 
-            if ($type === 'debug') {
-                $data = "action=read" .
-                "&id=" . $id .
-                "&pattern=null" .
-                "&lines=1000" .
-                "&logpath=servers/" . $serverTemplate . "_" . $id . "/" . $serverDebugLogPath .
-                "&logname=" . $logName;
+            $this->set('logName', $logName);
+
+            $data = ['action'  => 'read',
+                     'lines'   => 1000,
+                     'logname' => $logName,
+                     'pattern' => 'null'];
+
+            if ($type == 'debug') {
+                $data['pattern'] = 'screenlog.[0-9]';
+                $data['logpath'] = sprintf('servers/%s_%d/%s', $serverTemplate, $id, $serverDebugLogPath);
             } else {
-                $data = "action=read" .
-                "&id=" . $id .
-                "&pattern=null" .
-                "&lines=1000" .
-                "&logpath=logs/" . $serverTemplate . "_" . $id . "/" . $type .
-                "&logname=" . $logName;
+                $data['pattern'] = '*.log';
+                $data['logpath'] = sprintf('logs/%s_%d/%s', $serverTemplate, $id, $type);
             }
 
-            $request = "~configurator/scripts/subscript_read_log.py?" . $data;
+            $request = sprintf("/servers/readLog/%d/?auth=%s&lang=%s",
+                                $id,
+                                $server['RootServer'][0]['authKey'],
+                                $this->TeamServer->getLang());
 
-            $response = $this->TeamServer->webGet($ip, 0, $request);
-
-            if ($response !== false) {
-
-                $var = eregi("<!-- LOG START -->(.*)<!-- LOG END -->", $response, $out);
-                $response = trim($out[1]);
-                $strings = preg_split("/(\n|\r|\f)/", $response);
-                $strings = array_reverse($strings);
-                $log = '';
-                foreach ($strings as $string) {
-                    $log .= $string . "\n";
-                }
-                $this->set('log', $log);
-                $this->set('logName', $logName);
-
-            } else {
-
-                $this->Session->setFlash('Не удалось прочесть лог. Сервер недоступен. Попробуйте позже.<br/>' .
-                    'Если ошибка не исчезнет, обратитесь в службу поддержки.', 'flash_error');
-
+            if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
+            {
+                $this->set('log', $result->data->text);
             }
-
+            else
+            {
+                $this->set('log', "");
+            }
         }
-        $this->render("print_log");
 
+        return $this->render("print_log");
     }
 
     /**
@@ -7832,7 +7815,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                 Cache::write('GameTemplateWithType_' . $this->request->data['GameTemplate'][0]['id'], $template);
             }
 
-            $this->Server->contain('Service');
+            $this->Server->contain(['Service', 'RootServer' => ['fields' => ['id', 'authKey']]]);
             $server = $this->Server->read();
 
             if (!empty($server['Service'])) {
@@ -7990,35 +7973,32 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                 /* Конец выбора конфига */
 
                 if ($template['Type'][0]['name'] == 'srcds'
-                    or
-                    $template['Type'][0]['name'] == 'hlds'
-                    or
-                    $template['Type'][0]['name'] == 'cod'
-                    or
-                    $template['Type'][0]['name'] == 'ueds'
-                ) {
+                        or $template['Type'][0]['name'] == 'hlds'
+                        or $template['Type'][0]['name'] == 'cod'
+                        or $template['Type'][0]['name'] == 'ueds')
+                {
+                    # УБРАТЬ В ПРАДКШЕНЕ!!!
+                    $server['Server']['address'] = 'localhost';
 
-                    $data = 'id=' . $id .
-                    '&p=' . $passParamName .
-                    '&val=None' .
-                    '&desc=None' .
-                    '&conf=' . $config .
-                    '&path=' . $rootPath . '/' . $configPath .
-                    '&a=read' .
-                    '&d=' . $delim;
-                    $requestStr = '/~configurator/scripts/subscript_read_write_param.py';
+                    $data = ['action'  => 'read',
+                             'p' => $passParamName,
+                             'val'   => 'None',
+                             'desc'  => 'None',
+                             'conf'  => $config,
+                             'path'  => $rootPath . '/' . $configPath,
+                             'd' => $delim];
 
-                    $HttpSocket = new HttpSocket();
-                    $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
-                    $xmlAsArray = Xml::toArray(Xml::build($response->body));
+                    $request = sprintf("/servers/readWriteParam/%d/?auth=%s&lang=%s",
+                                        $id,
+                                        $server['RootServer'][0]['authKey'],
+                                        $this->TeamServer->getLang());
 
-                    // Let's parse logs and errors
-                    $responseMessages = $this->parseXmlResponse($xmlAsArray);
-                    $error = $responseMessages['error'];
-
-                    if (!empty($xmlAsArray['response']['paramValue'])) {
-                        $this->set('serverPassword', $xmlAsArray['response']['paramValue']);
-                    } else {
+                    if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
+                    {
+                        $this->set('serverPassword', $result->paramValue);
+                    }
+                    else
+                    {
                         $this->set('serverPassword', false);
                     }
 
