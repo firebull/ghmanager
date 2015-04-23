@@ -17,7 +17,7 @@ def defineUser(userCursor, serverID):
                                     ON
                                     (`ServersUser`.`server_id` = %s
                                     AND
-                                    `ServersUser`.`user_id` = `User`.`id`) LIMIT 1""", serverID)
+                                    `ServersUser`.`user_id` = `User`.`id`) LIMIT 1""", [serverID])
 
     return userCursor.fetchone()
 
@@ -33,7 +33,7 @@ def defineRootServer(rootServerCursor, serverID):
                                         ON
                                         (`ServersRootServer`.`server_id` IN (%s)
                                         AND
-                                        `ServersRootServer`.`root_server_id` = `RootServer`.`id`) LIMIT 1""", serverID)
+                                        `ServersRootServer`.`root_server_id` = `RootServer`.`id`) LIMIT 1""", [serverID])
 
     return rootServerCursor.fetchone()
 
@@ -57,7 +57,7 @@ def getRootServerInitServers(rootServerCursor, rootServerID):
                                      payedTill > NOW()
                                  AND
                                      initialised != 1
-                                 """, rootServerID)
+                                 """, [rootServerID])
     return rootServerCursor
 
 
@@ -78,8 +78,8 @@ def getRootServerPayedServers(rootServerCursor, rootServerID):
                                  WHERE 
                                      payedTill > NOW() 
                                  AND 
-                                     initialised = 1                                         
-                                 """, rootServerID) 
+                                     initialised = 1 
+                                 """, [rootServerID])
     return rootServerCursor
 
 
@@ -103,7 +103,7 @@ def getRootServerPrivateServers(rootServerCursor, rootServerID):
                                  AND
                                      status = 'exec_success'
                                  AND 
-                                     privateType > 0""", rootServerID) 
+                                     privateType > 0""", [rootServerID]) 
     return rootServerCursor
 
 
@@ -137,7 +137,7 @@ def getRootServerCod4v1Servers(rootServerCursor, rootServerID):
                                  AND
                                      status = 'exec_success'
                                  AND
-                                     privateType < 2""", rootServerID)
+                                     privateType < 2""", [rootServerID])
     return rootServerCursor
 
 
@@ -163,7 +163,7 @@ def getRootServerExecutedServers(rootServerCursor, rootServerID):
                                      initialised = 1
                                  AND
                                      status = 'exec_success'
-                                 """, rootServerID)
+                                 """, [rootServerID])
     return rootServerCursor
 
 
@@ -189,7 +189,7 @@ def getRootServerExecutedServersToReboot(rootServerCursor, rootServerID):
                                      status = 'exec_success'
                                  AND
                                      TIMESTAMPDIFF( HOUR , `Server`.`statusTime`, NOW() ) >= 24
-                                 """, rootServerID)
+                                 """, [rootServerID])
     return rootServerCursor
 
 
@@ -217,7 +217,7 @@ def getRootServerServersByType(rootServerCursor, rootServerID, typeID):
                                  WHERE
                                      initialised = 1
                                  ORDER BY `id`
-                                 """, (rootServerID, typeID))
+                                 """, [rootServerID, typeID])
     return rootServerCursor
 
 
@@ -237,7 +237,7 @@ def defineTemplate(templateCursor, serverID):
                                         ON
                                         (`GameTemplatesServer`.`server_id` IN (%s)
                                         AND `GameTemplatesServer`.`game_template_id` = `GameTemplate`.`id`)
-                                        LIMIT 1""", serverID)
+                                        LIMIT 1""", [serverID])
 
     return templateCursor.fetchone()
 
@@ -257,17 +257,17 @@ def defineType(typeCursor, templateID):
                                            (`GameTemplatesType`.`game_template_id` IN (%s)
                                            AND
                                            `GameTemplatesType`.`type_id` = `Type`.`id`)
-                                           LIMIT 1""", templateID)
+                                           LIMIT 1""", [templateID])
 
     return typeCursor.fetchone()
 
 
 def cleanServerFromDb(db, cursor, serverID):
-    cursor.execute("""DELETE FROM `servers_users` WHERE `server_id` = %s""", serverID) 
-    cursor.execute("""DELETE FROM `game_templates_servers` WHERE `server_id` = %s""", serverID)
-    cursor.execute("""DELETE FROM `servers_root_servers` WHERE `server_id` = %s""", serverID) 
-    cursor.execute("""DELETE FROM `servers_types` WHERE `server_id` = %s""", serverID)
-    cursor.execute("""DELETE FROM `servers` WHERE `id` = %s""", serverID)  
+    cursor.execute("""DELETE FROM `servers_users` WHERE `server_id` = %s""", [serverID]) 
+    cursor.execute("""DELETE FROM `game_templates_servers` WHERE `server_id` = %s""", [serverID])
+    cursor.execute("""DELETE FROM `servers_root_servers` WHERE `server_id` = %s""", [serverID]) 
+    cursor.execute("""DELETE FROM `servers_types` WHERE `server_id` = %s""", [serverID])
+    cursor.execute("""DELETE FROM `servers` WHERE `id` = %s""", [serverID])  
 
     return True
 

@@ -95,10 +95,10 @@ commonCursor = db.cursor(cursorclass=MySQLdb.cursors.DictCursor)
 
 if action == 'start':
     serverCursor.execute("""SELECT * FROM servers where payedTill > NOW() AND initialised = 1 AND id = %s
-                        ORDER BY `servers`.`created`  DESC LIMIT 1""", serverID)
+                        ORDER BY `servers`.`created`  DESC LIMIT 1""", [serverID])
 else:
     serverCursor.execute("""SELECT * FROM servers where initialised = 1 AND id = %s
-                        ORDER BY `servers`.`created`  DESC LIMIT 1""", serverID)
+                        ORDER BY `servers`.`created`  DESC LIMIT 1""", [serverID])
 
 numrows = int(serverCursor.rowcount)
 

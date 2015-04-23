@@ -87,6 +87,11 @@ mysqlHost = config.get('db', 'host')
 mysqlUser = config.get('db', 'user')
 mysqlPass = config.get('db', 'pass')
 mysqlDb = config.get('db', 'db')
+redisHost = config.get('redis', 'host')
+redisPass = config.get('redis', 'pass')
+redisDb = config.get('redis', 'db')
+
+
 
 # Blocking the process
 lock = flock('servers_params_checker.lock', True).acquire()
@@ -375,10 +380,10 @@ if lock:
 
     '''
 
-    r = redis.Redis(host='',
+    r = redis.Redis(host=redisHost,
                     port=6379,
-                    db=0,
-                    password='')
+                    db=redisDb,
+                    password=redisPass)
 
     pipe = r.pipeline()
 
