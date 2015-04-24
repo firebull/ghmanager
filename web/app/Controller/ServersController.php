@@ -9018,8 +9018,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                                     $server['RootServer'][0]['authKey'],
                                     $this->TeamServer->getLang());
 
-                //if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
-                if ($result = $this->TeamServer->parseJsonResponse('localhost:1337', $request, $data))
+                if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
                 {
                     if ($action == 'read')
                     {
