@@ -3,10 +3,10 @@ module.exports = {
 
   migrate: 'safe',
   connection: 'ghmanagerMysqlServer',
-  tableName: 'game_templates_servers',
+  tableName: 'configs_game_templates',
   autoCreatedAt: false,
   autoUpdatedAt: false,
-  tables: ['servers', 'game_templates'],
+  tables: ['configs', 'game_templates'],
 
   junctionTable: true,
 
@@ -18,14 +18,14 @@ module.exports = {
       type: 'integer'
     },
 
-    servers: {
-      columnName: 'server_id',
+    configs: {
+      columnName: 'config_id',
       type: 'integer',
       foreignKey: true,
-      references: 'servers',
+      references: 'configs',
       on: 'id',
       via: 'gametemplates',
-      groupBy: 'servers'
+      groupBy: 'configs'
     },
 
     gameTemplates: {
@@ -34,7 +34,7 @@ module.exports = {
       foreignKey: true,
       references: 'gametemplates',
       on: 'id',
-      via: 'servers',
+      via: 'configs',
       groupBy: 'gameTemplates'
     }
   }

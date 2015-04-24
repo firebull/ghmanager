@@ -20,8 +20,8 @@ module.exports = {
         },
         longname: 'string',
         name: 'string',
-        rootPath: 'datetime',
-        addonsPath: 'integer',
+        rootPath: 'string',
+        addonsPath: 'string',
         configPath: 'string',
         mapsPath: 'string',
 
@@ -30,6 +30,14 @@ module.exports = {
           columnName: 'server_id',
           via: 'gameTemplate',
           through: 'gametemplatesservers',
+          dominant: false
+        },
+
+        configs: {
+          collection: 'configs',
+          columnName: 'config_id',
+          via: 'gameTemplate',
+          through: 'configsgametemplates',
           dominant: false
         }
 

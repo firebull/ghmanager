@@ -201,6 +201,8 @@ class TeamServerComponent extends Component {
                     } else {
                         $error = $response->reasonPhrase;
                     }
+                } else {
+                	$error = $response->reasonPhrase;
                 }
 
                 $this->Session->setFlash(__('An HTTP error occured while request: %d %s', $response->code, $error), 'v2/flash_error');

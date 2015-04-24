@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GH Manager\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2015-04-17 15:56+0300\n"
+"PO-Revision-Date: 2015-04-24 17:22+0300\n"
 "Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
 "Language-Team: RUS <djfirebull@gmail.com>\n"
 "Language: ru\n"
@@ -53,6 +53,50 @@ msgstr "Доступ к чужим серверам запрещен"
 msgid "Order number not given"
 msgstr "Не указан номер заказа"
 
+#: Controller/ServersController.php:5558
+msgid "Server password to which HLTV is connected"
+msgstr ""
+
+#: Controller/ServersController.php:5563
+msgid "Try to write HLTV password"
+msgstr ""
+
+#: Controller/ServersController.php:5595
+msgid "HLTV Commentator and RCON password"
+msgstr ""
+
+#: Controller/ServersController.php:5600
+msgid "Try to write RCON HLTV password"
+msgstr ""
+
+#: Controller/ServersController.php:8993
+msgid "Only server configs can be created"
+msgstr ""
+
+#: Controller/ServersController.php:9040
+msgid ""
+"Current config is absent on you server. You can write text and save data or "
+"create New config from our template if exists."
+msgstr ""
+
+#: Controller/ServersController.php:9050
+msgid "Config was created, Reopen it."
+msgstr ""
+
+#: Controller/ServersController.php:9054
+msgid ""
+"No template for current config. If you thing that it's wrong, write us, "
+"please."
+msgstr ""
+
+#: Controller/ServersController.php:9058;9069
+msgid "Unknown error occured: %s"
+msgstr ""
+
+#: Controller/ServersController.php:9067
+msgid "Config was saved, Reopen it."
+msgstr "Конфиг сохранён, откройте его снова."
+
 #: Controller/SupportTicketsController.php:63
 #: Controller/SupportsController.php:212
 msgid "Access to others tickets is denied"
@@ -99,6 +143,14 @@ msgstr ""
 "\"%s\". Тем не менее, если вы не получите ответа в ближайшее время, "
 "свяжитесь с техподдержкой напрямую."
 
+#: Controller/Component/TeamServerComponent.php:208
+msgid "An HTTP error occured while request: %d %s"
+msgstr ""
+
+#: Controller/Component/TeamServerComponent.php:224;236
+msgid "An error occured while request: %s"
+msgstr ""
+
 #: Plugin/HtmlPurifier/Lib/Purifier.php:48
 msgid "Configuration %s does not exist!"
 msgstr ""
@@ -132,6 +184,14 @@ msgstr ""
 #: View/Layouts/wwwsite.ctp:34
 msgid "TeamServer: "
 msgstr ""
+
+#: View/Servers/v2/edit_params_cod.ctp:37
+msgid "User mods"
+msgstr "Моды пользователя"
+
+#: View/Servers/v2/edit_params_cod.ctp:60
+msgid "Use this config for your mod"
+msgstr "Используйте этот  конфиг  для мода"
 
 #: View/SupportTickets/add.ctp:57
 msgid "Send"

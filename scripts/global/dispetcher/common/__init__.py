@@ -47,9 +47,11 @@ def readAndSetParamFromConfig(param, value, desc, config, path, action='read', d
 
     configWithPath = os.path.join(path, config)
     # Log array for JSON output
-    process = {'error' : [], 'log' : [], 'data' : {'paramValue': None}}
+
 
     if action == 'read':
+        process = {'error' : [], 'log' : [], 'data' : {'paramValue': None}}
+
         process['log'] += ['INFO: ' + _('Trying to read param "%s" from config "%s/%s"') % (param, path, config)]
 
         if os.path.exists(configWithPath):
@@ -109,6 +111,7 @@ def readAndSetParamFromConfig(param, value, desc, config, path, action='read', d
         - Если строка не найдена, то закрыть конфиг и открыть его на запись.
           В первой строке записать нужный параметр и следом перенести все из временного файла
         '''
+        process = {'error' : [], 'log' : [], 'data' : ''}
 
         # Отформатируем комментарий
         if desc != None and desc != '' and desc != 'None':
@@ -117,6 +120,7 @@ def readAndSetParamFromConfig(param, value, desc, config, path, action='read', d
             desc = ''
 
         try:
+            error = False
             if os.path.exists(configWithPath):
                 tmp = tempfile.TemporaryFile()
 
@@ -149,6 +153,7 @@ def readAndSetParamFromConfig(param, value, desc, config, path, action='read', d
                         #xmlLog('Параметр найден не был. Записываю его в начало конфига.', 'log')
                         w.write('%s "%s" %s\n' % (param, value, desc))
                     else:
+                        error = True
                         process['log'] += ['ERROR: ' + _('Param is not found, dont know, where to write it')]
                         #xmlLog('Параметр найден не был. Не знаю, куда записать параметр.', 'error')
 
@@ -167,10 +172,17 @@ def readAndSetParamFromConfig(param, value, desc, config, path, action='read', d
                     w.write('%s "%s" %s\n' % (param, value, desc))
                     w.close()
                 else:
+                    error = True
                     process['log'] += ['ERROR: ' + _('Config is not found, dont know, where to write param')]
                     #xmlLog('Конфиг не найден. Не знаю, куда записать параметр.', 'error')
 
-            process['log'] += ['OK: ' + _('Param is written to config successfully')]
+            if error == False:
+                process['data'] = 'success'
+                process['log'] += ['OK: ' + _('Param is written to config successfully')]
+            else:
+                process['data'] = 'error'
+                process['log'] += ['ERROR: ' + _('Could not write param to config')]
+
             #xmlLog('Параметр успешно записан в конфиг.', 'log')
             print json.dumps(process)
             return True
@@ -179,7 +191,6 @@ def readAndSetParamFromConfig(param, value, desc, config, path, action='read', d
             process['error'] += ['ERROR: %s' % e]
             print json.dumps(process)
             return False
-
 
 
 

@@ -7,9 +7,12 @@
  */
 
 include('loading_params.php');
-
+?>
+<?php echo $this->Session->flash(); ?>
+<?php
 echo $this->Form->create('Server', ['action' => 'editConfigCommon',
                                     'class' => 'ui form']); ?>
+
 <table>
 	<tr>
 		<td colspan="3">

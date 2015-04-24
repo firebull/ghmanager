@@ -22,6 +22,7 @@ Lesser General Public License for more details.
 from optparse import OptionParser
 from common import readAndSetParamFromConfig, xmlLog
 import json
+import gettext
 
 gettext.install('ghmanager', '/images/scripts/i18n', unicode=1)
 
@@ -44,6 +45,10 @@ path = options.config_path.strip("'")
 action = options.action.strip("'")
 delim = options.delim
 
+if options.lang:
+    lang = options.lang
+    langSet = gettext.translation('ghmanager', '/images/scripts/i18n', languages=[lang])
+    langSet.install()
 
 try:
     readAndSetParamFromConfig(param, value, desc, config, path, action, delim)

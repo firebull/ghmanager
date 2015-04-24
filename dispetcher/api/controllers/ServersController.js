@@ -52,7 +52,7 @@ module.exports = {
                                           '--lang', lang
                                           ], function(err, answer){
 
-                    if (answer !== null) {
+                    if (answer !== "") {
                         answer = JSON.parse(answer);
 
                         if (answer.log !== undefined){
@@ -82,6 +82,97 @@ module.exports = {
         }
     },
 
+    /**
+   * `GameServerController.editConfig()`
+   */
+    editConfig: function (req, res) {
+        res.set('Content-Type', 'application/json');
+        CommonService.setLocale(req);
+
+        var lang = req.getLocale();
+
+        if (!CommonService.checkAuth(req, res)){
+            res.status(403);
+            return res.json({   error: sails.__({
+                                        phrase: 'Ivalid Auth, forbidden access',
+                                        locale: lang})
+                            });
+        } else if (req.body === undefined || req.body.configId === undefined){
+            res.status(500);
+            return res.json({   error: sails.__({
+                                        phrase: 'Ivalid request',
+                                        locale: lang})
+                            });
+        } else {
+            Servers.getServerPayed(req, res, function(err, data){
+                var path = require('path');
+                var runLog = [];
+
+                runLog.push('INFO: ' + sails.__({
+                                        phrase: "Got server data",
+                                        locale: lang
+                                            })
+                            );
+
+                var userName = "client" + data.user[0].id;
+                var homeDir  = "/home/" + userName;
+                var serversPath = homeDir + "/servers";
+
+
+                Configs.findOne({id: req.body.configId}).exec(
+                    function(err, config){
+
+                        if (config !== undefined){
+                            var configPath = path.join(data.gameTemplate[0].name + '_' + data.id,
+                                                       data.gameTemplate[0].addonsPath,
+                                                       config.path);
+                            var configName = config.name;
+                        } else if (req.body.path !== undefined) {
+                            var configPath = path.join(data.gameTemplate[0].name + '_' + data.id,
+                                                       data.gameTemplate[0].addonsPath,
+                                                       req.body.path);
+                            var configName = req.body.name;
+                        }
+
+                        CommonService.execCommand('/images/scripts/global/dispetcher/edit_config.py',
+                                         ['--action', req.body.action,
+                                          '--text', req.body.text,
+                                          '--root', serversPath,
+                                          '--path', configPath,
+                                          '--name', configName,
+                                          '--lang', lang
+                                          ], function(err, answer){
+
+                        if (answer !== "") {
+                            answer = JSON.parse(answer);
+
+                            if (answer.log !== undefined){
+                                answer.log.forEach(function(entry){
+                                    runLog.push(entry);
+                                });
+                            }
+
+                            if (answer.error !== undefined){
+                                answer.error.forEach(function(entry){
+                                    err.push(entry);
+                                });
+                            }
+
+                            return res.send(JSON.stringify({ error: err,
+                                                             config: runLog,
+                                                             data: answer.data
+                                                            }, null, 3));
+
+                        } else {
+                            return res.send(JSON.stringify({ error: err,
+                                                             log: runLog
+                                                            }, null, 3));
+                        }
+                    });
+                });
+            });
+        }
+    },
 
   /**
    * `GameServerController.readWriteParam()`
@@ -135,7 +226,7 @@ module.exports = {
                                           '--lang', lang
                                           ], function(err, answer){
 
-                    if (answer !== null) {
+                    if (answer !== "") {
                         answer = JSON.parse(answer);
 
                         if (answer.log !== undefined){

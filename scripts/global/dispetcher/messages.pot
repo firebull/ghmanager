@@ -4,106 +4,105 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GH Manager\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2015-04-24 17:02+MSK\n"
-"PO-Revision-Date: 2015-04-24 17:18+0300\n"
-"Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
-"Language-Team: \n"
-"Language: ru\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 1.5.4\n"
-"X-Poedit-SourceCharset: UTF-8\n"
+
 
 #: common/__init__.py:55
 msgid "Trying to read param \"%s\" from config \"%s/%s\""
-msgstr "Пытаюсь прочесть параметр \"%s\" из конфига \"%s/%s\""
+msgstr ""
 
 #: common/__init__.py:65 common/__init__.py:133
 msgid "String with param is found"
-msgstr "Строка с параметром найдена"
+msgstr ""
 
 #: common/__init__.py:74
 msgid "String is found, but parameter is not set correctly"
-msgstr "Строка найдена, но параметр прописан некорректно"
+msgstr ""
 
 #: common/__init__.py:86
 msgid "String with param NOT found"
-msgstr "Строка с параметром НЕ найдена"
+msgstr ""
 
 #: common/__init__.py:91 edit_config.py:85 edit_config.py:119
 #: edit_config.py:154 edit_config.py:160 read_log.py:85 read_log.py:110
 #: read_log.py:117 read_write_param.py:57
 msgid "While running the script an error occured: %s"
-msgstr "Во время работы скрипта возникла ошибка: %s"
+msgstr ""
 
 #: common/__init__.py:92 edit_config.py:86 edit_config.py:120
 #: edit_config.py:155 read_log.py:86 read_log.py:111 read_write_param.py:58
 msgid "While running the script an error occured. Read log."
-msgstr "В процессе запуска скрипта возникла ошибка. Читайте лог."
+msgstr ""
 
 #: common/__init__.py:96
 msgid "Config NOT found"
-msgstr "Конфиг не найден"
+msgstr ""
 
 #: common/__init__.py:152
 msgid "String with param is not found, will write it to the first line"
-msgstr "Строка с параметром не найдена, запишу параметр в первую строку"
+msgstr ""
 
 #: common/__init__.py:157
 msgid "Param is not found, dont know, where to write it"
-msgstr "Параметр не найден, не знаю, куда его записать"
+msgstr ""
 
 #: common/__init__.py:169
 msgid "Config is NOT found, create new one"
-msgstr "Конфиг не найден, создам новый"
+msgstr ""
 
 #: common/__init__.py:176
 msgid "Config is not found, dont know, where to write param"
-msgstr "Конфиг не найден, не знаю куда записать параметр"
+msgstr ""
 
 #: common/__init__.py:181
 msgid "Param is written to config successfully"
-msgstr "Параметр записан в конфиг успешно"
+msgstr ""
 
 #: common/__init__.py:184
 msgid "Could not write param to config"
-msgstr "Не удалось записать параметр в конфиг"
+msgstr ""
 
 #: edit_config.py:72
 msgid "Trying to read config %s"
-msgstr "Попытка прочесть конфиг %s"
+msgstr ""
 
 #: edit_config.py:82 edit_config.py:114 edit_config.py:147
 msgid "Success"
-msgstr "Успешно"
+msgstr ""
 
 #: edit_config.py:94
 msgid "Backup config %s to %s.bak"
-msgstr "Сохраняю резервную копию конфига %s в %s.bak"
+msgstr ""
 
 #: edit_config.py:96
 msgid "Backup Success"
-msgstr "Успешный бэкап"
+msgstr ""
 
 #: edit_config.py:100
 msgid "Writing data to config %s"
-msgstr "Записываю данные в конфиг %s"
+msgstr ""
 
 #: edit_config.py:150
 msgid "No template for config %s"
-msgstr "Нет шаблона для конфига %s"
+msgstr ""
 
 #: read_log.py:71
 msgid "Creating list of logs"
-msgstr "Создаю список логов"
+msgstr ""
 
 #: read_log.py:83
 msgid "List of logs created successfully"
-msgstr "Список логов составлен успешно"
+msgstr ""
 
 #: read_log.py:92
 msgid "Try to read log %s"
-msgstr "Открываю лог %s"
+msgstr ""
+

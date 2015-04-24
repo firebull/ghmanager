@@ -22,25 +22,26 @@ module.exports = {
         var spawn  = require('child_process').spawn,
             run    = spawn(command, options);
         var err    = [],
-            result = null;
+            result = "";
 
         run.stdout.on('data', function (data) {
-            result =  data.toString();
+            result =  result + data.toString();
         });
 
         run.stderr.on('data', function (data) {
             err.push(data.toString());
             console.log(err);
+
         });
 
         run.on('close', function (code) {
 
           if (code !== 0) {
             err.push('ps process exited with code ' + code);
+
           }
 
           run.stdin.end();
-
           callback(err, result);
 
         });
