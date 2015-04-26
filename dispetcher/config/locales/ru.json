@@ -7,5 +7,6 @@
 	"Ivalid Auth, forbidden access": "Неверный ключ, доступ запрещён",
 	"Got server data": "Данные о сервере получены",
 	"Server ID is not defined": "Не указан Server ID",
-	"Ivalid request": "Некорректный запрос"
+	"Ivalid request": "Некорректный запрос",
+	"Trying to change password": "Попытка изменить пароль"
 }

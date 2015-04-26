@@ -5,7 +5,7 @@
 					<div class="ui success message" id="successMessage">
 						<i class="close icon"></i>
 						<div class="header">
-							<?php echo h($message); ?>
+							<?php echo $message; ?>
 						</div>
 					</div>
 				</div>

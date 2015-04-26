@@ -5,5 +5,6 @@
 	"Requested server has no type or template defined": "Requested server has no type or template defined",
 	"Got server data": "Got server data",
 	"Server ID is not defined": "Server ID is not defined",
-	"Ivalid request": "Ivalid request"
+	"Ivalid request": "Ivalid request",
+    "Trying to change password": "Trying to change password"
 }

@@ -254,6 +254,80 @@ module.exports = {
                 });
             });
         }
-      }
-    };
+      },
+
+    /**
+   * `GameServerController.mumblePass()`
+   */
+    mumblePass: function (req, res) {
+        res.set('Content-Type', 'application/json');
+        CommonService.setLocale(req);
+
+        var lang = req.getLocale();
+
+        if (!CommonService.checkAuth(req, res)){
+            res.status(403);
+            return res.json({   error: sails.__({
+                                        phrase: 'Ivalid Auth, forbidden access',
+                                        locale: lang})
+                            });
+        } else if (req.body === undefined){
+            res.status(500);
+            return res.json({   error: sails.__({
+                                        phrase: 'Ivalid request',
+                                        locale: lang})
+                            });
+        } else {
+            Servers.getServerPayed(req, res, function(err, data){
+                var runLog = [];
+                var path = require('path');
+                runLog.push('INFO: ' + sails.__({
+                                        phrase: "Got server data",
+                                        locale: lang
+                                            })
+                            );
+
+                var userName = "client" + data.user[0].id;
+                var serverPath = path.join('/home', userName, '/servers', 'mumble_' + data.id);
+                var passwd = CommonService.random(8);
+
+                var exec = require('child_process').exec,
+                    child;
+
+                runLog.push('INFO: ' + sails.__({
+                                        phrase: "Trying to change password",
+                                        locale: lang
+                                            })
+                            );
+
+                child = exec(path.join(serverPath, 'murmur.x86') + ' -supw ' + passwd,
+                    function (err, stdout, stderr) {
+                        if (stdout !== null && stdout != "") {
+                            runLog.push('INFO: ' + stdout);
+                        }
+
+                        if (stderr !== null) {
+                            runLog.push('INFO: ' + stderr);
+                        }
+
+                        if (err !== null) {
+                            console.log('exec error: ' + err);
+                            runLog.push('ERROR: ' + err);
+
+                            return res.send(JSON.stringify({ error: err,
+                                                             log: runLog
+                                                            }, null, 3));
+                        } else {
+                            return res.send(JSON.stringify({ error: err,
+                                                             log: runLog,
+                                                             data: passwd
+                                                            }, null, 3));
+                        }
+                    });
+
+
+            });
+        }
+    },
+};
 
