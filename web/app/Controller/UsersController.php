@@ -208,6 +208,78 @@ class UsersController extends AppController {
         }
     }
 
+    // User home page
+    public function home(){
+        $this->DarkAuth->requiresAuth();
+        $this->layout = 'v2/client';
+    }
+
+    // User home page in JSON
+    // return JSON data
+    public function homeData(){
+        $this->DarkAuth->requiresAuth();
+        $this->layout = 'ajax';
+        $this->User->id = $this->DarkAuth->getUserId();
+
+        $this->User->bindModel(['hasMany' => ['Orders'  => ['limit'  => 6,
+                                                            'order'  => 'modified DESC',
+                                                            'fields' =>  'id, month, sum, payed, created, payedDate'],
+                                              'Actions' => ['limit' => 8, 'order' => 'created DESC'],
+                                              'SupportTickets' => ['limit' => 6,
+                                                                   'order' => 'created DESC',
+                                                                   'conditions' => ['status' => 'open'],
+                                                                   'fields' => 'id, title, status, supports_count, unread_user_count, created, modified']]]);
+
+        $user = $this->User->read();
+
+        $serversIds = Hash::extract($user, 'Server.{n}.id');
+
+        $this->User->Server->contain(['GameTemplate' => ['fields' => 'id, name, longname'],
+                                      'Type' => ['fields' => 'id, name']]);
+
+        $userServers = $this->User->Server->find('all',
+               ['conditions' => [ 'Server.id' => $serversIds,
+                                  'OR' => [ 'Server.action' => NULL,
+                                            'Server.action NOT' => 'delete']],
+                'fields' => ['id', 'name', 'slots', 'address', 'port', 'slots', 'map', 'mapGroup',
+                             'autoUpdate', 'privateType', 'privateStatus', 'payedTill',
+                             'initialised', 'action', 'status', 'statusDescription', 'statusTime',
+                             'hltvStatus', 'hltvStatusDescription', 'hltvStatusTime',
+                             'crashReboot', 'crashCount', 'crashTime', 'controlByToken'],
+               ]);
+
+        // Format array to be more comfortable in JSON
+        foreach ($userServers as $key => $server) {
+            $userServers[$key]['Type'] = $server['Type'][0];
+            $userServers[$key]['GameTemplate'] = $server['GameTemplate'][0];
+            unset($server['Type'][0]);
+            unset($server['GameTemplate'][0]);
+        }
+
+        $this->set('data', ['Servers' => $userServers,
+                            'Orders'  => $user['Orders'],
+                            'Actions' => $user['Actions'],
+                            'Tickets' => $user['SupportTickets'],
+                            'News'    => $this->TeamServer->getNews()]);
+
+        $this->set('_serialize', ['data']);
+
+    }
+
+    // Action log
+    public function actionLog(){
+        $this->DarkAuth->requiresAuth();
+        $this->layout = 'v2/client';
+
+        $this->loadModel('Action');
+
+        $this->paginate = [ 'conditions' => ['user_id' => $this->DarkAuth->getUserId()],
+                            'order' => ['created' => 'desc'],
+                            'limit' => 50];
+
+        $this->set('log', $this->paginate('Action'));
+    }
+
     /*
      * Восстановление пароля.
      * Адгоритм элементарен:
