@@ -256,9 +256,68 @@ class UsersController extends AppController {
             unset($server['GameTemplate'][0]);
         }
 
+        // Iptables attack Log
+        Cache::set(array('duration' => '+20 minutes'));
+
+        if (($iptablesLogs = Cache::read('iptablesLogsForUser' . $user['User']['id'])) === false) {
+
+            $iptablesLogs = array();
+            if ($redis = $this->TeamServer->redisConnect(10))
+            {
+                $redis->multi();
+
+                // Запрос по 10 логов с каждого IP
+                foreach ($serverIps as $serverIp) {
+                    $redis->lRange('dst:' . $serverIp, -10, -1);
+                }
+
+                $logRanges = $redis->exec();
+
+                $logIds = array();
+                // Суммируем все ID логоа
+                foreach ($logRanges as $logRange) {
+                    if (!empty($logRange)) {
+                        $logIds = array_unique(array_merge($logIds, $logRange));
+                    }
+                }
+
+                // Обратная сортировка по ID лога
+                rsort($logIds);
+
+                $redis->multi();
+
+                // Запрос логов
+                foreach ($logIds as $logId) {
+                    $redis->lRange('log:' . $logId, -5, -1);
+                }
+
+                $iptablesLogs = $redis->exec();
+
+                // Очистка пустых значений
+                foreach ($iptablesLogs as $key => $log) {
+                    if (empty($iptablesLog)) {
+                        unset($iptablesLogs[$key]);
+                    }
+                }
+
+                // Обрезка до 25
+                $iptablesLogs = array_slice($iptablesLogs, 0, 25);
+
+                Cache::set(array('duration' => '+20 minutes'));
+            }
+            else
+            {
+                $this->Session->setFlash('Не настроен сервер Redis. Проверьте параметры в Config/ghmanager.ini.php', 'flash_error');
+                Cache::set(array('duration' => '+2 minutes'));
+            }
+
+            Cache::write('iptablesLogsForUser' . $user['User']['id'], $iptablesLogs);
+        }
+
         $this->set('data', ['Servers' => $userServers,
                             'Orders'  => $user['Orders'],
                             'Actions' => $user['Actions'],
+                            'Attacks' => $iptablesLogs, #TODO: Show them in View
                             'Tickets' => $user['SupportTickets'],
                             'News'    => $this->TeamServer->getNews()]);
 

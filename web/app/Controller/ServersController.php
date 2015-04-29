@@ -538,21 +538,8 @@ class ServersController extends AppController {
         $this->loadModel('GameTemplateType');
         $this->loadModel('Eac');
 
-        $this->Server->User->unbindModel(array(
-            'hasAndBelongsToMany' => array(
-                'SupportTicket',
-            )));
-
-        $this->Server->User->bindModel(array(
-            'hasMany' => array(
-                'Actions' => array(
-                    'className' => 'Actions',
-                    'foreignKey' => 'user_id',
-                    'dependent' => false,
-                    'limit' => '15',
-                    'order' => ' created DESC',
-                ),
-            )));
+        $this->Server->User->unbindModel([
+            'hasAndBelongsToMany' => ['SupportTicket']]);
 
         $this->Server->User->id = $this->DarkAuth->getUserId();
         $user = $this->Server->User->read();
@@ -580,9 +567,9 @@ class ServersController extends AppController {
 
         $this->Server->bindModel([
             'hasAndBelongsToMany' => [
-                'Type' => ['fields' => 'id, name, longname'],
+                'Type'         => ['fields' => 'id, name, longname'],
                 'GameTemplate' => ['fields' => 'id, name, longname, current_version'],
-                'Location' => ['fields' => 'id, name, collocation'],
+                'Location'     => ['fields' => 'id, name, collocation'],
             ],
             'hasMany' => [
                 'Eac' => ['fields' => 'Eac.id, Eac.active']],
@@ -765,15 +752,15 @@ class ServersController extends AppController {
                     break;
             }
 
-
-
         endforeach;
-        //pr($servers);
 
-        /* Теперь подготовим данный для автоматического
+        /* Теперь подготовим данные для автоматического
          * старта процедуры заказа, если человек приходит
          * по ссылке с сайта
          * */
+
+        #TODO: Rewrite data for starting new order
+        #      if user comes from site link
 
         if ($this->Session->read('orderFromSite')) {
             $newOrder = $this->Session->read('orderFromSite');
@@ -783,72 +770,10 @@ class ServersController extends AppController {
             $this->Session->delete('orderFromSite');
         }
 
-        //pr($servers);
 
         $this->set('serversGrouped', $servers);
         $this->set('serversIds', $serversIds);
-        $this->set('journal', $user['Actions']);
         $this->set('eacStatus', $eacStatus);
-
-        // Журнал Атак
-        Cache::set(array('duration' => '+20 minutes'));
-
-        if (($logs = Cache::read('iptablesLogsForUser' . $user['User']['id'])) === false) {
-
-            $logs = array();
-            if ($redis = $this->TeamServer->redisConnect(10))
-            {
-                $redis->multi();
-
-                // Запрос по 10 логов с каждого IP
-                foreach ($serverIps as $serverIp) {
-                    $redis->lRange('dst:' . $serverIp, -10, -1);
-                }
-
-                $logRanges = $redis->exec();
-
-                $logIds = array();
-                // Суммируем все ID логоа
-                foreach ($logRanges as $logRange) {
-                    if (!empty($logRange)) {
-                        $logIds = array_unique(array_merge($logIds, $logRange));
-                    }
-                }
-
-                // Обратная сортировка по ID лога
-                rsort($logIds);
-
-                $redis->multi();
-
-                // Запрос логов
-                foreach ($logIds as $logId) {
-                    $redis->lRange('log:' . $logId, -5, -1);
-                }
-
-                $logs = $redis->exec();
-
-                // Очистка пустых значений
-                foreach ($logs as $key => $log) {
-                    if (empty($log)) {
-                        unset($logs[$key]);
-                    }
-                }
-
-                // Обрезка до 25
-                $logs = array_slice($logs, 0, 25);
-
-                Cache::set(array('duration' => '+20 minutes'));
-            }
-            else
-            {
-                $this->Session->setFlash('Не настроен сервер Redis. Проверьте параметры в Config/ghmanager.ini.php', 'flash_error');
-                Cache::set(array('duration' => '+2 minutes'));
-            }
-
-            Cache::write('iptablesLogsForUser' . $user['User']['id'], $logs);
-        }
-
-        $this->set('iptablesLog', $logs);
 
         $this->render('v2/index');
 
@@ -6647,9 +6572,9 @@ class ServersController extends AppController {
                         // Получить список включенных карт
                         if (strtolower($server['Type'][0]['name']) == 'hlds') {
                             // Для HL1 использовать только mapcycle
-                            $mapsTurnedOn = $this->editConfigCommon($id, 72, 'read');
+                            $mapsTurnedOn = $this->editConfigCommon($id, 72, 'read', null, true);
                         } else {
-                            $mapsTurnedOn = $this->editConfigCommon($id, 71, 'read');
+                            $mapsTurnedOn = $this->editConfigCommon($id, 71, 'read', null, true);
                         }
 
                         if ($mapsTurnedOn !== false) {
@@ -6938,10 +6863,10 @@ class ServersController extends AppController {
 
                     if (!empty($responseMessages['error'])) {
 
-                        $this->Session->setFlash('Возникла ошибка при ' . $actionWordErr . ' карты: ' . $responseMessages['error'] .
-                            'Лог выполнения задания: ' . $responseMessages['log'], 'flash_error');
+                        $this->Session->setFlash('Возникла ошибка при ' . $actionWordErr . ' карты: ' . implode('<br/>', $responseMessages['error']) .
+                            'Лог выполнения задания: ' . implode('<br/>', $responseMessages['log']), 'v2/flash_error');
 
-                        $this->set('result', ['error' => $responseMessages['log']]);
+                        $this->set('result', ['error' => $responseMessages['error'], 'log' => $responseMessages['log']]);
 
                     } else {
                         $this->Session->setFlash('Карта ' . $actionWord . ' успешно. Перезагрузите сервер для применения изменений.', 'flash_success');
@@ -8052,7 +7977,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                     $gameModesMain = array();
                     $mapGroupsMain = array('0' => 'Не устанавливать');
 
-                    $gameModesMainParsed = $this->editConfigCommon($id, 327, 'read');
+                    $gameModesMainParsed = $this->editConfigCommon($id, 327, 'read', null, true);
 
                     if ($gameModesMainParsed !== false)
                     {
@@ -8082,7 +8007,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
 
                 /* Пользовательский GameModes */
                 unset($this->request->data);
-                $gameModesUserParsed = $this->editConfigCommon($id, 326, 'read');
+                $gameModesUserParsed = $this->editConfigCommon($id, 326, 'read', null, true);
 
                 if ($gameModesUserParsed !== false) {
                     $gameModesUserParsed = $this->KvParser->GetArray($gameModesUserParsed);
@@ -8938,9 +8863,10 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                 $rootPath   = $server['GameTemplate'][0]['addonsPath'];
                 $userId     = $server['User'][0]['id'];
 
-
-                $this->request->data['Server'] = $server['Server'];
-                $this->request->data['Server']['configId'] = $configId;
+                if ($return === false){
+                    $this->request->data['Server'] = $server['Server'];
+                    $this->request->data['Server']['configId'] = $configId;
+                }
 
                 $data = array();
 
@@ -8978,7 +8904,7 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                 $this->Server->GameTemplate->id = $server['GameTemplate'][0]['id'];
                 $template = $this->Server->GameTemplate->read('id');
 
-                if (!empty($template['Config'])) {
+                if (!empty($template['Config']) and $return === false) {
                     $this->request->data['Server']['configType'] = 'server';
                 }
                 else
@@ -9513,6 +9439,12 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
         $this->DarkAuth->requiresAuth();
         if ($this->checkRights($id)) {
 
+            if (!empty($this->params['named']['ver'])) {
+                $ver = $this->params['named']['ver'];
+            } else {
+                $ver = null;
+            }
+
             $this->set('id', $id);
 
             Cache::set(array('duration' => '+2 minutes'));
@@ -9557,21 +9489,28 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                     $answer = $this->rconResult($id, $command, false, 'clean');
 
                     if ($answer !== false) {
-                        if ($answer !== '') {
-                            $this->Session->setflash("Ответ сервера: <br/>" . $answer, 'flash_success');
+                        if (trim($answer) !== '') {
+                            $this->Session->setflash("Ответ сервера: <br/>" . $answer, 'v2/flash_success');
                         } else {
                             $this->Session->setflash("Команда на смену карты отправлена успешно.<br/>" .
-                                "Смотрите статус сервера и логи, чтобы увидеть результат.", 'flash_success');
+                                "Смотрите статус сервера и логи, чтобы увидеть результат.", 'v2/flash_success');
                         }
                     } else {
                         $this->Session->setflash('Возникла ошибка при выполнении команды. ' .
-                            'Проверьте наличие и правильность RCON-пароля.', 'flash_error');
+                            'Проверьте наличие и правильность RCON-пароля.', 'v2/flash_error');
                     }
                 } else {
-                    $this->Session->setflash('Неизвестная команда', 'flash_error');
+                    $this->Session->setflash(__('Unknown error'), 'v2/flash_error');
                 }
 
                 $this->set('refresh', true);
+            }
+
+            // Редирект для панели v1
+            if (null === $ver) {
+                return $this->render();
+            } else {
+                return $this->render(sprintf('v%d/set_map_rcon', $ver));
             }
 
         }

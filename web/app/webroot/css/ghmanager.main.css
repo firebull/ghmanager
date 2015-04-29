@@ -53,6 +53,30 @@ body {
 	color: #d95c5c;
 }
 
+.blue {
+    color: #458ac6;
+}
+
+.item .header.green {
+    color: #5bbd72 !important;
+}
+
+.item .header.yellow {
+    color: #f2c61f !important;
+}
+
+.item .header.orange {
+    color: #e07b53 !important;
+}
+
+.item .header.red {
+    color: #d95c5c !important;
+}
+
+.item .header.blue {
+    color: #458ac6 !important;
+}
+
 .console {
 	background-color: #272822;
 	color: #eee;
@@ -82,4 +106,24 @@ a {cursor: pointer;}
 
 .fluid {
 	width: 100%;
+}
+
+#body {
+    position: relative;
+    min-height: 100%;
+}
+
+* html #body
+{
+height: 100%;
+}
+
+#content
+{
+padding-bottom: 5em;
+}
+
+footer {
+    position: relative;
+    margin-top: -3.5em;
 }

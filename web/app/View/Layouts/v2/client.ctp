@@ -49,6 +49,7 @@
 
 		echo $this->Html->script(array(
 			'jquery-2.1.3.js',
+			//'jquery-ui-1.11.3',
 			'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js',
 			'knockout-3.3.0.js',
 			'semantic.1.11.6.js',
@@ -66,43 +67,54 @@
 	<![endif]-->
 </head>
 <body>
-	<!-- Top Menu start -->
-	<?php echo $this->element('v2/top_menu'); ?>
-	<!-- Top Menu end -->
-	<div style="padding-top: 50px !important;"></div>
-	<?php echo $this->fetch('content'); ?>
+	<div id="body">
+		<div id="content">
+			<!-- Top Menu start -->
+			<?php echo $this->element('v2/top_menu'); ?>
+			<!-- Top Menu end -->
+			<div style="padding-top: 50px !important;"></div>
+			<?php echo $this->fetch('content'); ?>
 
+			<?php
+					echo $this->Js->writeBuffer(); // Write cached scripts
+			?>
+			<div class="ui small modal" id="confirmModal">
+		        <i class="close icon"></i>
+		        <div class="header"></div>
+		        <div class="content"><div class="description"></div></div>
+		        <div class="actions">
+		            <div class="ui red basic button">Отмена</div>
+		            <div class="ui green ok button">OK</div>
+		        </div>
+		    </div>
+			<?php
+			// Скрипты в конец для более быстрой загрузки
 
+			echo $this->Html->script(array (
+				'pass'
+				//,'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js'
+				,'jquery.tipTip.minified'
+				,'jquery.showLoading.min.js'
+				,'jquery.validationEngine.js'
+				,'jquery.validationEngine-ru.js'
+				,'jquery.showStatusTs'
+				,'sweet-alert.min'
 
-	<?php
-			echo $this->Js->writeBuffer(); // Write cached scripts
-	?>
-	<div class="ui small modal" id="confirmModal">
-        <i class="close icon"></i>
-        <div class="header"></div>
-        <div class="content"><div class="description"></div></div>
-        <div class="actions">
-            <div class="ui red basic button">Отмена</div>
-            <div class="ui green ok button">OK</div>
-        </div>
-    </div>
-	<?php
-	// Скрипты в конец для более быстрой загрузки
+			));
 
-	echo $this->Html->script(array (
-		'pass'
-		//,'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js'
-		,'jquery.tipTip.minified'
-		,'jquery.showLoading.min.js'
-		,'jquery.validationEngine.js'
-		,'jquery.validationEngine-ru.js'
-		,'jquery.showStatusTs'
-		,'sweet-alert.min'
+			echo "\n\n";
 
-	));
-
-	echo "\n\n";
-
-	?>
+			?>
+		</div>
+	</div>
+	<footer>
+		<div class="ui padded grid">
+			<div class="white centered row">
+				<div class="ten wide center aligned column">
+					GH Mananger © 2010-2015 by Nikita Bulaev
+				</div>
+			</div>
+		</div>
+	</footer>
 </body>
 </html>

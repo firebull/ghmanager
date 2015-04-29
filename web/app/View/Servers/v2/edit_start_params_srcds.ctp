@@ -402,7 +402,7 @@
 
             echo $this->Form->input('id', ['type' => 'hidden']);
             ?>
-            <div class="ui checkbox" data-bind="event: {click: sendParam.bind(true, '#changeVac', false)}">
+            <div class="ui checkbox" data-bind="event: {click: sendParam.bind(true, '#changeVac', false, false)}">
                 <?php echo $this->Form->input('vac', ['type'  => 'checkbox',
                                                       'id'    => 'vac',
                                                       'label' => false,
@@ -414,13 +414,14 @@
         <div class="column" style="width: 49.9% !important;">
             <!-- Nomaster -->
             <?php
-            echo $this->Form->create('Server', ['url' => ['action' => 'switchParam', 'nomaster'],
+            echo $this->Form->create('Server', ['url' => ['action' => 'switchParam',
+                                                          'nomaster'],
                                                 'class'  => 'ui form',
                                                 'id'     => 'changeNomaster']);
 
             echo $this->Form->input('id', ['type' => 'hidden']);
             ?>
-            <div class="ui checkbox" data-bind="event: {click: sendParam.bind(true, '#changeNomaster', false)}">
+            <div class="ui checkbox" data-bind="event: {click: sendParam.bind(true, '#changeNomaster', false, false)}">
                 <?php echo $this->Form->input('nomaster', ['type'  => 'checkbox',
                                                            'id'    => 'nomaster',
                                                            'label' => false,
@@ -441,19 +442,22 @@
 
             echo $this->Form->input('id', ['type' => 'hidden']);
             ?>
-            <div class="ui checkbox" data-bind="event: {click: sendParam.bind(true, '#changeAutoupdate', '#autoUpdateConfirm', true)}">
-                <?php echo $this->Form->input('autoupdate', ['type'  => 'checkbox',
-                                                      'id'    => 'vac',
+            <div class="ui checkbox" data-bind="event: {click: sendParamWithConfirm.bind(true, '#changeAutoupdate', '#autoUpdateConfirm', true)}">
+                <?php echo $this->Form->input('autoUpdate', ['type'  => 'checkbox',
+                                                      'id'    => 'autoupdate',
                                                       'label' => false,
                                                       'div'   => false]);?>
                 <label>Автоматическое обновление</label>
             </div>
             <?php echo $this->Form->end(); ?>
             <div style="display: none;" id="autoUpdateConfirm">
-Вы уверены, что хотите включить автоматическое обновление сервера?
-
-Это приведет к существенной задержке при запуске сервера - от 30 секунд до нескольких минут.
-Также скрипт автоматического поднятия сервера может ложно сработать и попытаться перегрузить сервер.
+                <div class="confirm_title">
+                    Вы уверены, что хотите включить автоматическое обновление сервера?
+                </div>
+                <div class="confirm_text">
+                    <p>Это приведет к существенной задержке при запуске сервера - от 30 секунд до нескольких минут.</p>
+                    <p>Также скрипт автоматического поднятия сервера может ложно сработать и попытаться перегрузить сервер.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -474,7 +478,7 @@
                 <label>Изменить игру сервера на:</label>
                 <div class="ui action input">
                     <select name="data[GameTemplate][id]" data-bind="options: gameTemplatesList, optionsText: 'name', optionsValue: 'id', value: gameTemplateId"></select>
-                    <button class="ui green button" id="changeGameButton" data-bind="event: {click: sendForm.bind(true, '#changeGame', '#gameChangeConfirm')}"><i class="checkmark icon"></i></button>
+                    <button class="ui green button" id="changeGameButton" data-bind="event: {click: sendFormWithConfirm.bind(true, '#changeGame', '#gameChangeConfirm')}"><i class="checkmark icon"></i></button>
                 </div>
             </div>
             <div id="gameChangeWarning" class="ui fluid popup">
@@ -490,18 +494,20 @@
                 текущим приватным режимом сервера.</p>
             </div>
             <div id="gameChangeConfirm" style="display: none;">
-Вы уверены, что хотите сменить игру сервера?
-
-Все текущие настройки будут сохранены, вы сможете к ним вернуться при смене игры на нынешнюю.
-
-Обращаем ваше внимание, что смену игры можно производить не чаще одного раза в сутки.!
+                <div class="confirm_title">
+                    Вы уверены, что хотите сменить игру сервера?
+                </div>
+                <div class="confirm_text">
+                    <p>Все текущие настройки будут сохранены, вы сможете к ним вернуться при смене игры на нынешнюю.</p>
+                    <p>Обращаем ваше внимание, что смену игры можно производить не чаще одного раза в сутки!</p>
+                </div>
             </div>
             <?php echo $this->Form->end(); ?>
         </div>
     </div>
     <div class="ui row">
         <div class="column">
-            <button class="ui red fluid button">Сбросить настройки</button>
+            <button class="ui red fluid button" data-bind="event: {click: reInit.bind(false)}">Сбросить настройки</button>
         </div>
     </div>
 </div>
@@ -576,16 +582,12 @@
         this.csgoTickRates = ko.observableArray(['64', '66', '100', '128']);
         this.currentTick   = ko.observable("<?php echo $this->data['Server']['tickrate'];?>");
 
-        this.sendForm = function(formId, confirmId){
+        this.sendForm = function(formId, callback){
             var self = this;
             var url  = $(formId).attr('action');
 
-            if (confirmId !== undefined && confirmId !== false){
-                var confirmText = $(confirmId).html();
-                if (!confirm(confirmText))
-                {
-                    return false;
-                }
+            if (callback === false){
+                callback = function(){};
             }
 
             self.loading(true);
@@ -631,18 +633,38 @@
 
         }.bind(this);
 
-        this.sendParam = function(formId, confirmId, onAction){
+        this.sendFormWithConfirm = function(formId, confirmId, onAction){
             var self = this;
             var url  = $(formId).attr('action');
 
-            if (confirmId !== undefined
-                    && confirmId !== false
-                    && $(formId).checkbox('is checked') !== onAction){
-                var confirmText = $(confirmId).html();
-                if (!confirm(confirmText))
-                {
-                    return false;
-                }
+            var confirmTitle = $(confirmId + ' .confirm_title').html();
+            var confirmText = $(confirmId + ' .confirm_text').html();
+
+            swal({
+                  title: confirmTitle,
+                  text: confirmText,
+                  type: "warning",
+                  showCancelButton: true,
+                  closeOnConfirm: true,
+                  confirmButtonText: "<?php echo __('Yes, I am sure');?>",
+                  cancelButtonText: "<?php echo __('No');?>",
+                  confirmButtonColor: "#ec6c62"
+                }, function() {
+                    self.sendForm(formId, function(error, data){
+                        if (error !== false){
+                            swal("<?php echo __('Error');?>", error, "error");
+                        }
+                    });
+                });
+
+        }.bind(this);
+
+        this.sendParam = function(formId, onAction, callback){
+            var self = this;
+            var url  = $(formId).attr('action');
+
+            if (callback === false){
+                callback = function(){};
             }
 
             if ($(formId).checkbox('is checked') === true){
@@ -683,6 +705,7 @@
                         }
 
                         self.loading(false);
+                        callback(false, true);
                     })
              .fail( function(data, status, statusText) {
                 if (data.status == 401){
@@ -691,12 +714,43 @@
                     answer = "HTTP Error: " + statusText;
                     self.errors.push(answer);
                     self.loading(false);
+                    callback(answer, false);
                 }
              })
              .always(function(){
                 $(formId).removeClass('loading');
              });
 
+        }.bind(this);
+
+        this.sendParamWithConfirm = function(formId, confirmId, onAction){
+            var self = this;
+            var url  = $(formId).attr('action');
+
+            if ($(formId).checkbox('is checked') !== onAction)
+            {
+                var confirmTitle = $(confirmId + ' .confirm_title').html();
+                var confirmText = $(confirmId + ' .confirm_text').html();
+
+                swal({
+                      title: confirmTitle,
+                      text: confirmText,
+                      type: "warning",
+                      showCancelButton: true,
+                      closeOnConfirm: true,
+                      confirmButtonText: "<?php echo __('Yes, I am sure');?>",
+                      cancelButtonText: "<?php echo __('No');?>",
+                      confirmButtonColor: "#ec6c62"
+                    }, function() {
+                        self.sendParam(formId, onAction, function(error, data){
+                            if (error !== false){
+                                swal("<?php echo __('Error');?>", error, "error");
+                            }
+                        });
+                    });
+            } else {
+                self.sendParam(formId, onAction, false);
+            }
         }.bind(this);
 
         this.toggleSend = function(formId){
@@ -764,6 +818,32 @@
             };
 
             return true;
+        }.bind(this);
+
+        this.reInit = function(orderId){
+            var self = this;
+
+            swal({
+              title: "<?php echo __('Confirm server recreation!');?>",
+              text: "<?php echo __('Are you sure, that you want to recreate this server? All data and parameters wil be deleted!');?>",
+              type: "warning",
+              showCancelButton: true,
+              closeOnConfirm: false,
+              confirmButtonText: "<?php echo __('Yes, I am sure');?>",
+              cancelButtonText: "<?php echo __('No');?>",
+              confirmButtonColor: "#ec6c62"
+            }, function() {
+              $.ajax({
+                url: "/servers/reInit/" + self.serverId(),
+                type: "PUT"
+              })
+              .done(function(data) {
+                window.location.href = "/servers";
+              })
+              .error(function(data) {
+                swal("<?php echo __('Error');?>", "<?php echo __('Could not connect to server');?>", "error");
+              });
+            });
         }.bind(this);
 
         this.countRent = function(){

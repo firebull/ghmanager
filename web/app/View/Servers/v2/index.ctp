@@ -6,9 +6,9 @@
             <div class="ui top attached block header" data-bind="visible: gameServers().length > 0">Игровые серверы</div>
             <div class="ui divided selection list" data-bind="visible: gameServers().length > 0, foreach: {data: gameServers, afterRender: defineSelected.bind($data, 'game')}">
 
-                <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'game')}">
+                <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'game')}, css: {'active': $root.selectedServer() == $index() && $root.selectedType() == 'game'}">
                     <div class="ui tiny_gh image">
-                        <img class="ui tiny_gh image" data-bind="visible: Status.image, attr: {src: Status.image}" />
+                        <img class="ui tiny_gh rounded image" data-bind="visible: Status.image, attr: {src: Status.image}" />
                         <img class="ui tiny_gh image" data-bind="visible: !Status.image ,attr: {src: '/img/icons/servers/big/' + $root.serverIcon(GameTemplate['name'])}" src="/img/personage01.png"/>
                     </div>
                     <div class="content top aligned" data-bind="template: {name: 'render-server-item'}"></div>
@@ -18,7 +18,7 @@
             <div class="ui top attached block header" data-bind="visible: voiceServers().length > 0">Голосовые серверы</div>
             <div class="ui divided selection list" data-bind="visible: voiceServers().length > 0">
                 <!-- ko foreach: voiceServers -->
-                <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'voice')}">
+                <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'voice')}, css: {'active': $root.selectedServer() == $index() && $root.selectedType() == 'voice'}">
                     <div class="ui mini_gh image">
                       <img class="ui tiny_gh image" src="/img/bigicons/mumble.png">
                     </div>
@@ -29,7 +29,7 @@
             <div class="ui top attached block header" data-bind="visible: eacServers().length > 0">Серверы EAC</div>
             <div class="ui divided selection list" data-bind="visible: eacServers().length > 0">
                 <!-- ko foreach: eacServers -->
-                <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'eac')}">
+                <div class="item" data-bind="event: {click: $root.setSelected.bind($data, 'eac')}, css: {'active': $root.selectedServer() == $index() && $root.selectedType() == 'eac'}">
                     <div class="ui mini_gh image">
                       <img class="ui tiny_gh image" src="/img/bigicons/eac.png">
                     </div>
@@ -77,7 +77,7 @@
 </div>
 
 <script type="text/html" id="render-server-item">
-    <div class="header">
+    <div class="header" data-bind="css: {'orange': $root.renderedServer().Server !== undefined && $root.renderedServer().Server.id == Server.id}">
         <span data-bind="text: '#' + Server.id"></span> <span data-bind="text: Server.name"></span><span data-bind="text: GameTemplate.longname, visible: !Server.name"></span>
     </div>
     <div class="description" data-bind="visible: Server.address && Server.port"><span data-bind="html: '<b>Адрес:</b> ' + Server.address + ':' + Server.port"></span></div>
@@ -287,7 +287,14 @@
                             <b>Имя:</b>
                             <span data-bind="text: renderedServer().Status.serverName"></span>
                         </div>
-                        <div class="description" data-bind="visible: renderedServer().Status.mapName, html: '<b>Карта:</b> ' + renderedServer().Status.mapName"></div>
+                        <div class="description" data-bind="visible: renderedServer().Status.mapName">
+                            <b>Карта:</b>
+                            <span data-bind="visible: renderedServer().Type.name != 'srcds', text: renderedServer().Status.mapName"></span>
+                            <a data-bind="visible: renderedServer().Type.name == 'srcds', event: {click: $root.showModal.bind($data, 'small', '<?php echo __("Change map on working server");?>', '/servers/setMapRcon/' + renderedServer().Server.id)}">
+                                <span data-bind="text: renderedServer().Status.mapName"></span>
+                                <i class="external share icon"></i>
+                            </a>
+                        </div>
                         <div class="description">
                             <span data-bind="visible: renderedServer().Server.slots, html: $root.showSlots(renderedServer().Server.slots, renderedServer().Status.numberOfPlayers)"></span>
                         </div>
@@ -548,23 +555,23 @@
 
             this.serverStatus = function(Server, state){
                 if (Server.status == 'stoped' || Server.status == 'stopped') {
-                    return 'Выключен';
+                    return '<?php echo __("Stopped");?>';
                 } else if (Server.status == 'update_started') {
-                    return 'Обновление';
+                    return '<?php echo __("Updating");?>';
                 } else if (Server.status == 'update_error' || Server.status == 'exec_error') {
-                    return 'Ошибка';
+                    return '<?php echo __("Error");?>';
                 } else if (Server.status == 'exec_success') {
                     if (state.error !== undefined) {
                         if (moment().diff(Server.statusTime, 'minutes', true) < 5){
-                            return 'Запускается';
+                            return '<?php echo __("Starting");?>';
                         } else {
-                            return 'Ошибка';
+                            return '<?php echo __("Error");?>';
                         }
                     } else {
-                        return 'Работает';
+                        return '<?php echo __("Working");?>';
                     }
                 } else {
-                    return 'Неизвестно'
+                    return '<?php echo __("Unknown");?>'
                 }
 
             };

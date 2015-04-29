@@ -269,17 +269,23 @@
 	                    }
 	                    else
 	                    {
-	                        if (answer.installedMod !== undefined
+	                        var installed = [];
+                            var available = [];
+
+                            if (answer.installedMod !== undefined
 	                        		&& answer.installedMod.length > 0
 	                        		&& answer.modsList !== undefined)
 	                        {
 	                        	$.each(answer.modsList, function(id, item){
 	                        		if (Number($.inArray(item.Mod.id, answer.installedMod)) >= 0){
-	                        			self.installedMods.push(item);
+	                        			installed.push(item);
 	                        		} else {
-	                        			self.availiableMods.push(item);
+	                        			available.push(item);
 	                        		}
 	                        	})
+
+                                self.installedMods(installed);
+                                self.availiableMods(available);
 	                        }
 	                        else
 	                        if (answer.modsList !== undefined
@@ -292,13 +298,19 @@
 	                        		&& answer.installedPlugins.length > 0
 	                        		&& answer.pluginsList !== undefined)
 	                        {
-	                        	$.each(answer.pluginsList, function(id, item){
+	                        	var installed = [];
+                                var available = [];
+
+                                $.each(answer.pluginsList, function(id, item){
 	                        		if (Number($.inArray(item.Plugin.id, answer.installedPlugins)) >= 0){
-	                        			self.installedPlugins.push(item);
+	                        			installed.push(item);
 	                        		} else {
-	                        			self.availiablePlugins.push(item);
+	                        			available.push(item);
 	                        		}
 	                        	})
+
+                                self.installedPlugins(installed);
+                                self.availiablePlugins(available);
 	                        }
 	                        else
 	                        if (answer.pluginsList !== undefined

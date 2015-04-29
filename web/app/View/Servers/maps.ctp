@@ -11,7 +11,7 @@
 <div class="ui negative message" data-bind="visible: errors().length > 0">
     <ul data-bind="foreach: {data: errors, as: 'error'}">
         <li>
-            <span data-bind="text: error"></span>:
+            <span data-bind="html: error"></span>:
         </li>
     </ul>
 </div>
@@ -48,7 +48,7 @@
             <div class="right floated compact ui orange button" data-bind="event: {click: $root.action.bind($data, 'delete')}"><i class="remove circle icon"></i> Удалить</div>
             <!-- /ko -->
             <div class="ui red pointing right floated label" data-bind="visible: $root.showErrorLabel() == item.id">Ошибка</div>
-            <img class="ui top aligned tiny image" src="/img/personage01.png" data-bind="if: item.image, attr: {'src': item.image}">
+            <img class="ui top aligned tiny rounded image" src="/img/personage01.png" data-bind="if: item.image, attr: {'src': item.image}">
             <a class="content" data-bind="event: {click: $root.showDescAction.bind($data)}">
                 <div class="header">
                     <span data-bind="text: item.name"></span>
@@ -60,7 +60,7 @@
             </a>
             <div class="ui secondary inverted segment" data-bind="visible: $root.showDesc() == item.id">
                 <!-- ko if: item.image -->
-                <img class="ui left floated image" data-bind="if: item.image, attr: {'src': item.image}">
+                <img class="ui left floated rounded image" data-bind="if: item.image, attr: {'src': item.image}">
                 <!-- /ko -->
                 <!-- ko if: !item.image -->
                 <img class="ui left floated image" src="/img/personage01.png">
@@ -83,7 +83,7 @@
             <div class="right floated compact ui green button" data-bind="event: {click: $root.action.bind($data, 'install')}"><i class="download icon"></i> Установить</div>
             <div class="ui red pointing right floated label" data-bind="visible: $root.showErrorLabel() == item.id">Ошибка</div>
             <!-- ko if: item.image -->
-            <img class="ui top aligned tiny image" src="/img/personage01.png" data-bind="if: item.image, attr: {'src': item.image}">
+            <img class="ui top aligned tiny rounded image" src="/img/personage01.png" data-bind="if: item.image, attr: {'src': item.image}">
             <!-- /ko -->
             <a class="content" data-bind="event: {click: $root.showDescAction.bind($data)}">
                 <div class="header">
@@ -95,7 +95,7 @@
             </a>
             <div class="ui secondary inverted segment" data-bind="visible: $root.showDesc() == item.id">
                 <!-- ko if: item.image -->
-                <img class="ui left floated image" src="/img/personage01.png" data-bind="if: item.image, attr: {'src': item.image}">
+                <img class="ui left floated rounded image" src="/img/personage01.png" data-bind="if: item.image, attr: {'src': item.image}">
                 <!-- /ko -->
                 <!-- ko if: !item.image -->
                 <img class="ui left floated image" src="/img/personage01.png">
