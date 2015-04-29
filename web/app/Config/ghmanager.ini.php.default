@@ -7,9 +7,12 @@ vendor.meta = Game Hosting Manager - control panel for full control of Game host
 language = rus
 
 [Links]
-site   = http://www.example.com
-blog   = http://blog.example.com
-oferta = http://www.example.com/aboutus/dogovor
+site   = http://www.example.local
+blog   = http://blog.example.local
+oferta = http://www.example.local/aboutus/dogovor
+
+; News feed in RSS format
+news   = http://blog.example.local/?feed=rss2
 
 [Redis]
 address  =

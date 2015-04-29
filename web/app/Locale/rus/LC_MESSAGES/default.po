@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GH Manager\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2015-04-24 17:22+0300\n"
+"PO-Revision-Date: 2015-04-28 17:42+0300\n"
 "Last-Translator: Nikita Bulaev <djfirebull@gmail.com>\n"
 "Language-Team: RUS <djfirebull@gmail.com>\n"
 "Language: ru\n"
@@ -53,6 +53,10 @@ msgstr "Доступ к чужим серверам запрещен"
 msgid "Order number not given"
 msgstr "Не указан номер заказа"
 
+#: Controller/ServersController.php:4576
+msgid "Invalid type"
+msgstr ""
+
 #: Controller/ServersController.php:5558
 msgid "Server password to which HLTV is connected"
 msgstr ""
@@ -69,31 +73,31 @@ msgstr ""
 msgid "Try to write RCON HLTV password"
 msgstr ""
 
-#: Controller/ServersController.php:8993
+#: Controller/ServersController.php:8988
 msgid "Only server configs can be created"
 msgstr ""
 
-#: Controller/ServersController.php:9040
+#: Controller/ServersController.php:9034
 msgid ""
 "Current config is absent on you server. You can write text and save data or "
 "create New config from our template if exists."
 msgstr ""
 
-#: Controller/ServersController.php:9050
+#: Controller/ServersController.php:9044
 msgid "Config was created, Reopen it."
 msgstr ""
 
-#: Controller/ServersController.php:9054
+#: Controller/ServersController.php:9048
 msgid ""
 "No template for current config. If you thing that it's wrong, write us, "
 "please."
 msgstr ""
 
-#: Controller/ServersController.php:9058;9069
+#: Controller/ServersController.php:9052;9063
 msgid "Unknown error occured: %s"
 msgstr ""
 
-#: Controller/ServersController.php:9067
+#: Controller/ServersController.php:9061
 msgid "Config was saved, Reopen it."
 msgstr "Конфиг сохранён, откройте его снова."
 
@@ -337,6 +341,154 @@ msgstr ""
 msgid "New Support Ticket"
 msgstr ""
 
+#: View/Users/action_log.ctp:14
+msgid "Warning"
+msgstr "Внимание"
+
+#: View/Users/action_log.ctp:15 View/Users/home.ctp:200;206
+msgid "Error"
+msgstr "Ошибка"
+
+#: View/Users/action_log.ctp:17
+msgid "Client"
+msgstr "Клиент"
+
+#: View/Users/action_log.ctp:18
+msgid "By token"
+msgstr "По токену"
+
+#: View/Users/action_log.ctp:19
+msgid "Administrator"
+msgstr "Администратор"
+
+#: View/Users/action_log.ctp:20
+msgid "Script"
+msgstr "Скрипт"
+
+#: View/Users/action_log.ctp:26
+msgid "Action log"
+msgstr "Журнал действий"
+
+#: View/Users/action_log.ctp:31
+msgid "Description"
+msgstr "Описание"
+
+#: View/Users/action_log.ctp:32
+msgid "Initiator"
+msgstr "Инициатор"
+
+#: View/Users/action_log.ctp:33
+msgid "IP"
+msgstr ""
+
+#: View/Users/action_log.ctp:34
+msgid "Date and Time"
+msgstr "Дата и время"
+
+#: View/Users/action_log.ctp:35
+msgid "Status"
+msgstr "Статус"
+
+#: View/Users/home.ctp:11
+msgid "Loading data"
+msgstr "Загружаю данные"
+
+#: View/Users/home.ctp:19
+msgid "Your servers"
+msgstr "Ваши серверы"
+
+#: View/Users/home.ctp:22;47;84
+msgid "Proceed"
+msgstr "Перейти"
+
+#: View/Users/home.ctp:39
+msgid "You do not have servers yet. Click \"Order new server\" in top panel."
+msgstr "У вас пока нет серверов. Нажмите \"Заказать сервер\" в верхнем меню."
+
+#: View/Users/home.ctp:44
+msgid "Your opened tickets"
+msgstr "Ваши открытые тикеты"
+
+#: View/Users/home.ctp:74
+msgid "You do not have opened tickets."
+msgstr "У вас нет открытых тикетов."
+
+#: View/Users/home.ctp:81
+msgid "Your last orders"
+msgstr "Ваши последние заказы"
+
+#: View/Users/home.ctp:99
+msgid "You do not have created orders yet."
+msgstr "У вас нет заказов"
+
+#: View/Users/home.ctp:104
+msgid "Last news"
+msgstr "Последние новости"
+
+#: View/Users/home.ctp:107
+msgid "All news"
+msgstr "Все новости"
+
+#: View/Users/home.ctp:123
+msgid "No news yet."
+msgstr "Пока нет новостей."
+
+#: View/Users/home.ctp:130
+msgid "Last actions log"
+msgstr ""
+
+#: View/Users/home.ctp:133
+msgid "Show all"
+msgstr "Показать все"
+
+#: View/Users/home.ctp:147
+msgid "Action log is empty."
+msgstr ""
+
+#: View/Users/home.ctp:152
+msgid "Last attacks log"
+msgstr ""
+
+#: View/Users/home.ctp:156
+msgid "Attacks log is empty."
+msgstr ""
+
+#: View/Users/home.ctp:196
+msgid "Stopped"
+msgstr "Выключен"
+
+#: View/Users/home.ctp:198
+msgid "Updating"
+msgstr "Обновляется"
+
+#: View/Users/home.ctp:204
+msgid "Starting"
+msgstr "Запускается"
+
+#: View/Users/home.ctp:209
+msgid "Working"
+msgstr "Включен"
+
+#: View/Users/home.ctp:212
+msgid "Unknown"
+msgstr "Неизвестно"
+
+#: View/Users/home.ctp:245
+msgid "Personal balance refill"
+msgstr "Пополнение личного счёта"
+
+#: View/Users/home.ctp:247
+msgid "Server rent"
+msgstr "Аренда сервера"
+
+#: View/Users/home.ctp:253
+msgid "Payed"
+msgstr "Оплачен"
+
+#: View/Users/home.ctp:255
+msgid "Unpayed"
+msgstr "Неоплачен"
+
 #: Model/Action.php:validation for field ip
 msgid "ip"
 msgstr ""
@@ -486,6 +638,3 @@ msgstr "Может быть только ссылка"
 
 #~ msgid "Type your message here"
 #~ msgstr "Напишите свой ответ тут"
-
-#~ msgid "Status"
-#~ msgstr "Статус"

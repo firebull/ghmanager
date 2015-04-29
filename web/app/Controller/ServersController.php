@@ -4573,7 +4573,7 @@ class ServersController extends AppController {
                         break;
 
                     default:
-                        $request = "~client" . $userId . "/.server_" . $action . "_" . $serverId . ".sh";
+                        throw new BadRequestException(__('Invalid type'));
                         break;
                 }
 
@@ -8772,7 +8772,8 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                 $this->Server->id = $id;
                 $this->Server->contain(['GameTemplate' => ['fields' => 'id, name'],
                                         'Type'         => ['fields' => 'id, name'],
-                                        'User'         => ['fields' => 'id']]);
+                                        'User'         => ['fields' => 'id'],
+                                        'RootServer'   => ['fields' => 'id, authKey']]);
 
                 $server = $this->Server->read();
 
@@ -8783,29 +8784,23 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
                 $serverType = $server['Type'][0]['name'];
                 $userId     = $server['User'][0]['id'];
 
-                $requestStr = "/~client" . $userId . "/common/.mumble_change_root_pass.py";
-                $data = "action=change&id=" . $serverId;
 
-                $HttpSocket = new HttpSocket();
-                $response = $HttpSocket->get('http://' . $server['Server']['address'] . $requestStr, $data);
+                $data = ['action'  => 'change'];
 
-                if (!$response)
+                $request = sprintf("/servers/mumblePass/%d/?auth=%s&lang=%s",
+                                    $id,
+                                    $server['RootServer'][0]['authKey'],
+                                    $this->TeamServer->getLang());
+
+                if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
                 {
-                    $this->Session->setFlash("Невозможно подключиться к серверу: <br />\n" . "$errstr ($errno)<br />\n", 'flash_error');
+                    $this->set('newPass', $result);
+                    $this->Session->setFlash("Запомните новый пароль: <strong>" . $result . "</strong><br/>\n Если вы потеряете пароль, его необходимо будет сгенерировать снова.", 'v2/flash_success');
+
                 }
                 else
                 {
-                    $responsecontent = $response->body();
-
-                    $var = eregi("<!-- RESULT START -->(.*)<!-- RESULT END -->", $responsecontent, $out);
-                    $responsecontent = trim($out[1]);
-
-                    if ($responsecontent !== 'error') {
-                        $this->set('newPass', $responsecontent);
-                        $this->Session->setFlash("Запомните новый пароль: <strong>" . $responsecontent . "</strong><br/>\n Если вы потеряете пароль, его необходимо будет сгенерировать снова.", 'flash_success');
-                    } else {
-                        $this->Session->setFlash("Произошла ошибка. Попробуйте позднее." . $responsecontent, 'flash_error');
-                    }
+                    $this->set('newPass', "");
                 }
 
                 return $this->redirect(array('action' => 'result'));
@@ -9181,59 +9176,46 @@ CleanXML=' . $newParams['RadioShoutcastParam']['CleanXML'] . '
              */
             if (empty($server['Server']['rconPassword']) && !$this->Session->check('rconPassword.' . $id)) {
                 /*******************************/
+                if ($getRconPass === true) {
+                    $data = ['action'  => 'read',
+                             'p' => 'rcon_password',
+                             'val'   => 'None',
+                             'desc'  => 'None',
+                             'conf'  => $config,
+                             'path'  => $rootPath . '/' . $configPath,
+                             'd' => $delim];
 
-                // Подготовить запрос для webGet
-                $data = "action=get" .
-                "&pass=none" .
-                "&config=/home/client" . $userId .
-                "/servers/" . $serverTemplate . "_" . $id . "/" .
-                $rconConfig;
+                    $request = sprintf("/servers/readWriteParam/%d/?auth=%s&lang=%s",
+                                        $id,
+                                        $server['RootServer'][0]['authKey'],
+                                        $this->TeamServer->getLang());
 
-                $request = "~client" . $userId . "/common/.rcon_pass_change.py?" . $data;
-                $response = $this->TeamServer->webGet($serverIp, 0, $request);
-
-                if ($response !== false) {
-
-                    $var = eregi("<!-- PASS START -->(.*)<!-- PASS END -->", $response, $out);
-                    $response = trim($out[1]);
-
-                    if ($response !== 'error') {
-
-                        if ($response === 'nopass') {
+                    if ($result = $this->TeamServer->parseJsonResponse($server['Server']['address'] . ':8887', $request, $data))
+                    {
+                        $this->set('rconPassword', $result->paramValue);
+                        if ($result->paramValue == ""){
                             $this->set('rconResult', $msgNoPass);
 
                             // Возврат ответа в функцию без рендеринга
                             if ($return === 'clean') {
                                 return false;
                             }
-                        } elseif ($response === 'nofile') {
-                            $this->set('rconResult', $msgNoFile);
-
-                            // Возврат ответа в функцию без рендеринга
-                            if ($return === 'clean') {
-                                return false;
-                            }
-                        } else //Иначе считаем ответ сервера паролем.
+                        }
+                        else //Иначе считаем ответ сервера паролем.
                         {
                             // И пишем его в сессию
-                            $this->Session->write('rconPassword.' . $id, $response);
-                            $rconPassword = $response;
+                            $this->Session->write('rconPassword.' . $id, $result->paramValue);
+                            $rconPassword = $result->paramValue;
                         }
-                    } else {
+                    }
+                    else
+                    {
                         $this->Session->setFlash("Произошла ошибка. Попробуйте позднее. " . $response, 'flash_error');
 
                         // Возврат ответа в функцию без рендеринга
                         if ($return === 'clean') {
                             return false;
                         }
-                    }
-
-                } else {
-                    $this->set('rconResult', '<strong>Не удалось прочесть файл конфигурации.</strong>');
-
-                    // Возврат ответа в функцию без рендеринга
-                    if ($return === 'clean') {
-                        return false;
                     }
                 }
 

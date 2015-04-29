@@ -25,11 +25,11 @@
 //	Router::connect('/client/', array('controller' => 'pages', 'action' => 'display', 'home'));
 //	Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home'));
 //	Router::connect('/client/', array('controller' => 'servers', 'action' => 'index'));
-	Router::connect('/', array('controller' => 'servers', 'action' => 'index'));
+	Router::connect('/', array('controller' => 'users', 'action' => 'home'));
 /**
  * ...and connect the rest of 'Pages' controller's urls.
  */
-//	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
+	Router::connect('/actionLog', array('controller' => 'users', 'action' => 'actionLog'));
 	Router::connect('/list', array('controller' => 'servers', 'action' => 'index'));
 	Router::connect('/login', array('controller'=>'users','action'=>'login'));
 	Router::connect('/logout', array('controller'=>'users','action'=>'logout'));

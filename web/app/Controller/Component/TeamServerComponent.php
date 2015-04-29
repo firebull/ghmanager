@@ -238,6 +238,50 @@ class TeamServerComponent extends Component {
         }
 	}
 
+	public function getNews(){
+
+        if (($newsParsed = Cache::read('news')) === false)
+        {
+
+            try {
+            	$xml = Xml::build(Configure::read('Links.news'), ['return' => 'domdocument']);
+				$array = Xml::toArray($xml);
+				$news = array();
+
+				if (!empty($array['rss']['channel']['item']))
+				{
+					$news = $array['rss']['channel']['item'];
+				}
+
+	            $newsParsed = array();
+
+	            foreach ($news as $key => $item) {
+	                $newsParsed[$key]['title'] = $item['title'];
+	                $newsParsed[$key]['link'] = $item['link'];
+	                $newsParsed[$key]['date'] = date("Y-m-d H:i:s", strtotime($item['pubDate']));
+	                $newsParsed[$key]['category'] = $item['category'];
+	                $newsParsed[$key]['desc'] = $item['description'];
+	                $newsParsed[$key]['author'] = $item['dc:creator'];
+	            }
+
+	            if (!empty($newsParsed))
+	            {
+	                Cache::write('news', $newsParsed);
+	            }
+	            else
+	            {
+	                Cache::write('news', array());
+	            }
+            } catch (Exception $e) {
+            	Cache::write('news', array());
+            	return array();
+            }
+
+        }
+
+        return $newsParsed;
+    }
+
 	/*
 	 * Функция запроса по HTTP, используя CURL
 	 */
