@@ -77,9 +77,11 @@ def addInfoToConfig(file, text, treeParam=False):
             os.rename(file, file + '.bak')
             cfgCur = open(file + '.bak', 'r')
             cfgNew = open(file, "w")
+            lastLine = "\n"
 
             for line in cfgCur:
                 lineFound = False
+                lastLine = line
                 for checkLine in check:
                     # print "Ищу строку >> " + checkLine
                     if checkLine != '' and re.search(re.escape(checkLine), line):
@@ -90,7 +92,7 @@ def addInfoToConfig(file, text, treeParam=False):
                     cfgNew.write(line.strip() + '\n')
 
             print "Вношу параметры"
-            if not line.endswith('\n'):
+            if not lastLine.endswith('\n'):
                 cfgNew.write('\n')
 
             '''
