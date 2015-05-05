@@ -18,13 +18,7 @@ module.exports = {
 
         var lang = req.getLocale();
 
-        if (!CommonService.checkAuth(req, res)){
-            res.status(403);
-            return res.json({   error: sails.__({
-                                        phrase: 'Ivalid Auth, forbidden access',
-                                        locale: lang})
-                            });
-        } else if (req.body === undefined){
+        if (req.body === undefined){
             res.status(500);
             return res.json({   error: sails.__({
                                         phrase: 'Ivalid request',
@@ -91,13 +85,7 @@ module.exports = {
 
         var lang = req.getLocale();
 
-        if (!CommonService.checkAuth(req, res)){
-            res.status(403);
-            return res.json({   error: sails.__({
-                                        phrase: 'Ivalid Auth, forbidden access',
-                                        locale: lang})
-                            });
-        } else if (req.body === undefined || req.body.configId === undefined){
+        if (req.body === undefined || req.body.configId === undefined){
             res.status(500);
             return res.json({   error: sails.__({
                                         phrase: 'Ivalid request',
@@ -183,13 +171,7 @@ module.exports = {
 
         var lang = req.getLocale();
 
-        if (!CommonService.checkAuth(req, res)){
-            res.status(403);
-            return res.json({   error: sails.__({
-                                        phrase: 'Ivalid Auth, forbidden access',
-                                        locale: lang})
-                            });
-        } else if (req.body === undefined){
+        if (req.body === undefined){
             res.status(500);
             return res.json({   error: sails.__({
                                         phrase: 'Ivalid request',
@@ -265,13 +247,7 @@ module.exports = {
 
         var lang = req.getLocale();
 
-        if (!CommonService.checkAuth(req, res)){
-            res.status(403);
-            return res.json({   error: sails.__({
-                                        phrase: 'Ivalid Auth, forbidden access',
-                                        locale: lang})
-                            });
-        } else if (req.body === undefined){
+        if (req.body === undefined){
             res.status(500);
             return res.json({   error: sails.__({
                                         phrase: 'Ivalid request',
