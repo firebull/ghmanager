@@ -137,7 +137,32 @@ $privateTypeId = $this->data['ServerTemplateUser']['privateType'];
             </tr>
         </tbody>
     </table>
-
+    <div class="ui horizontal divider">Оплата с лицевого счёта: доступно <span data-bind="text: balance"></span><i class="ruble icon"></i></div>
+    <div class="ui tertiary segment">
+        <div class="grouped inline fields">
+            <div class="field">
+                <div class="ui radio checkbox">
+                  <input type="radio" name="data[Order][payFrom]" value="out" id="personalAccNo" checked="checked" data-bind="checked: personalAcc">
+                  <label for="personalAccNo">Нет</label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="ui radio checkbox">
+                  <input type="radio" name="data[Order][payFrom]" value="full" id="personalAccFull" data-bind="checked: personalAcc, attr: {'disabled': balance() < totalCost()}">
+                  <label for="personalAccFull">Полностью</label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="ui radio checkbox">
+                  <input type="radio" name="data[Order][payFrom]" value="part" id="personalAccPart" data-bind="checked: personalAcc,  attr: {'disabled': balance() <= 0}">
+                  <label for="personalAccPart">Частично</label>
+                </div>
+            </div>
+            <div class="one wide field">
+                <input name="data[Order][partPayAmount]" id="personalAccPartAmount" placeholder="0.00" data-bind="attr: {'disabled': personalAcc() != 'part'}">
+            </div>
+        </div>
+    </div>
     <button class="ui fluid primary button">Продлить</button>
     <?php echo $this->Form->end(); ?>
 

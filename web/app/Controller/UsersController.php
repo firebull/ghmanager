@@ -248,8 +248,11 @@ class UsersController extends AppController {
                              'crashReboot', 'crashCount', 'crashTime', 'controlByToken'],
                ]);
 
+        $serverIps = array();
+
         // Format array to be more comfortable in JSON
         foreach ($userServers as $key => $server) {
+            $serverIps[] = $server['Server']['address'].':'.$server['Server']['port'];
             $userServers[$key]['Type'] = $server['Type'][0];
             $userServers[$key]['GameTemplate'] = $server['GameTemplate'][0];
             unset($server['Type'][0]);
@@ -259,7 +262,8 @@ class UsersController extends AppController {
         // Iptables attack Log
         Cache::set(array('duration' => '+20 minutes'));
 
-        if (($iptablesLogs = Cache::read('iptablesLogsForUser' . $user['User']['id'])) === false) {
+        if (!empty($serverIps)
+                and ($iptablesLogs = Cache::read('iptablesLogsForUser' . $user['User']['id'])) === false) {
 
             $iptablesLogs = array();
             if ($redis = $this->TeamServer->redisConnect(10))

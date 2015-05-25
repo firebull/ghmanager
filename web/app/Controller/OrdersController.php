@@ -1143,7 +1143,7 @@ class OrdersController extends AppController {
                             // Если нет оплаты с лицевого счёта:
                             $order['Order']['description'] = '';
                             // Установить привязку к серверу и к пользователю
-                            $order['User']['id'] = $server['User'][0]['id'];
+                            $order['Order']['user_id'] = $server['User'][0]['id'];
                             $order['Server']['id'] = $server['ServerTemplateUser']['id'];
 
                             $payFull = false;
